@@ -8,6 +8,7 @@ down:
 
 test: up       ## run the test bench against the running stack
 	docker compose --profile test run --rm --build tests
+	./tests/restart_check.sh
 
 logs:
 	docker compose logs -f gateway app

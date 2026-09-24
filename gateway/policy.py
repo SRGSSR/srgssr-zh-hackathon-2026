@@ -25,8 +25,9 @@ Three layers, all in this one CustomLogger (registered via litellm_settings.call
    api_base about to be used must equal the api_base configured for that deployment id.
    Anything else raises before a single byte leaves the gateway.
 
-Every decision and every attempt outcome is emitted as an event to the citizen app
-(EVENT_SINK_URL) and to stdout, which builds the per-job timeline.
+Every decision and every attempt outcome is emitted as an event: to stdout, and, for deferred
+requests, into the gateway's store (store.py), which serves the per-job timeline. The same
+request check (check_request) also runs when a deferred request is submitted (deferred.py).
 """
 
 import asyncio
@@ -81,6 +82,7 @@ FORBIDDEN_METADATA_KEYS = {
     "_policy_tried",
     "disable_fallbacks",
     "deferred_job_id",  # set only by the gateway's own deferred worker
+    "deferred_job_sig",
 }
 FORBIDDEN_HEADERS = {"x-litellm-tags"}
 
@@ -170,9 +172,13 @@ def _policy_from_md(md: dict) -> Optional[dict]:
 
 
 def _job_id(md: dict) -> Optional[str]:
-    """Id of the deferred job this attempt belongs to. Set only server side by deferred.py;
-    a client cannot set it (FORBIDDEN_METADATA_KEYS), so it cannot write into another job's timeline."""
-    return md.get("deferred_job_id")
+    """Id of the deferred job this attempt belongs to, or None. deferred.py attaches the id
+    together with an HMAC signature; an id without a valid signature (e.g. one a client put into
+    its request metadata, which layer 1 also rejects) is ignored, so no event is filed under it."""
+    job_id = md.get("deferred_job_id")
+    if _store is None or not _store.verify(job_id, md.get("deferred_job_sig")):
+        return None
+    return job_id
 
 
 def _raw_model(kwargs: dict) -> Optional[str]:

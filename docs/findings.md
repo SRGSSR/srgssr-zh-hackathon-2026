@@ -124,8 +124,38 @@ Listed in TL;DR 9 (`proxy/exp1_headers.py`, `out_exp1.txt`). After a fallback th
 - **LiteLLM, public:** the tag-pollution bug (router.py L2948, still present in v1.98.0), the `litellm_metadata.tags` bypass, the deployment-id bypass, no tag filtering on the sync path / usage-based v1 (still in v1.98.0), and the failure callback firing once per proxy request instead of once per attempt.
 - **chat.publicai.co:** see `upstream/` (tested on their rendered prod config, 10/10). It adds `model_info` pass-through, jurisdiction metadata on the Apertus deployments, an opt-in per-key/team policy hook and attribution headers (#33, #35). It also notes the stale chart image tag and the cost values read as strings.
 
-## 11. Not verified yet
-- Independent re-runs by a second person.
-- The injection against the Utility's exact `custom_auth` settings. We will **not** test it against production.
-- JSON mode on Apertus through the Public AI API.
-- Streaming behavior of the hooks.
+## 11. Waiting inside the gateway (deferred requests)
+
+Added after Phase 0: `gateway/deferred.py` moves the queue out of the app and into the gateway, so no application has to implement waiting itself.
+
+- **How it plugs in.** A LiteLLM callback module (`litellm_settings.callbacks`) is executed inside the proxy's startup. On import it adds routes to the proxy's FastAPI app (`/v1/deferred/...`) and starts a background worker on the running event loop. Tested on v1.98.0.
+- **Every attempt still goes through the policy.** The worker calls `llm_router.acompletion` with the server-side key and team metadata captured at submit time. The filter and the last-check hooks therefore run on every attempt. The proxy-level request check (layer 1) runs at submit. The routes use LiteLLM's normal key authentication. A job is visible only to the key that submitted it (404 for anyone else, 401 without a key).
+- **`allowed_routes` matches exact paths only.** Its matcher accepts exact strings or LiteLLM route-group names, so the deferred routes are fixed paths with the id in the query or body. A key with `allowed_routes` gets 403 on anything else (verified: `/v1/models`, `/v1/model/info`, `/key/info`).
+- **LiteLLM re-executes callback modules.** `get_instance_fn` has no cache and executes the module every time it resolves it. In our setup the module ran once, but worker state is kept in one process-wide object anyway.
+- **Timeline injection (found and fixed).** A client could file events under someone else's job id by putting it in the metadata of a request that is then rejected. LiteLLM's failure callback still sees that metadata. Job ids attached by the worker are now HMAC-signed with a per-process secret, and events are filed only under a verified id. `tests/test_deferred.py` covers it.
+- **Data minimisation.** The request body is deleted as soon as a job ends (done, failed, cancelled, expired). The result and the timeline stay for the caller to fetch.
+- **Restart.** `tests/restart_check.sh` restarts the gateway while a job waits. The job is still there after the restart and completes as soon as an approved endpoint returns, without any client action.
+
+## 12. Open questions to verify
+
+Grouped by what they would change. Nothing here is claimed as working in the README.
+
+**Deferred requests (gateway queue)**
+- [ ] **Official extension point.** Adding routes to the proxy app from a callback is not an official LiteLLM API. It can break on upgrade; the bench catches that. Check whether v1.98's new `RoutingPlugin` pipeline (`resolve_routing_plugins` in `proxy_server.py`) or another official mechanism could host the policy or the queue.
+- [ ] **Spend and billing.** The worker calls the router directly, so the proxy's spend tracking (and Lago billing in the Utility) is skipped. Verify, then decide: replay through the proxy's own endpoint, or log spend explicitly.
+- [ ] **Several replicas.** The Utility autoscales. One SQLite file per replica does not work there: this needs a shared store (for example their Postgres) and row locking (`SELECT ... FOR UPDATE SKIP LOCKED`) so two replicas never run the same job.
+- [ ] **Data at rest in the gateway.** While a request waits, the letter sits in the gateway's volume. Open points: encryption at rest, the retention of results and timelines, and who operates the gateway. For a commune-run gateway this is the commune's authorized environment. For the Utility it would be Public AI's infrastructure, which is a different promise and must be declared.
+- [ ] **Policy snapshot vs current policy.** The worker uses the policy captured at submit time. Should a key that is revoked, or whose policy changes, stop its waiting jobs?
+- [ ] **Virtual keys.** Route permissions for LiteLLM DB-backed virtual keys calling the custom routes (the Utility's setup) are not tested. Our keys come from `custom_auth` with explicit `allowed_routes`.
+- [ ] **Concurrency.** `Router.previous_models`, which we use to rebuild per-attempt outcomes, is router-global and capped at 4 entries. Under concurrent load some attempt details may be missing; the timeline then says "details not available". Test under load.
+- [ ] **Not implemented.** Streaming for deferred requests, a completion webhook (callers poll today), and priorities between jobs.
+
+**Routing and policy**
+- [ ] **`RoutingPlugin`.** Evaluate v1.98's official routing-plugin API as the home of the policy filter (layer 2).
+- [ ] **Streaming.** Hook behavior with streaming, `/v1/responses` and embeddings. Our keys are restricted to chat completions.
+- [ ] **Independent re-runs** of the Phase 0 experiments by a second person.
+
+**Public AI**
+- [ ] JSON mode (`response_format`) on Apertus through the Public AI API.
+- [ ] Real Apertus answers with a real `PUBLICAI_API_KEY`: quality of the explanation and of the German draft for the three sample letters.
+- [ ] Whether an advisory already exists for the `api_base`-in-fallbacks issue fixed between v1.92.0 and v1.98.0. The injection is **not** tested against production and will not be.

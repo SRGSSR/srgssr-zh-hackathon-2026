@@ -65,6 +65,18 @@ PASS CH-only key: client-side fallbacks rejected
 
 The civic prototype in this repository runs the same module in fail-closed mode and has a 24-test bench (`make test`).
 
+## Next step, not in this patch: waiting in the gateway
+
+In our prototype the same gateway also keeps requests that cannot be served within the rule right now, and completes them later (`gateway/deferred.py`: `/v1/deferred/chat/completions`, a worker, a local store). This means no application has to implement waiting.
+
+It is deliberately **not** part of this patch, because for the Utility it raises questions we have not answered yet:
+- it relies on adding routes to LiteLLM's FastAPI app from a callback (not an official API);
+- the worker's calls skip spend tracking and Lago;
+- autoscaled replicas need a shared store with row locking;
+- waiting requests would be stored at Public AI, which is a promise to declare.
+
+See `docs/findings.md`, section 12.
+
 ## Rollout suggestion
 
 1. Merge with `jurisdictionPolicy.enabled: false`. The only visible change is that `model_info` keys now reach LiteLLM.

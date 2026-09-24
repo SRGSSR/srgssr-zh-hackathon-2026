@@ -27,7 +27,9 @@ import asyncio
 import hashlib
 import json
 import os
+import sys
 import time
+import types
 import uuid
 from typing import Optional
 
@@ -58,8 +60,17 @@ WAIT_REASON = (
 )
 
 router = APIRouter()
-_inflight: set = set()
-_worker_task: Optional[asyncio.Task] = None
+
+# LiteLLM executes a callback module afresh every time it resolves it (get_instance_fn has no
+# cache), so this file can run more than once per process. Worker state is therefore kept in one
+# process-wide object: one worker, one in-flight set, whatever the number of module copies.
+_STATE = sys.modules.setdefault("commune_deferred_state", types.ModuleType("commune_deferred_state"))
+if not hasattr(_STATE, "inflight"):
+    _STATE.inflight = set()
+    _STATE.worker = None
+    _STATE.loads = 0
+_STATE.loads += 1
+_inflight: set = _STATE.inflight
 
 
 # ------------------------------------------------------------------------------ helpers
@@ -200,6 +211,7 @@ async def _run(job_id: str) -> None:
         "user_api_key_alias": auth.get("key_alias"),
         "user_api_key_team_id": auth.get("team_id"),
         "deferred_job_id": job_id,
+        "deferred_job_sig": store.sign(job_id),
     }
     try:
         response = await llm_router.acompletion(**request_body, metadata=md)
@@ -255,11 +267,10 @@ async def _loop() -> None:
 
 
 def _ensure_worker() -> None:
-    global _worker_task
-    if _worker_task is not None and not _worker_task.done():
+    if _STATE.worker is not None and not _STATE.worker.done():
         return
     try:
-        _worker_task = asyncio.get_running_loop().create_task(_loop())
+        _STATE.worker = asyncio.get_running_loop().create_task(_loop())
     except RuntimeError:
         pass  # no running loop yet; the first request starts it
 
@@ -275,6 +286,7 @@ def _register() -> None:
     if not any(getattr(r, "path", None) == "/v1/deferred/chat/completions" for r in app.routes):
         app.include_router(router)
     _ensure_worker()  # the callback is imported inside the proxy's startup, so a loop is running
+    print(f"DEFERRED_PLUGIN loaded (copy {_STATE.loads} in this process)", flush=True)
 
 
 deferred_plugin = DeferredPlugin()

@@ -6,14 +6,21 @@ The request body is deleted as soon as the job ends (done, failed, cancelled, ex
 the result and the timeline are kept for the caller to fetch.
 """
 
+import hashlib
+import hmac
 import json
 import os
+import secrets
 import sqlite3
 import threading
 import time
 from typing import Any, Dict, Iterable, List, Optional
 
 DB_PATH = os.environ.get("DEFERRED_DB", "/data/deferred.db")
+# Per-process secret. The deferred worker signs the job id it attaches to its own router calls;
+# policy.py only files an event under a job id whose signature verifies, so a client that puts
+# a job id into its request metadata cannot write into someone else's timeline.
+_RUN_SECRET = secrets.token_bytes(32)
 TERMINAL = ("done", "failed", "cancelled", "expired")
 _lock = threading.Lock()
 
@@ -126,6 +133,14 @@ def expirable_jobs(created_before: float) -> List[str]:
             "SELECT id FROM jobs WHERE status IN ('queued','waiting') AND created_at<?", (created_before,)
         ).fetchall()
     return [r["id"] for r in rows]
+
+
+def sign(job_id: str) -> str:
+    return hmac.new(_RUN_SECRET, job_id.encode(), hashlib.sha256).hexdigest()
+
+
+def verify(job_id: Optional[str], signature: Optional[str]) -> bool:
+    return bool(job_id and signature) and hmac.compare_digest(sign(job_id), str(signature))
 
 
 def add_event(job_id: str, event: Dict[str, Any]) -> None:
