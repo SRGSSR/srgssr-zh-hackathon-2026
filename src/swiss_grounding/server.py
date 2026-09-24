@@ -174,6 +174,8 @@ def health_insurance_premiums(
     model: Annotated[Literal["standard", "family_doctor", "hmo", "telmed_other"] | None,
                      Field(description="Restrict to an insurance model; omit for all models")] = None,
     limit: Annotated[int, Field(ge=1, le=20)] = 5,
+    premium_year: Annotated[int | None, Field(description="Premium year; default: the year in force today. Next "
+                                              "year's premiums appear from the end of September")] = None,
 ) -> dict:
     """Official monthly premiums for Swiss mandatory basic health insurance (KVG/LAMal/LAMal) for one person.
 
@@ -184,7 +186,7 @@ def health_insurance_premiums(
     if early:
         return early
     m = {"standard": "TAR-BASE", "family_doctor": "TAR-HAM", "hmo": "TAR-HMO", "telmed_other": "TAR-DIV"}.get(model or "")
-    return premiums.premiums(muni["bfs_nr"], age, deductible, accident_cover, m, limit)
+    return premiums.premiums(muni["bfs_nr"], age, deductible, accident_cover, m, limit, premium_year)
 
 
 @tool
@@ -306,6 +308,7 @@ def server_coverage() -> dict:
     """Declared scope, data freshness, configuration and runtime health of this server. Call when unsure whether
     a question is covered."""
     con, meta = premiums._db()
+    premium_years = sorted(premiums._dbs())
     return {
         "scope": {
             "geography": "Switzerland only (all 26 cantons, all municipalities via the federal gazetteer).",
@@ -332,7 +335,7 @@ def server_coverage() -> dict:
         },
         "config": {"respect_robots": CONFIG.respect_robots, "cache": CONFIG.cache_enabled, "ipv4_only": CONFIG.ipv4_only},
         "data": {
-            "premium_index": meta,
+            "premium_index": {**meta, "years_available": premium_years, "default_year": premiums.default_year()},
             "chch_index": (dict(guidance._index().execute("SELECT key, value FROM meta"))
                            if guidance._index() is not None else None),
             "population": {k: v for k, v in sources._population_snapshot()["meta"].items()

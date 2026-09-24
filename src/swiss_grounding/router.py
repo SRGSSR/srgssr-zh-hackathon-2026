@@ -160,6 +160,9 @@ def _premium_args(q: str, nq: str) -> tuple[dict, list[str]]:
         args["deductible"] = deds[0]
     else:
         missing.append("deductible")
+    # a premium year (2025-2035) explicitly asked for; deductibles such as 2000/2500 fall outside that range
+    if (y := re.search(r"\b(20(?:2[5-9]|3[0-5]))\b", q)) and int(y.group(1)) != args.get("deductible"):
+        args["premium_year"] = int(y.group(1))
     if re.search(r"ohne unfall|sans (?:la )?couverture accident|sans accident|senza (?:copertura )?infortun|without accident", nq):
         args["accident_cover"] = False
     elif re.search(r"mit unfall|avec (?:la )?couverture accident|avec accident|con (?:copertura )?infortun|with accident", nq):

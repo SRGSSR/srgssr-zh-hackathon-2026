@@ -62,7 +62,7 @@ is still missing. Every "evidence" item can be re-run.
   - no authoritative source → `unsupported`;
   - source down → `unavailable`, or a cached copy that is disclosed.
 
-  Evidence: `tests/benchmark.py` (59/59), `tests/fault_test.py` (4/4), and a real-LLM run
+  Evidence: `tests/benchmark.py` (61/61), `tests/fault_test.py` (4/4), and a real-LLM run
   (`tests/llm_client_eval.py`, results under [Tests](#with-a-real-mcp-client-and-llm)).
 - **Gaps:**
   - school holidays come from an aggregator, labelled as such, with a link to the canton;
@@ -117,7 +117,8 @@ is still missing. Every "evidence" item can be re-run.
 - **Gaps:**
   - refresh is manual; nothing is scheduled;
   - the **2027 premiums** (published by the FOPH at the end of September 2026) need
-    `scripts/build_premiums.py --year 2027`;
+    `scripts/build_premiums.py --year 2027 --source current`; the script refuses a file that is empty or holds the
+    wrong year;
   - there is no hosted endpoint and no CI.
 
 ### 5. Integration readiness: coherent MCP contract, clear documentation, extensible, standard clients
@@ -159,7 +160,7 @@ server then tells the assistant not to apply Swiss rules.
 |---|---|
 | `swiss_ground(question, place?, language?)` | **Start here.** Returns a `decision`: `out_of_scope`, `ambiguous`, `needs_jurisdiction` (with `question_for_user` in the user's language), `varies_by_canton`, `unsupported` or `routed`. A routed result includes an `authority_chain`, a prefilled `next_call` and/or ch.ch `evidence`. Questions naming several places return one entry per municipality in `jurisdictions[]`. |
 | `resolve_swiss_location(place)` | Resolves a place to a municipality, BFS number and canton. Handles exonyms (Berne, Genf, Coire), bilingual names (Biel/Bienne) and villages inside a municipality (Wengen → Lauterbrunnen). Returns `ambiguous` with a question for the user, or `not_found` (not Swiss). |
-| `health_insurance_premiums(place, age, deductible, accident_cover?, model?, limit)` | Official monthly premiums for the person's premium region. Resolves the place itself, so it takes one call. Respects insurer catchment areas. |
+| `health_insurance_premiums(place, age, deductible, accident_cover?, model?, limit, premium_year?)` | Official monthly premiums for the person's premium region. Resolves the place itself, so it takes one call. Respects insurer catchment areas. Defaults to the premium year in force today; next year's premiums can be requested once built. |
 | `school_holidays(place, year?, language)` | Holiday periods for the municipality's subdivision. |
 | `waste_collection(place, material?, from_date?)` | Next collection dates for the City of Zürich by postcode. Asks only for the postcode if it is missing. Other places return `not_covered`. |
 | `reference_interest_rate(language)` | Current reference rate, effective date, last confirmation, next publication date, and the exact sentence from bwo.admin.ch. |
@@ -226,13 +227,13 @@ All three suites talk to the server over real MCP stdio, as a client would:
 
 ```sh
 uv run python tests/smoke_test.py     # 11 tool-level checks
-uv run python tests/benchmark.py      # 59 adversarial cases → table + tests/benchmark_report.json
+uv run python tests/benchmark.py      # 61 adversarial cases → table + tests/benchmark_report.json
 uv run python tests/fault_test.py     # simulated outages: stale cache disclosed, or honest "unavailable"
 uv run python tests/llm_client_eval.py  # optional: real MCP client + LLM (Claude Code CLI), ~USD 0.05-0.25/question
 uv run python tests/priminfo_check.py   # premiums vs the official calculator priminfo.admin.ch
 ```
 
-Status on 2026-09-24: smoke **11/11**, benchmark **59/59**, fault test **4/4**. Priminfo cross-check **5/5**: for
+Status on 2026-09-24: smoke **11/11**, benchmark **61/61**, fault test **4/4**. Priminfo cross-check **5/5**: for
 Lugano (with and without accident cover), a child in Zürich, a young adult in Bern and an adult in Scuol, the five
 cheapest offers match the calculator to the centime.
 
@@ -257,7 +258,7 @@ road-traffic office directly.
 
 ## Adversarial benchmark
 
-`tests/benchmark.yaml` has 59 cases in DE/FR/IT/RM/EN, including the five published sample questions. Each case
+`tests/benchmark.yaml` has 61 cases in DE/FR/IT/RM/EN, including the five published sample questions. Each case
 checks the decision, jurisdiction, routing, evidence, response size and latency. For routed cases the runner also
 executes `next_call`, to count the calls an agent needs end to end (1–2).
 
@@ -274,7 +275,7 @@ executes `next_call`, to count the calls an agent needs end to end (1–2).
 | freshness / operability | the current reference rate, a stale SEM page from 2011, Zefix robots.txt, non-Swiss URLs |
 | unsupported | off-topic questions (capital of Australia, baking a Zopf, the World Cup) |
 
-Current result: **59/59**, median response 1.3 KB, median latency 13 ms with a warm cache.
+Current result: **61/61**, median response 1.3 KB, median latency 13 ms with a warm cache.
 - **What it measures:** this server's own decisions, not an LLM baseline.
 - **How the cases were written:**
   - 39 cases were written together with the router.
@@ -364,8 +365,18 @@ more than 30 s to answer. The script reads the table's reference date, database 
 tool reports them.
 
 The ch.ch crawler respects robots.txt and rate-limits itself; it indexes 1,726 pages, with each page's modification
-date. When the FOPH publishes the **2027 premiums** (end of September 2026), run the premium script with
-`--year 2027`. The server loads the newest `premiums_*.sqlite` file.
+date.
+
+**2027 premiums:** the FOPH publishes next year's premiums at the end of September, first as its "current" files.
+As soon as they appear, run:
+
+```sh
+uv run --extra build python scripts/build_premiums.py --year 2027 --source current
+```
+
+The build aborts, writing nothing, while the file is still empty or holds another year. The server keeps every
+built year. It answers with the year in force (2026 until 31 December), says when next year's premiums are
+available, and serves them on request (`premium_year=2027`, or a year named in the question).
 
 ## Project layout
 

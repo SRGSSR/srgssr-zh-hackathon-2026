@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 import statistics
+from datetime import date
 from functools import lru_cache
 
 from .core import CONFIG, cite
@@ -19,17 +20,39 @@ CHILD_FRANCHISES = [0, 100, 200, 300, 400, 500, 600]
 
 
 @lru_cache(maxsize=1)
-def _db() -> tuple[sqlite3.Connection, dict]:
-    files = sorted(CONFIG.data_dir.glob("premiums_*.sqlite"))
-    if not files:
+def _dbs() -> dict[int, tuple[sqlite3.Connection, dict]]:
+    """All built premium years: {year: (connection, meta)}."""
+    out = {}
+    for f in sorted(CONFIG.data_dir.glob("premiums_*.sqlite")):
+        con = sqlite3.connect(f"file:{f}?mode=ro", uri=True, check_same_thread=False)
+        meta = dict(con.execute("SELECT key, value FROM meta"))
+        out[int(meta["year"])] = (con, meta)
+    if not out:
         raise FileNotFoundError("premium index missing: run scripts/build_premiums.py")
-    con = sqlite3.connect(f"file:{files[-1]}?mode=ro", uri=True, check_same_thread=False)
-    meta = dict(con.execute("SELECT key, value FROM meta"))
-    return con, meta
+    return out
 
 
-def premiums(bfs_nr: int, age: int, franchise: int, accident: bool | None, model: str | None, limit: int) -> dict:
-    con, meta = _db()
+def default_year() -> int:
+    """The premium year in force today (premiums apply per calendar year), else the latest one built."""
+    years = sorted(_dbs())
+    in_force = [y for y in years if y <= date.today().year]
+    return in_force[-1] if in_force else years[0]
+
+
+def _db(year: int | None = None) -> tuple[sqlite3.Connection, dict]:
+    return _dbs()[year or default_year()]
+
+
+def premiums(bfs_nr: int, age: int, franchise: int, accident: bool | None, model: str | None, limit: int,
+             year: int | None = None) -> dict:
+    available = sorted(_dbs())
+    if year is not None and year not in available:
+        return {"status": "not_covered",
+                "message": (f"Premiums for {year} are not in this server (available: {available}). "
+                            "The FOPH publishes next year's premiums at the end of September."),
+                "sources": [cite("Official premium calculator Priminfo", "https://www.priminfo.admin.ch/",
+                                 "Federal Office of Public Health FOPH/BAG", "federal")]}
+    con, meta = _db(year)
     year = meta["year"]
     src = [
         cite(f"BAG premium data {year} (opendata.swiss 'health-insurance-premiums')",
@@ -98,8 +121,11 @@ def premiums(bfs_nr: int, age: int, franchise: int, accident: bool | None, model
             "Priminfo also shows a yearly refund ('Vergütung': environmental levy, for some insurers also a reserve "
             "reduction) that lowers the net amount paid; it is not included here. See priminfo.admin.ch for the net total.",
             "Employees working >= 8 h/week for one employer are covered for accidents by UVG and can exclude accident cover.",
-            f"Premiums for {int(year) + 1} are published by the FOPH at the end of September {year}; "
-            "a notice to switch insurer must reach the current insurer by 30 November (KVG Art. 7).",
+            (f"Premiums for {int(year) + 1} are also available here: pass premium_year={int(year) + 1}."
+             if int(year) + 1 in available else
+             f"Premiums for {int(year) + 1} are published by the FOPH at the end of September {year}; not yet in "
+             "this server.")
+            + " A notice to switch insurer must reach the current insurer by 30 November (KVG Art. 7).",
         ],
         "sources": src,
     }

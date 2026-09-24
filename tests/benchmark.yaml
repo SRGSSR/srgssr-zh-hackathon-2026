@@ -297,3 +297,14 @@ cases:
     tool: municipality_population
     args: {place: Villnachern}
     expect: {status: ok}
+
+  # --- premium year: a year in the question is passed on; a deductible of 2000 is not a year ----------------------
+  - id: premium_year_in_question
+    category: data
+    question: Günstigste Grundversicherung 2027 in Lugano für 30-Jährige mit Franchise 2000?
+    expect: {decision: routed, next_tool: health_insurance_premiums, next_args: {premium_year: 2027, deductible: 2000}}
+  - id: premium_deductible_2000_not_a_year
+    category: data
+    question: Günstigste Grundversicherung in Lugano für 30-Jährige mit Franchise 2000?
+    expect: {decision: routed, next_tool: health_insurance_premiums, next_args: {deductible: 2000, premium_year: null}}
+    follow: true
