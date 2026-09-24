@@ -44,12 +44,16 @@ def authority(url: str) -> dict:
 
     if any(under(d) for d in reg["federal"]["domains"]):
         return {"level": "federal", "publisher": host}
-    for code, c in reg["cantons"].items():
-        if under(c["domain"]):
-            return {"level": "cantonal", "publisher": f"Canton {c['name']}", "canton": code}
+    canton_domains = {c["domain"] for c in reg["cantons"].values()}
+    # municipal sites first: stadt.sg.ch is the city of St. Gallen, not the canton (sg.ch). Skip cities that use the
+    # canton's own domain (Basel: bs.ch).
     for bfs, m in reg.get("municipalities", {}).items():
-        if under(urlparse(m["website"]).netloc.removeprefix("www.")):
+        mdomain = urlparse(m["website"]).netloc.removeprefix("www.")
+        if mdomain not in canton_domains and under(mdomain):
             return {"level": "municipal", "publisher": f"Municipality of {m['name']}", "bfs_nr": bfs}
+    for code, c in reg["cantons"].items():
+        if under(c["domain"]) or any(under(d) for d in c.get("extra_domains", [])):
+            return {"level": "cantonal", "publisher": f"Canton {c['name']}", "canton": code}
     for d, name in reg["semi_official"].items():
         if under(d):
             return {"level": "semi-official", "publisher": name}

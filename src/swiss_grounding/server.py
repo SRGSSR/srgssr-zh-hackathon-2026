@@ -35,7 +35,9 @@ Grounding policy for the assistant:
    municipality names, postcodes or addresses and resolve them via the official federal gazetteer.
 2. Switzerland only. If a tool reports a place is not Swiss (status not_found from resolve_swiss_location) or the
    question concerns another country (e.g. Konstanz/Germany, France), say clearly that it is outside Switzerland
-   and outside this server's scope. Do not answer with Swiss rules.
+   and outside this server's scope. Do not answer with Swiss rules, and do not fill in the foreign answer from
+   memory either (no amounts, dates or rules): unverified figures are guesses. You may name the kind of authority
+   responsible abroad, without facts.
 3. Cite. Every result carries `sources` (url, publisher, level, validity). Cite them and state the reference
    year/date. Prefer federal/cantonal/municipal sources over 'aggregator' or 'unverified' ones and say when a
    source is non-official.

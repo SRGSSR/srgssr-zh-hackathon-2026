@@ -22,6 +22,8 @@ from mcp.client.stdio import stdio_client
 DOWN = "www.bwo.admin.ch,ogd-static.voteinfo-app.ch,transport.opendata.ch"
 CACHED = [("reference_interest_rate", {"language": "it"}), ("federal_votes", {"language": "fr"})]
 UNCACHED = ("public_transport_connections", {"origin": "Scuol-Tarasp", "destination": "Poschiavo"})
+# an outage of the vote feed must never be reported as "not published"
+UNCACHED_VOTE = ("federal_votes", {"language": "de", "vote_date": "2026-06-14"})
 
 
 async def session(env: dict, calls: list[tuple[str, dict]]) -> list[dict]:
@@ -45,7 +47,7 @@ async def main() -> int:
         old = time.time() - 2 * 86400  # older than any TTL used for these sources, younger than 30 days
         for f in Path(cache).glob("*.json"):
             os.utime(f, (old, old))
-        results = await session({**env, "SGM_FAULT_HOSTS": DOWN}, CACHED + [UNCACHED])
+        results = await session({**env, "SGM_FAULT_HOSTS": DOWN}, CACHED + [UNCACHED, UNCACHED_VOTE])
 
     for (name, _), r in zip(CACHED, results[:2]):
         ok = r.get("status") == "ok" and r.get("served_from_cache") and r.get("data_as_of")
@@ -57,6 +59,11 @@ async def main() -> int:
     failures += not ok
     print(f"{'PASS' if ok else 'FAIL'} {UNCACHED[0]:28s} outage, nothing cached -> {r.get('status')}: "
           f"{r.get('message', '')[:110]}")
+    r = results[3]
+    ok = r.get("status") == "unavailable"
+    failures += not ok
+    print(f"{'PASS' if ok else 'FAIL'} {UNCACHED_VOTE[0]:28s} outage, nothing cached -> {r.get('status')} "
+          "(must not be 'not_published')")
     print("failures:", failures)
     return failures
 

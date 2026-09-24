@@ -110,10 +110,18 @@ Client configuration (stdio):
     "command": "uv", "args": ["run", "--directory", "/path/to/swiss-grounding-mcp", "swiss-grounding-mcp"] } } }
 ```
 
-Docker (streamable HTTP on port 8000; the image build has not been tested yet):
+Docker (streamable HTTP on port 8000; image build and live tools tested on 2026-09-24):
 
 ```sh
 docker build -t swiss-grounding-mcp . && docker run -p 8000:8000 swiss-grounding-mcp
+```
+
+Behind a TLS-intercepting corporate proxy, mount the host's CA bundle, or live sources fail with certificate
+errors (reported as `unavailable`, never as missing data):
+
+```sh
+docker run -p 8000:8000 -v /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/host-ca.crt:ro \
+  -e SGM_CA_BUNDLE=/etc/ssl/certs/host-ca.crt swiss-grounding-mcp
 ```
 
 ## Tests
@@ -124,9 +132,29 @@ All three suites talk to the server over real MCP stdio, as a client would:
 uv run python tests/smoke_test.py     # 11 tool-level checks
 uv run python tests/benchmark.py      # 59 adversarial cases → table + tests/benchmark_report.json
 uv run python tests/fault_test.py     # simulated outages: stale cache disclosed, or honest "unavailable"
+uv run python tests/llm_client_eval.py  # optional: real MCP client + LLM (Claude Code CLI), ~USD 0.05-0.25/question
 ```
 
-Status on 2026-09-24: smoke **11/11**, benchmark **59/59**, fault test **3/3**.
+Status on 2026-09-24: smoke **11/11**, benchmark **59/59**, fault test **4/4**.
+
+### With a real MCP client and LLM
+
+`tests/llm_client_eval.py` connects Claude Code (headless) to this server alone, with web search and fetch disabled,
+and asks the published sample questions. Results on 2026-09-24:
+
+| Question | Behaviour | Server tool calls |
+|---|---|---|
+| Q1 "Wann wird bei uns … Karton abgeholt?" | Asks only for the municipality or postcode | 0 |
+| Q2 foreign licence, Vaud | 12-month deadline, fine risk, the SAN (the cantonal road traffic office) procedure, with sources | 5 (starts with `swiss_ground`) |
+| Q3 premium Lugano, 30, CHF 2500 | CHF 449.90 without / 473.60 with accident cover (Agrisano AGRIsmart), standard model, 2026, sources | 1 |
+| Q4 Scuol (Romansh) | Autumn holidays 10–25 Oct 2026, answered in Romansh, states that the source is an aggregator | 1 |
+| Q5 Rundfunkbeitrag Konstanz | Germany, not covered. Gives no figure and points to the responsible German body | 0 |
+| Wil (ambiguous) | Asks: Wil SG or Wil ZH? | 1 |
+| Reference rate (IT) | 1.25 %, since 2 Sep 2025, confirmed 2 Sep 2026, next publication 1 Dec 2026 | 1 |
+
+This run exposed two problems, both now fixed. Q5 used to answer with German figures from memory; the
+instructions now forbid unverified foreign facts. Q2 used to take 9 calls; the router now returns the canton's
+road-traffic office directly.
 
 ## Adversarial benchmark
 
@@ -188,7 +216,8 @@ AI agents. We decoded the practice cases as plain data and checked them against 
 
 `data/sources.yaml` lists what the server trusts:
 - federal domains, and semi-official bodies with a legal mandate;
-- the 26 cantons: domain, languages, the names used to detect them in free text, education office;
+- the 26 cantons: domain, extra office domains (ocn.ch, vsz.ch, scan-ne.ch, baselland.ch), languages, the names used
+  to detect them in free text, education office, and road-traffic office (verified links for all 26);
 - municipal websites, by BFS number;
 - foreign place names;
 - topics, each with:
@@ -197,10 +226,13 @@ AI agents. We decoded the practice cases as plain data and checked them against 
   - `needs_place`: true only when the answer truly depends on the place;
   - the data tool to route to;
   - authoritative URLs;
+  - optional `canton_office`: which cantonal office handles the topic. The router puts it first in the
+    `authority_chain` (driving licence → the canton's road-traffic office);
   - optional `search_terms`: the portal's official wording per language. Users say "patente", ch.ch says
     "licenza di condurre".
 
-Adding a municipality, topic or synonym is a YAML edit, with no code change.
+Adding a municipality, topic or synonym is a YAML edit, with no code change. More specific domains win: `stadt.sg.ch`
+is the city of St. Gallen (municipal), and `sg.ch` is the canton.
 
 ## Configuration
 
@@ -290,5 +322,5 @@ tests/          smoke test, adversarial benchmark, fault test
 - **Page extraction:** the ch.ch index is a snapshot. Cantonal pages are read live, and not all of them use `<main>`
   markup, so text extraction is best-effort. PDFs are not parsed.
 - **Commercial register:** unavailable while robots.txt is respected, because zefix.ch disallows all bots.
-- **Not tested yet:** the Docker image build and connection from a real LLM client (the tests use an MCP client
-  without an LLM).
+- **LLM client testing:** only one client/LLM combination (Claude Code) has been tested. The judges use two clients
+  with two LLMs each; the contract is plain MCP (stdio or streamable HTTP), with nothing client-specific.

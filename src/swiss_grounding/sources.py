@@ -165,7 +165,9 @@ def federal_votes(on: str | None, lang: str) -> dict:
     src = [BK_SRC, cite(f"Federal Statistical Office OGD vote data {target}", url, "Federal Statistical Office FSO/BFS", "federal")]
     try:
         data = fetch(url, ttl=300 if target >= today else 86400)
-    except SourceUnavailable:
+    except SourceUnavailable as e:
+        if e.status not in (403, 404):  # network/TLS/5xx: a retrieval failure, not "not published"
+            raise
         nxt = [d for d in FEDERAL_VOTE_DATES if d > target][:1]
         if target in ANNOUNCED:
             a = ANNOUNCED[target]

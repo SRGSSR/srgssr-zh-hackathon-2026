@@ -53,7 +53,15 @@ class SourceBlocked(Exception):
 
 
 class SourceUnavailable(Exception):
-    """Upstream authoritative source failed; callers must say so instead of guessing."""
+    """Upstream authoritative source failed; callers must say so instead of guessing.
+
+    `status` is the HTTP status code when the server answered (e.g. 404), None for network/TLS failures, so callers
+    can tell "does not exist" apart from "could not be retrieved".
+    """
+
+    def __init__(self, message: str, status: int | None = None):
+        super().__init__(message)
+        self.status = status
 
 
 def now_iso() -> str:
@@ -217,7 +225,8 @@ def fetch(
             log.warning("serving stale cache for %s (%s)", url, e.__class__.__name__)
             _log_fetch(url, stale[0], "stale_cache")
             return stale[1]
-        raise SourceUnavailable(f"{urlparse(url).netloc}: {e.__class__.__name__}: {e}") from e
+        status = e.response.status_code if isinstance(e, httpx.HTTPStatusError) else None
+        raise SourceUnavailable(f"{urlparse(url).netloc}: {e.__class__.__name__}: {e}", status) from e
     finally:
         METRICS.upstream_requests += 1
         METRICS.upstream_ms += (time.perf_counter() - t0) * 1000

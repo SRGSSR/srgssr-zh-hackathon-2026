@@ -134,7 +134,11 @@ def _jurisdiction(muni: dict | None, canton: str | None, t: dict) -> tuple[dict 
     elif canton:
         jurisdiction = {"canton": canton}
     if canton:
-        chain.append({"level": "cantonal", "url": f"https://www.{registry.cantons()[canton]['domain']}"})
+        c = registry.cantons()[canton]
+        office = (c.get("offices") or {}).get(t.get("canton_office", ""))
+        if office:  # the office that handles this topic (e.g. road traffic office for licences) comes first
+            chain.append({"level": "cantonal", "office": t["canton_office"], "url": office})
+        chain.append({"level": "cantonal", "url": f"https://www.{c['domain']}"})
     for u in t.get("sources", []):
         chain.append({"level": registry.authority(u)["level"], "url": u})
     return jurisdiction, chain
@@ -281,7 +285,8 @@ def ground(question: str, place: str | None = None, language: str | None = None)
                 "reason": f"The question concerns '{foreign}', which is outside Switzerland. Swiss rules and sources "
                           "do not apply; this server only covers Switzerland.",
                 "instruction": "Tell the user clearly that this is outside Switzerland and not covered. Do not answer "
-                               "with Swiss information."}
+                               "with Swiss information, and do not supply the foreign answer from memory (no amounts, "
+                               "dates or rules): without an authoritative source it would be a guess."}
     if ambiguous:
         return {**base, "decision": "ambiguous", "support": "none",
                 "question_for_user": ambiguous["question_for_user"], "candidates": ambiguous["candidates"],

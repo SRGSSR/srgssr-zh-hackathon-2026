@@ -15,7 +15,7 @@ cases:
     category: cantonal
     question: Comment puis-je échanger mon permis de conduire étranger contre un permis suisse dans le canton de Vaud, et combien de temps ai-je pour le faire?
     expect: {decision: routed, topic: driving_licence, canton: VD, evidence_url_contains: permis-de-conduire,
-             excerpt_contains_any: [douze mois]}
+             excerpt_contains_any: [douze mois], chain_office: "https://www.vd.ch/mobilite/automobile-et-navigation"}
   - id: sample3_lugano_premium
     category: data
     question: Qual è il premio mensile più basso dell'assicurazione di base per un adulto di 30 anni domiciliato a Lugano con franchigia di 2500 franchi?

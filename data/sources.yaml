@@ -20,52 +20,56 @@ semi_official:
 
 # names: all spellings used to detect the canton in free text (lowercase).
 cantons:
-  ZH: {name: Zürich, domain: zh.ch, languages: [de], names: [kanton zürich, canton de zurich, cantone di zurigo, zurigo]}
-  BE: {name: Bern, domain: be.ch, languages: [de, fr], names: [kanton bern, canton de berne, cantone di berna, berne, berna]}
-  LU: {name: Luzern, domain: lu.ch, languages: [de], names: [kanton luzern, canton de lucerne, lucerne, lucerna]}
-  UR: {name: Uri, domain: ur.ch, languages: [de], names: [kanton uri, canton d'uri]}
-  SZ: {name: Schwyz, domain: sz.ch, languages: [de], names: [kanton schwyz, canton de schwyz, svitto]}
-  OW: {name: Obwalden, domain: ow.ch, languages: [de], names: [obwalden, obwald, obvaldo]}
-  NW: {name: Nidwalden, domain: nw.ch, languages: [de], names: [nidwalden, nidwald, nidvaldo]}
-  GL: {name: Glarus, domain: gl.ch, languages: [de], names: [kanton glarus, glaris, glarona]}
-  ZG: {name: Zug, domain: zg.ch, languages: [de], names: [kanton zug, canton de zoug, zoug, zugo]}
-  FR: {name: Fribourg, domain: fr.ch, languages: [fr, de], names: [kanton freiburg, canton de fribourg, friburgo]}
-  SO: {name: Solothurn, domain: so.ch, languages: [de], names: [kanton solothurn, soleure, soletta]}
-  BS: {name: Basel-Stadt, domain: bs.ch, languages: [de], names: [basel-stadt, bâle-ville, basilea città]}
-  BL: {name: Basel-Landschaft, domain: bl.ch, languages: [de], names: [basel-landschaft, baselland, bâle-campagne, basilea campagna]}
-  SH: {name: Schaffhausen, domain: sh.ch, languages: [de], names: [kanton schaffhausen, schaffhouse, sciaffusa]}
-  AR: {name: Appenzell Ausserrhoden, domain: ar.ch, languages: [de], names: [appenzell ausserrhoden, appenzell rhodes-extérieures]}
-  AI: {name: Appenzell Innerrhoden, domain: ai.ch, languages: [de], names: [appenzell innerrhoden, appenzell rhodes-intérieures]}
-  SG: {name: St. Gallen, domain: sg.ch, languages: [de], names: [kanton st. gallen, saint-gall, san gallo]}
+  ZH: {name: Zürich, domain: zh.ch, languages: [de], names: [kanton zürich, canton de zurich, cantone di zurigo, zurigo], offices: {road_traffic: https://www.zh.ch/de/sicherheitsdirektion/strassenverkehrsamt.html}}
+  BE: {name: Bern, domain: be.ch, languages: [de, fr], names: [kanton bern, canton de berne, cantone di berna, berne, berna], offices: {road_traffic: https://www.svsa.sid.be.ch/fr/start.html}}
+  LU: {name: Luzern, domain: lu.ch, languages: [de], names: [kanton luzern, canton de lucerne, lucerne, lucerna], offices: {road_traffic: https://strassenverkehrsamt.lu.ch/}}
+  UR: {name: Uri, domain: ur.ch, languages: [de], names: [kanton uri, canton d'uri], offices: {road_traffic: https://www.ur.ch/verkehr/4372}}
+  SZ: {name: Schwyz, domain: sz.ch, languages: [de], names: [kanton schwyz, canton de schwyz, svitto], offices: {road_traffic: https://www.sz.ch/behoerden/verwaltung/baudepartement/verkehrsamt.html/8756-8758-8802-9276-9293}}
+  OW: {name: Obwalden, domain: ow.ch, languages: [de], names: [obwalden, obwald, obvaldo], offices: {road_traffic: https://www.vsz.ch/}, extra_domains: [vsz.ch]}
+  NW: {name: Nidwalden, domain: nw.ch, languages: [de], names: [nidwalden, nidwald, nidvaldo], offices: {road_traffic: https://www.vsz.ch/}, extra_domains: [vsz.ch]}
+  GL: {name: Glarus, domain: gl.ch, languages: [de], names: [kanton glarus, glaris, glarona], offices: {road_traffic: https://www.gl.ch/verwaltung/sicherheit-und-justiz/justiz/strassenverkehrsamt.html/466}}
+  ZG: {name: Zug, domain: zg.ch, languages: [de], names: [kanton zug, canton de zoug, zoug, zugo], offices: {road_traffic: https://zg.ch/de/sicherheitsdirektion/strassenverkehrsamt}}
+  FR: {name: Fribourg, domain: fr.ch, languages: [fr, de], names: [kanton freiburg, canton de fribourg, friburgo], offices: {road_traffic: https://www.ocn.ch/}, extra_domains: [ocn.ch]}
+  SO: {name: Solothurn, domain: so.ch, languages: [de], names: [kanton solothurn, soleure, soletta], offices: {road_traffic: https://so.ch/verwaltung/bau-und-justizdepartement/motorfahrzeugkontrolle/}}
+  BS: {name: Basel-Stadt, domain: bs.ch, languages: [de], names: [basel-stadt, bâle-ville, basilea città], offices: {road_traffic: https://www.polizei.bs.ch/verkehr/motorfahrzeugkontrolle}}
+  BL: {name: Basel-Landschaft, domain: bl.ch, languages: [de], names: [basel-landschaft, baselland, bâle-campagne, basilea campagna], offices: {road_traffic: https://www.baselland.ch/politik-und-behorden/direktionen/sicherheitsdirektion/motorfahrzeugkontrolle}, extra_domains: [baselland.ch]}
+  SH: {name: Schaffhausen, domain: sh.ch, languages: [de], names: [kanton schaffhausen, schaffhouse, sciaffusa], offices: {road_traffic: https://sh.ch/CMS/Webseite/Kanton-Schaffhausen/Beh-rde/Verwaltung/Baudepartement/Strassenverkehrs--und-Schifffahrtsamt-3612-DE.html}}
+  AR: {name: Appenzell Ausserrhoden, domain: ar.ch, languages: [de], names: [appenzell ausserrhoden, appenzell rhodes-extérieures], offices: {road_traffic: https://www.ar.ch/verwaltung/departement-inneres-und-sicherheit/strassenverkehrsamt/}}
+  AI: {name: Appenzell Innerrhoden, domain: ai.ch, languages: [de], names: [appenzell innerrhoden, appenzell rhodes-intérieures], offices: {road_traffic: https://www.ai.ch/verwaltung/justiz-polizei-und-militaerdepartement/strassenverkehrsamt}}
+  SG: {name: St. Gallen, domain: sg.ch, languages: [de], names: [kanton st. gallen, saint-gall, san gallo], offices: {road_traffic: https://www.sg.ch/verkehr/strassenverkehr.html}}
   GR:
     name: Graubünden
     domain: gr.ch
     languages: [de, rm, it]
     names: [graubünden, grisons, grigioni, grischun]
     education: https://www.gr.ch/DE/institutionen/verwaltung/ekud/avs/Seiten/startseite.aspx
-  AG: {name: Aargau, domain: ag.ch, languages: [de], names: [aargau, argovie, argovia]}
-  TG: {name: Thurgau, domain: tg.ch, languages: [de], names: [thurgau, thurgovie, turgovia]}
+    offices: {road_traffic: https://www.gr.ch/DE/institutionen/verwaltung/djsg/stva/Seiten/Start.aspx}
+  AG: {name: Aargau, domain: ag.ch, languages: [de], names: [aargau, argovie, argovia], offices: {road_traffic: https://www.ag.ch/de/verwaltung/dvi/strassenverkehr}}
+  TG: {name: Thurgau, domain: tg.ch, languages: [de], names: [thurgau, thurgovie, turgovia], offices: {road_traffic: https://strassenverkehrsamt.tg.ch/}}
   TI:
     name: Ticino
     domain: ti.ch
     languages: [it]
     names: [ticino, tessin, cantone ticino]
     education: https://www4.ti.ch/decs/dipartimento
+    offices: {road_traffic: https://www4.ti.ch/di/sc/home}
   VD:
     name: Vaud
     domain: vd.ch
     languages: [fr]
     names: [vaud, waadt, canton de vaud, cantone di vaud]
     education: https://www.vd.ch/formation
-  VS: {name: Valais, domain: vs.ch, languages: [fr, de], names: [wallis, valais, vallese]}
-  NE: {name: Neuchâtel, domain: ne.ch, languages: [fr], names: [kanton neuenburg, canton de neuchâtel, neuenburg]}
+    offices: {road_traffic: https://www.vd.ch/mobilite/automobile-et-navigation}
+  VS: {name: Valais, domain: vs.ch, languages: [fr, de], names: [wallis, valais, vallese], offices: {road_traffic: https://www.vs.ch/web/scn/accueil}}
+  NE: {name: Neuchâtel, domain: ne.ch, languages: [fr], names: [kanton neuenburg, canton de neuchâtel, neuenburg], offices: {road_traffic: https://www.scan-ne.ch/}, extra_domains: [scan-ne.ch]}
   GE:
     name: Genève
     domain: ge.ch
     languages: [fr]
     names: [canton de genève, kanton genf, cantone di ginevra, genf, ginevra, geneva]
     education: https://www.ge.ch/vacances-scolaires-jours-feries
-  JU: {name: Jura, domain: jura.ch, languages: [fr], names: [kanton jura, canton du jura, giura]}
+    offices: {road_traffic: https://www.ge.ch/organisation/office-cantonal-vehicules-ocv}
+  JU: {name: Jura, domain: jura.ch, languages: [fr], names: [kanton jura, canton du jura, giura], offices: {road_traffic: https://www.jura.ch/ovj}}
 
 # Municipal websites (by BFS number). Extend freely.
 municipalities:
@@ -135,6 +139,7 @@ topics:
     sources: [https://www.zefix.ch/]
   driving_licence:
     level: cantonal
+    canton_office: road_traffic  # route to cantons.<X>.offices.road_traffic
     needs_place: false  # the core rules (12-month exchange deadline, eye test) are federal; offices are cantonal
     keywords: [fuhrerausweis, fahrausweis, fuhrerschein, permis de conduire, licenza di condurre, patente di guida, patente,
                permiss da manischar, driving licence, driving license, drivers license]
