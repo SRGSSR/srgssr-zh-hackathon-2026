@@ -80,6 +80,7 @@ FORBIDDEN_METADATA_KEYS = {
     "routing_policy",
     "_policy_tried",
     "disable_fallbacks",
+    "deferred_job_id",  # set only by the gateway's own deferred worker
 }
 FORBIDDEN_HEADERS = {"x-litellm-tags"}
 
@@ -88,8 +89,14 @@ FORBIDDEN_HEADERS = {"x-litellm-tags"}
 #   the policy applies only to keys whose metadata carries a routing_policy.
 POLICY_REQUIRED = os.environ.get("POLICY_REQUIRED", "1") == "1"
 
+# Optional: also POST every event to an external sink (not used by the commune gateway).
 EVENT_SINK_URL = os.environ.get("EVENT_SINK_URL", "")
 EVENT_SINK_TOKEN = os.environ.get("EVENT_SINK_TOKEN", "")
+
+try:  # present in the commune gateway (deferred requests keep their timeline there)
+    import store as _store
+except ImportError:  # e.g. when this file is used on its own as a LiteLLM callback
+    _store = None
 
 
 class PolicyViolation(Exception):
@@ -133,12 +140,39 @@ def _pick_policy(key_md: dict, team_md: dict) -> Optional[dict]:
     return None
 
 
+pick_policy = _pick_policy
+
+
+def check_request(policy: Optional[dict], body: dict, headers: dict, allowed_models: List[str]) -> List[str]:
+    """Layer 1 as a pure function, shared by the proxy hook and the deferred endpoint.
+    Returns the reasons to reject the request (empty list = accepted)."""
+    problems: List[str] = []
+    if policy is None:
+        if not POLICY_REQUIRED:
+            return problems  # opt-in mode: this key is not under a routing policy
+        problems.append("no routing policy bound to this API key")
+    problems += [f"body parameter '{k}' is not allowed" for k in sorted(FORBIDDEN_BODY_KEYS & set(body))]
+    client_md = body.get("metadata") or {}
+    if isinstance(client_md, dict):
+        problems += [f"metadata key '{k}' is not allowed" for k in sorted(FORBIDDEN_METADATA_KEYS & set(client_md))]
+    else:
+        problems.append("metadata must be an object")
+    headers = {k.lower(): v for k, v in (headers or {}).items()}
+    problems += [f"header '{h}' is not allowed" for h in sorted(FORBIDDEN_HEADERS & set(headers))]
+    allowed_models = list(allowed_models or [])
+    if allowed_models and body.get("model") not in allowed_models:
+        problems.append(f"model '{body.get('model')}' is not allowed for this key (allowed: {allowed_models})")
+    return problems
+
+
 def _policy_from_md(md: dict) -> Optional[dict]:
     return _pick_policy(md.get("user_api_key_metadata") or {}, md.get("user_api_key_team_metadata") or {})
 
 
 def _job_id(md: dict) -> Optional[str]:
-    return md.get("job_id") or (md.get("requester_metadata") or {}).get("job_id")
+    """Id of the deferred job this attempt belongs to. Set only server side by deferred.py;
+    a client cannot set it (FORBIDDEN_METADATA_KEYS), so it cannot write into another job's timeline."""
+    return md.get("deferred_job_id")
 
 
 def _raw_model(kwargs: dict) -> Optional[str]:
@@ -206,6 +240,11 @@ class CommunePolicy(CustomLogger):
     def _emit(self, event: dict) -> None:
         event.setdefault("ts", _now())
         print("POLICY_EVENT " + json.dumps(event, default=str), flush=True)
+        if _store is not None and event.get("job_id"):
+            try:
+                _store.add_event(event["job_id"], event)
+            except Exception as e:  # the timeline must never break the request path
+                print(f"POLICY_EVENT_STORE_ERROR {type(e).__name__}: {e}", flush=True)
         if not EVENT_SINK_URL:
             return
         try:
@@ -224,45 +263,19 @@ class CommunePolicy(CustomLogger):
     # ------------------------------------------------- layer 1: request shape
     async def async_pre_call_hook(self, user_api_key_dict, cache, data: dict, call_type):
         policy = _pick_policy(getattr(user_api_key_dict, "metadata", None) or {}, getattr(user_api_key_dict, "team_metadata", None) or {})
+        if policy is None and not POLICY_REQUIRED:
+            return data  # opt-in mode: this key is not under a routing policy
         psr = data.get("proxy_server_request") or {}
         body = psr.get("body") or {}
-        headers = {k.lower(): v for k, v in (psr.get("headers") or {}).items()}
-        client_md = body.get("metadata") or {}
-        job_id = client_md.get("job_id") if isinstance(client_md, dict) else None
-
-        has_policy = policy is not None
-        if not has_policy and not POLICY_REQUIRED:
-            return data  # opt-in mode: this key is not under a routing policy
-
-        problems: List[str] = []
-        if not has_policy:
-            problems.append("no routing policy bound to this API key")
-        problems += [f"body parameter '{k}' is not allowed" for k in sorted(FORBIDDEN_BODY_KEYS & set(body))]
-        if isinstance(client_md, dict):
-            problems += [f"metadata key '{k}' is not allowed" for k in sorted(FORBIDDEN_METADATA_KEYS & set(client_md))]
-        elif client_md:
-            problems.append("metadata must be an object")
-        problems += [f"header '{h}' is not allowed" for h in sorted(FORBIDDEN_HEADERS & set(headers))]
-        allowed_models = list(getattr(user_api_key_dict, "models", None) or [])
-        if allowed_models and body.get("model") not in allowed_models:
-            problems.append(f"model '{body.get('model')}' is not allowed for this key (allowed: {allowed_models})")
-
+        problems = check_request(policy, body, psr.get("headers") or {}, getattr(user_api_key_dict, "models", None))
+        key_alias = getattr(user_api_key_dict, "key_alias", None)
         if problems:
-            self._emit(
-                {
-                    "type": "request_rejected",
-                    "job_id": job_id,
-                    "key_alias": getattr(user_api_key_dict, "key_alias", None),
-                    "reasons": problems,
-                }
-            )
+            self._emit({"type": "request_rejected", "key_alias": key_alias, "reasons": problems})
             raise HTTPException(status_code=400, detail={"error": "rejected by routing policy", "reasons": problems})
-
         self._emit(
             {
                 "type": "request_accepted",
-                "job_id": job_id,
-                "key_alias": getattr(user_api_key_dict, "key_alias", None),
+                "key_alias": key_alias,
                 "policy_id": policy.get("id"),
                 "rule": policy.get("description"),
                 "model_group": body.get("model"),
@@ -461,15 +474,17 @@ class CommunePolicy(CustomLogger):
             str(exc) if exc else "", "failure callback",
         )
 
-    async def async_post_call_failure_hook(self, request_data, original_exception, user_api_key_dict, traceback_str=None):
-        """Once per request, at the very end: make sure the last attempt is on the timeline."""
-        md = _md(request_data)
+    def report_final_failure(self, md: dict, exc: Exception) -> None:
+        """After the router gave up: make sure the last attempt is on the timeline."""
         last = (md.get("model_info") or {}).get("id")
         if last and last not in (md.get("_policy_tried") or []):
             md.setdefault("_policy_tried", []).append(last)
         if last:
-            e = original_exception
-            self._report_failure(md, last, type(e).__name__, getattr(e, "status_code", None), str(e), "final error")
+            self._report_failure(md, last, type(exc).__name__, getattr(exc, "status_code", None), str(exc), "final error")
+
+    async def async_post_call_failure_hook(self, request_data, original_exception, user_api_key_dict, traceback_str=None):
+        """Once per proxy request, at the very end."""
+        self.report_final_failure(_md(request_data), original_exception)
 
 
 policy_hook = CommunePolicy()

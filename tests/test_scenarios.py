@@ -57,7 +57,7 @@ def test_3_all_approved_down_job_waits_and_disallowed_get_zero(bench):
         bench.mode(ep, "down")
     job = bench.create_job()
     j = bench.wait_status(job, {"waiting"})
-    assert "stays in this service" in j["status_reason"]
+    assert "not sent anywhere else" in j["status_reason"]
     c = bench.counts()
     assert all(c[ep] >= 1 for ep in APPROVED), c
     bench.assert_disallowed_untouched()
@@ -107,6 +107,7 @@ OVERRIDES = {
     "other model group": {"model": FALLBACK_GROUP},
     "mock_response": {"mock_response": "hi"},
     "spoofed routing_policy": {"metadata": {"routing_policy": {"id": "open", "allowed_jurisdictions": ["US"]}}},
+    "spoofed deferred_job_id": {"metadata": {"deferred_job_id": "def-someone-else"}},
 }
 
 

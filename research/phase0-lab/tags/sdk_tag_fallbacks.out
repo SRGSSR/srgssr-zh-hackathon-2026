@@ -1,0 +1,3007 @@
+litellm version: ?
+litellm pkg version: 1.92.0
+
+### S1 baseline: A=[a-ch(ch)] up, req tags=[ch]
+  counts={'a-ch': 1}
+  outcome=('OK', 'a-ch', ['ch'])
+[92m17:37:13 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:37:13 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S2 router fallback A->B, a-ch down, B=[b-us(us), b-untagged], req=[ch], num_retries=0
+  counts={'a-ch': 1}
+  outcome=('ERR', 'ServiceUnavailableError', "litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A Available Model Group Fallbacks=['B'] Error doing the fallback: Not allowed to access model due to tags configuration. P")
+[92m17:37:18 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down LiteLLM Retried: 2 times, LiteLLM Max Retries: 2
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:37:18 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down LiteLLM Retried: 2 times, LiteLLM Max Retries: 2
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S3 same as S2 with num_retries=2
+  counts={'a-ch': 3}
+  outcome=('ERR', 'ServiceUnavailableError', "litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A Available Model Group Fallbacks=['B'] Error doing the fallback: Not allowed to access model due to tags configuration. P")
+
+### S4 router fallback A->B, B has b-ch(ch): n=10
+  counts={'a-ch': 10, 'b-ch': 10}
+  outcomes(n=10)={'OK:b-ch': 10}
+
+### S5 router fallback A->B, B=[b-default-us(default,us)], req=[ch]
+  counts={'a-ch': 1, 'b-default-us': 1}
+  outcome=('OK', 'b-default-us', ['ch', 'default', 'us'])
+[92m17:37:18 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:37:18 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S6 untagged request, A down -> B=[b-us(us)]
+  counts={'a-ch': 1}
+  outcome=('ERR', 'ServiceUnavailableError', "litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A Available Model Group Fallbacks=['B'] Error doing the fallback: Not allowed to access model due to tags configuration. P")
+
+### S6b untagged request, A=[a-ch(ch), a-us(us)] both up, n=20
+  counts={'a-ch': 15, 'a-us': 5}
+  outcomes(n=20)={'OK:a-ch': 15, 'OK:a-us': 5}
+
+### S6c req=[ch], A=[a-ch(ch), a-us(us)] both up, n=20
+  counts={'a-ch': 20}
+  outcomes(n=20)={'OK:a-ch': 20}
+
+### S7 POLLUTION retries: A=[a-ch(ch,shared) down, a-us(us,shared) up], req=[ch], num_retries=3
+  counts={'a-ch': 2, 'a-us': 1}
+  outcome=('OK', 'a-us', ['ch', 'shared', 'us'])
+
+### S7b control: A=[a-ch(ch) down, a-us(us) up], req=[ch], num_retries=3
+  counts={'a-ch': 4}
+  outcome=('ERR', 'ServiceUnavailableError', 'litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A Available Model Group Fallbacks=None LiteLLM Retried: 3 times, LiteLLM Max Retries: 3')
+
+### S8 POLLUTION fallback: A=[a-ch(ch,shared) down], B=[b-us(us,shared)], req=[ch]
+  counts={'a-ch': 1, 'b-us': 1}
+  outcome=('OK', 'b-us', ['ch', 'shared', 'us'])
+[92m17:37:18 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S8b control: A=[a-ch(ch) down], B=[b-us(us,shared)], req=[ch]
+  counts={'a-ch': 1}
+  outcome=('ERR', 'ServiceUnavailableError', "litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A Available Model Group Fallbacks=['B'] Error doing the fallback: Not allowed to access model due to tags configuration. P")
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch', 'shared']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch', 'shared']
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch', 'shared']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch', 'shared']
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S9 like S8 but tag_filtering_match_any=False
+  counts={'a-ch': 1}
+  outcome=('ERR', 'ServiceUnavailableError', "litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A Available Model Group Fallbacks=['B'] Error doing the fallback: Not allowed to access model due to tags configuration. P")
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch', 'shared']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch', 'shared']
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch', 'shared']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch', 'shared']
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S9b match_any=False: A=[a-ch(ch,shared) down], B=[b-ch(ch)], req=[ch]
+  counts={'a-ch': 1}
+  outcome=('ERR', 'ServiceUnavailableError', "litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A Available Model Group Fallbacks=['B'] Error doing the fallback: Not allowed to access model due to tags configuration. P")
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6079, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6079, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6079, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S10 request-level fallbacks=['B'] (no router fallbacks), B=[b-us, b-untagged]
+  counts={'a-ch': 1}
+  outcome=('ERR', 'ServiceUnavailableError', 'litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A Available Model Group Fallbacks=None Error doing the fallback: Not allowed to access model due to tags configuration. Pa')
+
+### S11 request-level fallbacks=[{'model':'B','metadata':{'tags':['us']}}]
+  counts={'a-ch': 1, 'b-us': 1}
+  outcome=('OK', 'b-us', ['ch'])
+
+### S11b request-level fallbacks=[{'model':'b-us'}] (deployment id)
+  counts={'a-ch': 1, 'b-us': 1}
+  outcome=('OK', 'b-us', ['ch', 'us'])
+
+### S11c request-level fallbacks=[{'model':'B','api_base':evil}]
+  counts={'a-ch': 1, 'evil': 1}
+  outcome=('OK', '6e2ee44b0939618ca3a2f719da5d51d760dc954bc980ab4da3fd98322da16065', ['ch'])
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.BadRequestError: Error code: 400 - {'error': {'message': "This model's maximum context length is 10 tokens. However, your messages resulted in 99999 tokens.", 'type': 'invalid_request_error', 'code': 'context_length_exceeded'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 400 - {'error': {'message': "This model's maximum context length is 10 tokens. However, your messages resulted in 99999 tokens.", 'type': 'invalid_request_error', 'code': 'context_length_exceeded'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6392, in async_function_with_retries
+    self.should_retry_this_error(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        error=e,
+        ^^^^^^^^
+    ...<4 lines>...
+        content_policy_fallbacks=content_policy_fallbacks,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6562, in should_retry_this_error
+    raise error
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 288, in _map_openai_exception
+    raise ContextWindowExceededError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ContextWindowExceededError: litellm.ContextWindowExceededError: litellm.BadRequestError: ContextWindowExceededError: OpenAIException - This model's maximum context length is 10 tokens. However, your messages resulted in 99999 tokens.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6104, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S12 context_window_fallbacks A->B, a-ch returns ctx error, B=[b-us, b-untagged]
+  counts={'a-ch': 1}
+  outcome=('ERR', 'ContextWindowExceededError', "litellm.ContextWindowExceededError: litellm.BadRequestError: ContextWindowExceededError: OpenAIException - This model's maximum context length is 10 tokens. However, your messages resulted in 99999 tokens.. Received Model Group=A ")
+
+### S12b context_window_fallbacks A->B, B has b-ch
+  counts={'a-ch': 5, 'b-ch': 5}
+  outcomes(n=5)={'OK:b-ch': 5}
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.BadRequestError: Error code: 400 - {'error': {'message': 'Your request was rejected as a result of our safety system (content_policy_violation).', 'type': 'invalid_request_error', 'code': 'content_policy_violation'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 400 - {'error': {'message': 'Your request was rejected as a result of our safety system (content_policy_violation).', 'type': 'invalid_request_error', 'code': 'content_policy_violation'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6392, in async_function_with_retries
+    self.should_retry_this_error(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        error=e,
+        ^^^^^^^^
+    ...<4 lines>...
+        content_policy_fallbacks=content_policy_fallbacks,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6565, in should_retry_this_error
+    raise error
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 315, in _map_openai_exception
+    raise ContentPolicyViolationError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ContentPolicyViolationError: litellm.BadRequestError: litellm.ContentPolicyViolationError: ContentPolicyViolationError: OpenAIException - Your request was rejected as a result of our safety system (content_policy_violation).
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6141, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10228, in async_get_healthy_deployments
+    healthy_deployments = await get_deployments_for_tag(  # type: ignore
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_strategy/tag_based_routing.py", line 242, in get_deployments_for_tag
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S13 content_policy_fallbacks A->B, a-ch returns policy error, B=[b-us, b-untagged]
+  counts={'a-ch': 1}
+  outcome=('ERR', 'ContentPolicyViolationError', 'litellm.BadRequestError: litellm.ContentPolicyViolationError: ContentPolicyViolationError: OpenAIException - Your request was rejected as a result of our safety system (content_policy_violation).. Received Model Group=A Available ')
+
+### S14 model='b-us' (deployment id) with req=[ch]
+  counts={'b-us': 1}
+  outcome=('OK', 'b-us', ['ch', 'us'])
+
+### S15 A=[a-ch(ch) down, b-default-us(default)] req=[ch] num_retries=2 allowed_fails=0 cooldown 60
+  counts={'a-ch': 1, 'b-default-us': 1}
+  outcome=('OK', 'b-default-us', ['ch', 'default'])
+
+### S16 SYNC Router.completion req=[ch], A=[a-ch(ch), a-us(us)] both up, n=20
+  counts={'a-ch': 9, 'a-us': 11}
+  outcomes(n=20)={'OK:a-us': 11, 'OK:a-ch': 9}
+
+### S17 routing_strategy=simple-shuffle req=[ch], A=[a-ch(ch), a-us(us)] both up, n=20
+  counts={'a-ch': 20}
+  outcomes(n=20)={'OK:a-ch': 20}
+
+### S17 routing_strategy=latency-based-routing req=[ch], A=[a-ch(ch), a-us(us)] both up, n=20
+  counts={'a-ch': 20}
+  outcomes(n=20)={'OK:a-ch': 20}
+
+### S17 routing_strategy=usage-based-routing req=[ch], A=[a-ch(ch), a-us(us)] both up, n=20
+  counts={'a-ch': 10, 'a-us': 10}
+  outcomes(n=20)={'OK:a-ch': 10, 'OK:a-us': 10}
+
+### S17 routing_strategy=usage-based-routing-v2 req=[ch], A=[a-ch(ch), a-us(us)] both up, n=20
+  counts={'a-ch': 20}
+  outcomes(n=20)={'OK:a-ch': 20}
+
+### S17 routing_strategy=least-busy req=[ch], A=[a-ch(ch), a-us(us)] both up, n=20
+  counts={'a-ch': 20}
+  outcomes(n=20)={'OK:a-ch': 20}
+
+### S17 routing_strategy=cost-based-routing req=[ch], A=[a-ch(ch), a-us(us)] both up, n=20
+  counts={'a-ch': 20}
+  outcomes(n=20)={'OK:a-ch': 20}
+
+### S18 enable_tag_filtering=False req=[ch], A=[a-ch, a-us], n=20
+  counts={'a-ch': 12, 'a-us': 8}
+  outcomes(n=20)={'OK:a-us': 8, 'OK:a-ch': 12}
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - b-ch downNo fallback model group found for original model_group=B. Fallbacks=[{'A': ['B']}]
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'b-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'b-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - b-ch downNo fallback model group found for original model_group=B. Fallbacks=[{'A': ['B']}]
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:37:19 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - b-ch downNo fallback model group found for original model_group=B. Fallbacks=[{'A': ['B']}]. Received Model Group=B
+Available Model Group Fallbacks=None
+Error doing the fallback: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - b-ch downNo fallback model group found for original model_group=B. Fallbacks=[{'A': ['B']}]
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a-ch down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - b-ch downNo fallback model group found for original model_group=B. Fallbacks=[{'A': ['B']}]. Received Model Group=B
+Available Model Group Fallbacks=None
+Error doing the fallback: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - b-ch downNo fallback model group found for original model_group=B. Fallbacks=[{'A': ['B']}]
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+### S19 all ch down: A=[a-ch down], B=[b-ch down], req=[ch]
+  counts={'a-ch': 1, 'b-ch': 1}
+  outcome=('ERR', 'ServiceUnavailableError', "litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A Available Model Group Fallbacks=['B'] Error doing the fallback: litellm.ServiceUnavailableError: ServiceUnavailableError")
+
+### S20 req=[ch,'!ch'] A=[a-ch(ch), a-us(us)]
+  counts={}
+  outcome=('ERR', 'ValueError', "Not allowed to access model due to tags configuration. Passed model=A and tags=['ch', '!ch']")
+
+### S20b req=['!us'] only (ban-only) A=[a-ch(ch), a-us(us)] n=10
+  counts={'a-ch': 10}
+  outcomes(n=10)={'OK:a-ch': 10}
+
+### S21 req litellm_metadata={'tags':['ch']} (SDK acompletion) A=[a-ch, a-us] n=20
+  counts={'a-ch': 20}
+  outcomes(n=20)={'OK:a-ch': 20}
+
+### S22 req=[ch]+user_agent='evil' ; a-us has tag_regex ^User-Agent: evil ; n=20
+  counts={'a-ch': 7, 'a-us': 13}
+  outcomes(n=20)={'OK:a-ch': 7, 'OK:a-us': 13}
+/usr/lib/python3.13/asyncio/runners.py:71: RuntimeWarning: coroutine 'Logging.async_success_handler' was never awaited
+  _cancel_all_tasks(loop)
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback

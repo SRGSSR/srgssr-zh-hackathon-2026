@@ -1,0 +1,82 @@
+{
+ "model_list": [
+  {
+   "model_name": "A",
+   "litellm_params": {
+    "model": "openai/a-ch-model",
+    "api_base": "http://127.0.0.1:9501/v1",
+    "api_key": "sk-mock-a-ch",
+    "tags": [
+     "ch"
+    ]
+   },
+   "model_info": {
+    "id": "a-ch"
+   }
+  },
+  {
+   "model_name": "B",
+   "litellm_params": {
+    "model": "openai/b-us-model",
+    "api_base": "http://127.0.0.1:9502/v1",
+    "api_key": "sk-mock-b-us",
+    "tags": [
+     "us"
+    ]
+   },
+   "model_info": {
+    "id": "b-us"
+   }
+  },
+  {
+   "model_name": "D",
+   "litellm_params": {
+    "model": "openai/d-ch-model",
+    "api_base": "http://127.0.0.1:9503/v1",
+    "api_key": "sk-mock-d-ch",
+    "tags": [
+     "ch"
+    ]
+   },
+   "model_info": {
+    "id": "d-ch"
+   }
+  },
+  {
+   "model_name": "D",
+   "litellm_params": {
+    "model": "openai/d-us-model",
+    "api_base": "http://127.0.0.1:9504/v1",
+    "api_key": "sk-mock-d-us",
+    "tags": [
+     "us"
+    ]
+   },
+   "model_info": {
+    "id": "d-us"
+   }
+  }
+ ],
+ "router_settings": {
+  "enable_tag_filtering": true,
+  "fallbacks": [
+   {
+    "A": [
+     "B"
+    ]
+   }
+  ],
+  "num_retries": 0,
+  "routing_strategy": "simple-shuffle"
+ },
+ "general_settings": {
+  "master_key": "sk-master",
+  "custom_auth": "custom_auth_tags.user_api_key_auth",
+  "reject_clientside_metadata_tags": true,
+  "custom_auth_run_common_checks": true
+ },
+ "litellm_settings": {
+  "drop_params": true,
+  "num_retries": 0
+ }
+}

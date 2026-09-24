@@ -1,0 +1,106 @@
+{
+ "model_list": [
+  {
+   "model_name": "A",
+   "litellm_params": {
+    "model": "openai/a-ch-model",
+    "api_base": "http://127.0.0.1:9301/v1",
+    "api_key": "sk-mock-a-ch",
+    "tags": [
+     "ch"
+    ]
+   },
+   "model_info": {
+    "id": "a-ch"
+   }
+  },
+  {
+   "model_name": "A",
+   "litellm_params": {
+    "model": "openai/a-us-model",
+    "api_base": "http://127.0.0.1:9302/v1",
+    "api_key": "sk-mock-a-us",
+    "tags": [
+     "us"
+    ]
+   },
+   "model_info": {
+    "id": "a-us"
+   }
+  },
+  {
+   "model_name": "B",
+   "litellm_params": {
+    "model": "openai/b-us-model",
+    "api_base": "http://127.0.0.1:9303/v1",
+    "api_key": "sk-mock-b-us",
+    "tags": [
+     "us"
+    ]
+   },
+   "model_info": {
+    "id": "b-us"
+   }
+  },
+  {
+   "model_name": "B",
+   "litellm_params": {
+    "model": "openai/b-untagged-model",
+    "api_base": "http://127.0.0.1:9304/v1",
+    "api_key": "sk-mock-b-untagged"
+   },
+   "model_info": {
+    "id": "b-untagged"
+   }
+  },
+  {
+   "model_name": "C",
+   "litellm_params": {
+    "model": "openai/c-ch-model",
+    "api_base": "http://127.0.0.1:9305/v1",
+    "api_key": "sk-mock-c-ch",
+    "tags": [
+     "ch"
+    ]
+   },
+   "model_info": {
+    "id": "c-ch"
+   }
+  },
+  {
+   "model_name": "C",
+   "litellm_params": {
+    "model": "openai/c-regex-model",
+    "api_base": "http://127.0.0.1:9306/v1",
+    "api_key": "sk-mock-c-regex",
+    "tag_regex": [
+     "^User-Agent: evil"
+    ]
+   },
+   "model_info": {
+    "id": "c-regex"
+   }
+  }
+ ],
+ "router_settings": {
+  "enable_tag_filtering": true,
+  "tag_filtering_match_any": true,
+  "fallbacks": [
+   {
+    "A": [
+     "B"
+    ]
+   }
+  ],
+  "num_retries": 0,
+  "routing_strategy": "latency-based-routing"
+ },
+ "general_settings": {
+  "master_key": "sk-master",
+  "custom_auth": "custom_auth_tags.user_api_key_auth"
+ },
+ "litellm_settings": {
+  "drop_params": true,
+  "num_retries": 0
+ }
+}

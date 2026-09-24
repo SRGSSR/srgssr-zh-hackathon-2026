@@ -1,0 +1,5 @@
+/app/.venv/lib/python3.13/site-packages/litellm/router.py:6441: RuntimeWarning: coroutine 'acompletion' was never awaited
+  original_exception = e
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+<sys>:0: RuntimeWarning: coroutine 'acompletion' was never awaited
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback

@@ -1,0 +1,39 @@
+ Build a public AI service 
+ Hackers Handbook Zurich 
+ Welcome to Zurich Hackathon 2026
+ / 😎
+ Challenges Overview
+ / Build a public AI service
+ Build a public AI service
+ 🚀 
+ What can you build on public AI infrastructure that you could (or would) never build on a private API?
+ 🔥 
+ Learn more about the Challenge
+ Q&A Session by Apertus Team and Public AI 
+Thu 17 Sep at 15.00h
+ 👉  signup here
+ Problem
+ Frontier AI today is delivered by a handful of private companies, on terms they can change at will. Switzerland has built the alternative: Apertus, a fully open model trained on public compute at CSCS, served through the Public AI Inference Utility ( chat.publicai.co
+) as public infrastructure, the way we run water, roads, and libraries. But infrastructure only matters if people build on it. Today the utility serves chat. It does not yet serve the civic applications that justify public AI: services for cantons and communes, schools, libraries, and civil society that need transparency, data sovereignty, and terms that will not shift under them.
+ Objective
+ Build a working application or utility feature on Apertus via the Public AI developer API. Directions we care about:
+ a service for a canton or commune, e.g. citizen-facing guidance in local language and law (reference: the Swiss National AI Dialogue
+ runs 26 cantonal agents on Apertus)
+ tools for schools and libraries
+ jurisdiction-aware or multilingual handling, including Swiss German and Romansh
+ a data contribution flow where users improve the model, Wikipedia style
+ a direct contribution to the open source utility itself ( github.com/forpublicai
+)
+ We judge on public value delivered, not polish.
+ Support for Hackers
+ Free developer API keys for Apertus 1.5 (260k context window, OpenAI-compatible endpoint)
+ API documentation and the full open source codebase (OpenWebUI fork plus LiteLLM routing)
+ The Swiss National AI Dialogue architecture as a reference for cantonal agents
+ Technical Preferences
+ Apertus via the Public AI API (OpenAI-compatible), any stack of on top. Submissions must be open source for prize eligibility; MIT or Apache 2.0 preferred.
+ Why hack?
+Your code can ship. The utility is open source and live in production; strong hackathon work gets merged and deployed to real users in Switzerland and beyond, with credit. You will be building on the same stack that serves sovereign models for the Swiss AI Initiative and AI Singapore. Prize: dinner with the Apertus and Public AI Switzerland team, plus a fast track into the Public AI Switzerland contributor community. About the Challenge Partner
+ Public AI Switzerland ( publicai.ch
+) is a cooperative connecting Swiss public compute (CSCS) and Apertus to companies, cantons, and civil society. It is the Swiss distribution layer of the Public AI Inference Utility ( chat.publicai.co
+), a nonprofit access point for sovereign open models, supported by Mozilla and the Future of Life Institute, with partners including the Swiss AI Initiative, AI Singapore, AI Sweden, and the Barcelona Supercomputing Center.
+ 

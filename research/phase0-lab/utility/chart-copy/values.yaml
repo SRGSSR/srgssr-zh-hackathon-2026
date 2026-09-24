@@ -1,0 +1,133 @@
+app:
+  name: litellm
+  image:
+    repository: ghcr.io/forpublicai/litellm-database
+    tag: v1.92.0
+    pullPolicy: Always
+  replicas: 2
+  minReadySeconds: 30
+  terminationGracePeriodSeconds: 30
+  port: 4000
+  startupProbe:
+    enabled: true
+    path: /health/liveliness
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 20
+  livenessProbe:
+    enabled: true
+    path: /health/liveliness
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    enabled: true
+    path: /health/readiness
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  resources:
+    requests:
+      memory: 3Gi
+      cpu: 300m
+    limits:
+      memory: 4Gi
+      cpu: 1000m
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - litellm
+            topologyKey: kubernetes.io/hostname
+        - weight: 50
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - litellm
+            topologyKey: topology.kubernetes.io/zone
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app: litellm
+  nodeSelector: {}
+  tolerations: []
+service:
+  name: litellm-service
+  type: ClusterIP
+  port: 4000
+  targetPort: 4000
+serviceAccount:
+  enabled: true
+  name: litellm-sa
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::901779868336:role/AmazonEKS_LiteLLM_Role
+config:
+  litellm_settings:
+    num_retries: 5
+    allowed_fails: 1
+    cooldown_time: 30
+    cache: true
+    require_auth_for_metrics_endpoint: false
+    cache_params:
+      type: redis
+      namespace: litellm.caching
+      ttl: 600
+secrets:
+  name: litellm-secrets
+  manualSecretsName: ""
+  managedSecretsName: ""
+  dbPasswordArn: ""
+
+
+# Environment variables
+env:
+  aws_region: eu-central-1
+  litellmRedisPort: '6379'
+  litellmRedisNamespace: litellm
+router:
+  routingStrategy: latency-based-routing
+  redisUrl: "os.environ/REDIS_URL"
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 85
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+lago:
+  enabled: true
+  eventCode: public_ai_models
+  chargeBy: end_user_id
+  apiBase: https://lago-api.publicai.co
+prometheus:
+  enabled: false
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

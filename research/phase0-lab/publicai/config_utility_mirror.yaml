@@ -1,0 +1,53 @@
+model_list:
+- model_name: swiss-ai/apertus-v1.5-70b
+  litellm_params:
+    model: openai/swiss-ai/Apertus-v1.5-70B
+    api_base: http://127.0.0.1:9201/v1
+    api_key: k-infomaniak-70b
+    supports_vision: true
+    weight: 1
+    temperature: 0.8
+    top_p: 0.9
+    max_tokens: 8192
+  model_info:
+    id: infomaniak-70b
+- model_name: swiss-ai/apertus-v1.5-70b
+  litellm_params:
+    model: openai/swiss-ai/Apertus-v1.5-70B
+    api_base: http://127.0.0.1:9202/v1
+    api_key: k-featherless-70b
+    supports_vision: true
+    weight: 1
+    temperature: 0.8
+    top_p: 0.9
+    max_tokens: 8192
+  model_info:
+    id: featherless-70b
+- model_name: aisingapore/Qwen-SEA-LION-v4-32B-IT
+  litellm_params:
+    model: openai/aisingapore/Qwen-SEA-LION-v4-32B-IT
+    api_base: http://127.0.0.1:9203/v1
+    api_key: k-sealion-32b
+  model_info:
+    id: sealion-32b
+- model_name: speakleash/Bielik-11B-v3.0-Instruct
+  litellm_params:
+    model: openai/speakleash/Bielik-11B-v3.0-Instruct
+    api_base: http://127.0.0.1:9204/v1
+    api_key: k-bielik-11b
+  model_info:
+    id: bielik-11b
+router_settings:
+  routing_strategy: latency-based-routing
+  fallbacks:
+  - swiss-ai/apertus-v1.5-70b:
+    - aisingapore/Qwen-SEA-LION-v4-32B-IT
+    - speakleash/Bielik-11B-v3.0-Instruct
+litellm_settings:
+  num_retries: 1
+  allowed_fails: 1
+  cooldown_time: 30
+  drop_params: true
+  request_timeout: 5
+general_settings:
+  master_key: sk-master-local-test

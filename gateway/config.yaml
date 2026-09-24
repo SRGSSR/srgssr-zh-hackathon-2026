@@ -126,7 +126,9 @@ router_settings:
     - swiss-ai/apertus-v1.5-70b: ["aisingapore/Qwen-SEA-LION-v4-32B-IT"]
 
 litellm_settings:
-  callbacks: ["policy.policy_hook"]
+  # policy: the commune's rule on every attempt. deferred: adds /v1/deferred/* so a request that
+  # cannot be served within the rule right now waits in the gateway and completes later.
+  callbacks: ["policy.policy_hook", "deferred.deferred_plugin"]
   drop_params: true
   request_timeout: 160
 

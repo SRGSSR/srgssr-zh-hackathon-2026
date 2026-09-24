@@ -1,0 +1,44 @@
+ 
+ Public AI Gateway - Developer Portal 
+ Docs 
+ API Reference 
+ Account 
+ Public AI Website 
+ Chat 
+ GitHub 
+ Get Involved 
+ Legal Terms & Privacy 
+ © 2026 Public AI Inference Utility. All rights reserved.
+ Quick Start Available Models Plans & Rate Limits Inference Partners FAQ Support Us 
+ Menu 
+ Docs
+ Copy page 
+ Inference Partners FAQ 
+ This FAQ is for organizations interested in providing inference compute to the Public AI Gateway — our unified access point for open-source AI models.
+ About the Partnership Program 
+ What is the Public AI Gateway? 
+ The Public AI Gateway is a unified API that routes requests to open-source models hosted by inference partners worldwide. We handle load balancing, traffic routing, and failover so developers can access public AI models through a single OpenAI-compatible endpoint.
+ The gateway currently hosts models from partners including Swiss AI, AISingapore, Allen AI, and others. We are actively expanding our partner network.
+ What does an inference partner provide? 
+ Inference partners contribute GPU compute to host open-source models on the gateway. Partners retain visibility for their participation and help demonstrate that public, open-source AI can be delivered outside the orbit of big tech.
+ Can inference partners make their own announcements? 
+ Yes. We encourage partners to share their participation. We ask that partner announcements align with central Public AI messaging. A comms toolkit with sample language can be provided upon request.
+ How does coordination work? 
+ Dedicated channels are set up for technical and communications coordination
+ Each partner should designate a point of contact for technical and communications matters
+ Getting Involved 
+ Ready to become an inference partner? Contact us at [email protected] with:
+ Your organization details
+ Available compute resources
+ Technical contact information
+ Preferred communication channels
+ We'll provide you with the technical integration guide and partnership agreement.
+ Last modified on September 24, 2026 
+ Plans & Rate Limits Support Us 
+ On this page
+ About the Partnership Program What is the Public AI Gateway? 
+ What does an inference partner provide? 
+ Can inference partners make their own announcements? 
+ How does coordination work? 
+ Getting Involved 
+ 

@@ -1,0 +1,58 @@
+model_list:
+- model_name: apertus
+  litellm_params:
+    model: openai/x
+    api_base: http://127.0.0.1:9101/v1
+    api_key: k
+    weight: 1000
+  model_info:
+    id: ch-1
+    jurisdiction: CH
+    provider: mock
+    country: CH
+- model_name: apertus
+  litellm_params:
+    model: openai/x
+    api_base: http://127.0.0.1:9102/v1
+    api_key: k
+    weight: 1
+  model_info:
+    id: ch-2
+    jurisdiction: CH
+    provider: mock
+    country: CH
+- model_name: fbgrp
+  litellm_params:
+    model: openai/x
+    api_base: http://127.0.0.1:9103/v1
+    api_key: k
+  model_info:
+    id: fb-1
+    jurisdiction: CH
+    provider: mock
+    country: CH
+- model_name: slow
+  litellm_params:
+    model: openai/x
+    api_base: http://127.0.0.1:9105/v1
+    api_key: k
+  model_info:
+    id: slow-1
+    jurisdiction: CH
+    provider: mock
+    country: CH
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 2
+  allowed_fails: 0
+  cooldown_time: 4
+  timeout: 2
+  fallbacks:
+  - apertus:
+    - fbgrp
+litellm_settings:
+  callbacks:
+  - proxy_recorder.proxy_handler_instance
+  drop_params: true
+general_settings:
+  master_key: sk-lab-master

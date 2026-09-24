@@ -83,12 +83,38 @@ class Bench:
             time.sleep(0.5)
         raise AssertionError(f"job {job_id} did not reach {statuses}, last: {self.job(job_id)['status']}")
 
+    # --- gateway deferred API (the queue lives in the gateway)
+    def deferred(self, method, path, key=KEY, **kw):
+        return self.http.request(method, f"{GATEWAY_URL}/v1/deferred/{path}", headers={"Authorization": f"Bearer {key}"}, **kw)
+
+    def deferred_submit(self, body_extra=None, key=KEY):
+        body = {"model": GROUP, "messages": [{"role": "user", "content": LETTER}]}
+        body.update(body_extra or {})
+        return self.deferred("POST", "chat/completions", key=key, json=body)
+
+    def deferred_job(self, job_id, key=KEY):
+        return self.deferred("GET", "jobs", key=key, params={"id": job_id})
+
+    def deferred_wait(self, job_id, statuses, timeout=90):
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            j = self.deferred_job(job_id).json()
+            if j["status"] in statuses:
+                return j
+            time.sleep(0.5)
+        raise AssertionError(f"deferred job {job_id} did not reach {statuses}")
+
     def cancel_pending(self):
-        for job_id in self.http.get(f"{APP_URL}/api/pending").json():
-            self.http.post(f"{APP_URL}/api/jobs/{job_id}/cancel")
-        # a job already in flight finishes its current gateway call; let it drain
-        deadline = time.time() + 30
-        while self.http.get(f"{APP_URL}/api/pending").json() and time.time() < deadline:
+        """Cancel every unfinished deferred job of the commune key and wait until none is in flight,
+        so a job from one test never reaches an endpoint during the next test."""
+        pending = "queued,running,waiting"
+        for j in self.deferred("GET", "jobs", params={"status": pending, "limit": 200}).json()["data"]:
+            self.deferred("POST", "cancel", json={"id": j["id"]})
+        deadline = time.time() + 45
+        while time.time() < deadline:
+            recent = self.deferred("GET", "jobs", params={"limit": 200}).json()["data"]
+            if not any(j["inflight"] for j in recent):
+                return
             time.sleep(0.5)
 
     def wake(self, job_id):

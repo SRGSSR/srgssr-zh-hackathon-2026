@@ -48,9 +48,11 @@ services:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-master-local-only}
       MUSTERSTADT_API_KEY: ${MUSTERSTADT_API_KEY:-sk-musterstadt-demo}
       NOPOLICY_API_KEY: ${NOPOLICY_API_KEY:-sk-nopolicy-test}
-      EVENT_SINK_URL: http://app:8080/internal/events
-      EVENT_SINK_TOKEN: ${INTERNAL_TOKEN:-local-internal-token}
+      DEFERRED_RETRY_MAX_SECONDS: ${RETRY_MAX_SECONDS:-20}
       LITELLM_LOG: ERROR
+    volumes:
+      # The gateway's local store: deferred requests wait here (authorized environment).
+      - gateway-data:/data
     ports: ["127.0.0.1:4000:4000"]
     depends_on: [ep-publicai, ep-ch-1, ep-ch-2, ep-us-1, ep-nometa, ep-sg-1]
     healthcheck:
@@ -68,11 +70,7 @@ services:
       GATEWAY_API_KEY: ${MUSTERSTADT_API_KEY:-sk-musterstadt-demo}
       GATEWAY_MODEL: swiss-ai/apertus-v1.5-70b
       GATEWAY_CONFIG: /config/config.yaml
-      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-local-internal-token}
       DB_PATH: /data/app.db
-      RETRY_MAX_SECONDS: ${RETRY_MAX_SECONDS:-20}
-      # test-bench-only endpoint that lists pending jobs; the app has no user accounts (prototype)
-      ENABLE_TEST_API: ${ENABLE_TEST_API:-1}
     volumes:
       - ./gateway:/config:ro
       - ./samples:/samples:ro
@@ -100,3 +98,4 @@ services:
 
 volumes:
   app-data:
+  gateway-data:

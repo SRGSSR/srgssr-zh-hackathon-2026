@@ -1,0 +1,47 @@
+[
+ {
+  "url": "https://api.publicai.co/v1/models",
+  "request_headers": {
+   "User-Agent": "swiss-ai-weeks-hackathon-research/0.1"
+  },
+  "status": 401,
+  "response_headers": {
+   "Date": "Thu, 24 Sep 2026 17:43:37 GMT",
+   "Content-Type": "application/problem+json",
+   "Content-Length": "378",
+   "Connection": "close",
+   "zp-rid": "6f5977f4-bf14-4524-bcc7-d65d08f8ee97",
+   "Cf-Placement": "local-ZRH",
+   "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+   "Server": "cloudflare",
+   "cf-cache-status": "DYNAMIC",
+   "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=4RmqgKUP%2BtfJuIRX5sCweAiXZfRjX6RkXgKLIx%2FHpu7Y2H7IrxazHadeXQ2DRcvsrVnWYZBKDOBzj51IRbD6n12Ow62ZY7Bj%2FRBiG3Z3z8Bwad%2B4DjHOLHQBY3ECE4cRlvs%3D\"}]}",
+   "CF-RAY": "a40397aa0c61fbd6-ZRH",
+   "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "body_prefix": "{\n  \"type\": \"https://httpproblems.com/http-status/401\",\n  \"title\": \"Unauthorized\",\n  \"status\": 401,\n  \"detail\": \"No Authorization Header\",\n  \"instance\": \"/v1/models\",\n  \"trace\": {\n    \"timestamp\": \"2026-09-24T17:43:37.299Z\",\n    \"requestId\": \"6f5977f4-bf14-4524-bcc7-d65d08f8ee97\",\n    \"buildId\": \"f654c16e-b247-4b93-b866-9aad1b25546b\",\n    \"rayId\": \"a40397aa0c61fbd6-ZRH\"\n  }\n}"
+ },
+ {
+  "url": "https://api.publicai.co/v1/models",
+  "request_headers": {
+   "User-Agent": "Python-urllib/3"
+  },
+  "status": 403,
+  "response_headers": {
+   "Date": "Thu, 24 Sep 2026 17:43:37 GMT",
+   "Content-Type": "text/plain; charset=UTF-8",
+   "Content-Length": "17",
+   "Connection": "close",
+   "Cache-Control": "private, max-age=0, no-store, no-cache, must-revalidate, post-check=0, pre-check=0",
+   "Expires": "Thu, 01 Jan 1970 00:00:01 GMT",
+   "Referrer-Policy": "same-origin",
+   "X-Frame-Options": "SAMEORIGIN",
+   "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=%2FFolHIL0HKFY2BcifkAGvAtYaU3LpJMHPymdUUCp2zNgXov0fkMejyqmgVrI6mWHEGio8zMk56miSSLzcv6KuByjObaXkkLAqOxMQKs%2BntY19RxjyYU%2Bl5znFB3jMWvRo8U%3D\"}]}",
+   "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+   "Server": "cloudflare",
+   "CF-RAY": "a40397ab6e5eeda3-MXP",
+   "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "body_prefix": "error code: 1010\n"
+ }
+]

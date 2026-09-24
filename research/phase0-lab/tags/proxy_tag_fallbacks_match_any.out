@@ -1,0 +1,111 @@
+proxy up, variant=match_any
+
+### P1 sk-commune (key tags=[ch]) model A, n=10
+  counts={'a-ch': 10}
+  responses={'200:a-ch': 10}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P2 sk-commune + body tags=['us'] n=10
+  counts={'a-us': 10}
+  responses={'200:a-us': 10}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P2b sk-commune + header x-litellm-tags: us n=10
+  counts={'a-us': 10}
+  responses={'200:a-us': 10}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P2c sk-commune + body metadata.tags=['us'] n=10
+  counts={'a-us': 10}
+  responses={'200:a-us': 10}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P2d sk-team (team tags=[ch]) + body tags=['us'] n=10
+  counts={'a-us': 10}
+  responses={'200:a-us': 10}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P2e sk-team (team tags=[ch]) no client tags n=10
+  counts={'a-ch': 10}
+  responses={'200:a-ch': 10}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P2f sk-commune + body litellm_metadata.tags=['us'] n=10
+  counts={'a-us': 10}
+  responses={'200:a-us': 10}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P3 sk-commune + body tags=['!ch']
+  counts={}
+  responses={'401:None': 1}
+  last_error={"error":{"message":"Not allowed to access model due to tags configuration. Passed model=A and tags=['ch', '!ch']","type":"None","param":"None","code":"401"}}
+
+### P4 sk-commune, a-ch down, router fallback A->B (B=[b-us(us), b-untagged])
+  counts={'a-ch': 1}
+  responses={'401:None': 1}
+  last_error={"error":{"message":"litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A\nAvailable Model Group Fallbacks=['B']\nError doing the fallback: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']","type":null,"par
+
+### P5 sk-commune, a-ch down, client fallbacks=[{'model':'B','metadata':{'tags':['us']}}]
+  counts={'a-ch': 1, 'b-us': 1}
+  responses={'200:b-us': 1}
+  attempted_fallbacks=1 attempted_retries=0
+
+### P5b sk-commune, a-ch down, client fallbacks=['B']
+  counts={'a-ch': 1}
+  responses={'401:None': 1}
+  last_error={"error":{"message":"litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A\nAvailable Model Group Fallbacks=None\nError doing the fallback: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']","type":null,"para
+
+### P5c sk-commune, a-ch down, client fallbacks=[{'model':'b-us'}] (deployment id)
+  counts={'a-ch': 1, 'b-us': 1}
+  responses={'200:b-us': 1}
+  attempted_fallbacks=1 attempted_retries=0
+
+### P5d sk-commune, a-ch down, client fallbacks=[{'model':'B','tags':['us']}]
+  counts={'a-ch': 1}
+  responses={'401:None': 1}
+  last_error={"error":{"message":"litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A\nAvailable Model Group Fallbacks=None\nError doing the fallback: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']","type":null,"para
+
+### P6 sk-commune, a-ch down, client fallbacks=[{'model':'B','api_base':evil}]
+  counts={'a-ch': 1}
+  responses={'401:None': 1}
+  last_error={"error":{"message":"litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A\nAvailable Model Group Fallbacks=None\nError doing the fallback: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']","type":null,"para
+
+### P6b control: root-level api_base in body
+  counts={}
+  responses={'401:None': 1}
+  last_error={"error":{"message":"Authentication Error, Rejected Request: api_base is not allowed in request body. Clientside passthrough requires explicit admin opt-in via either `general_settings.allow_client_side_credentials = true` (proxy-wide) or `configurable_clientside_auth_params` on the deployment in yo
+
+### P7 sk-commune model='a-us' (deployment id) n=3
+  counts={'a-us': 3}
+  responses={'200:a-us': 3}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P7b sk-commune model='openai/a-us-model' (litellm_params.model) n=3
+  counts={}
+  responses={'401:None': 3}
+  last_error={"error":{"message":"Not allowed to access model due to tags configuration. Passed model=openai/a-us-model and tags=['ch']","type":"None","param":"None","code":"401"}}
+
+### P8 sk-open (no tags) no client tags model A n=10
+  counts={'a-us': 10}
+  responses={'200:a-us': 10}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P9 sk-commune model C, User-Agent: evil/1.0 n=10
+  counts={'c-ch': 9, 'c-regex': 1}
+  responses={'200:c-regex': 1, '200:c-ch': 9}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P9b sk-commune model C, default UA n=10
+  counts={'c-ch': 10}
+  responses={'200:c-ch': 10}
+  attempted_fallbacks=0 attempted_retries=0
+
+### P10 sk-commune, a-ch down, mock_testing_fallbacks? (no) ; client disable_fallbacks=true
+  counts={'a-ch': 1}
+  responses={'503:None': 1}
+  last_error={"error":{"message":"litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down","type":null,"param":null,"code":"503"}}
+
+### P11 sk-commune + body user_config (client-supplied router)
+  counts={}
+  responses={'401:None': 1}
+  last_error={"error":{"message":"Authentication Error, Rejected Request: user_config is not allowed in request body. Clientside passthrough requires explicit admin opt-in via either `general_settings.allow_client_side_credentials = true` (proxy-wide) or `configurable_clientside_auth_params` on the deployment in

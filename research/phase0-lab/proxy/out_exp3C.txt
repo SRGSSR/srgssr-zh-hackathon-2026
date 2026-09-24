@@ -1,0 +1,248 @@
+
+################ CONFIG C  key=sk-commune-a  deployments=7
+
+--- V01 baseline
+    status=[200] counts={'mock-ch-1': 1} model-id=ch-1 group=apertus-ch body.model='apertus-ch' content='hello from mock-ch-1'
+    [filter] model=apertus-ch in=['ch-1', 'ch-2'] out=['ch-1', 'ch-2'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "a828e69b-9fb0-4f3f-9b29-06d5925bdd6b"}
+    [pre_send] dep=ch-1 jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'ch-1', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-1... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=ch-1 model_info={'id': 'ch-1', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer k-ch-1' extra_keys=[]
+
+--- V02 body metadata spoof (user_api_key_*, tags, model_info) + model=sealion-sg
+    status=[429] counts={} model-id=None group=None body.model=None content=None
+    error='No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]' code=429
+    [filter] model=sealion-sg in=['sg-1'] out=[] policy(user_api_key_metadata)=['CH'] tags=['sg', 'commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=['SG'] md.policy_id=none
+    [filter] top-level kwargs: {"litellm_call_id": "70fda0f1-6611-4834-a5d9-24309afd1f8f"}
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={}
+
+--- V03 litellm_metadata spoof + model=sealion-sg
+    status=[429] counts={} model-id=None group=None body.model=None content=None
+    error='No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]' code=429
+    [filter] model=sealion-sg in=['sg-1'] out=[] policy(user_api_key_metadata)=['CH'] tags=['sg', 'commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=['SG'] md.policy_id=none
+    [filter] top-level kwargs: {"litellm_call_id": "13b21a44-6be1-43c6-bc4c-fc00eca66f03"}
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={}
+
+--- V04 metadata as JSON string spoof + model=sealion-sg
+    status=[429] counts={} model-id=None group=None body.model=None content=None
+    error='No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]' code=429
+    [filter] model=sealion-sg in=['sg-1'] out=[] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "539879a8-5bb3-4a8f-9a38-ec2822f8bd79"}
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={}
+
+--- V05 top-level tags=[sg] model=mixed x6
+    status=[200, 200, 200, 200, 200, 200] counts={'mock-ch-1': 6} model-id=mx-ch group=mixed body.model='mixed' content='hello from mock-ch-1'
+    [filter] model=mixed in=['mx-ch', 'mx-sg'] out=['mx-ch'] policy(user_api_key_metadata)=['CH'] tags=['commune-a', 'sg'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"tags": ["sg"], "litellm_call_id": "4ed5df93-3692-49a7-8d1c-e1e3422ea2be"}
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+
+--- V06 header x-litellm-tags: sg model=mixed x6
+    status=[200, 200, 200, 200, 200, 200] counts={'mock-ch-1': 6} model-id=mx-ch group=mixed body.model='mixed' content='hello from mock-ch-1'
+    [filter] model=mixed in=['mx-ch', 'mx-sg'] out=['mx-ch'] policy(user_api_key_metadata)=['CH'] tags=['commune-a', 'sg'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "8aa37b59-5ea5-4fbd-b58f-1223a3945c38"}
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [pre_send] dep=mx-ch jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-mx-c... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [resp_headers_hook] litellm_call_info.model_id=mx-ch model_info={'id': 'mx-ch', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+    [mock-ch-1] got model=mixed-upstream auth='Bearer k-mx-ch' extra_keys=[]
+
+--- V07 body fallbacks=[sealion-sg], CH down
+    status=[429] counts={'mock-ch-1': 1, 'mock-ch-2': 1} model-id=None group=None body.model=None content=None
+    error='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-2 down. Received Model Group=apertus-ch\nAvailable Model Group Fallbacks=None\nError doing the fallback: No deployments available for selected model' code=429
+    [filter] model=apertus-ch in=['ch-1', 'ch-2'] out=['ch-1', 'ch-2'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "91e7e896-ddd5-4150-9b98-7b231857fd2e"}
+    [pre_send] dep=ch-1 jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'ch-1', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-1... num_retries=None
+    [pre_send] dep=ch-2 jur=CH api_base=http://127.0.0.1:9102/v1 decision=allowed kw.model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-2... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer k-ch-1' extra_keys=[]
+    [mock-ch-2] got model=apertus-ch-upstream auth='Bearer k-ch-2' extra_keys=[]
+
+--- V08 body router_settings_override.fallbacks, CH down
+    status=[429] counts={'mock-ch-2': 2} model-id=None group=None body.model=None content=None
+    error="litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-2 down. Received Model Group=apertus-ch\nAvailable Model Group Fallbacks=['bielik-pl']\nError doing the fallback: No deployments available for selec" code=429
+    [filter] model=apertus-ch in=['ch-1', 'ch-2'] out=['ch-1', 'ch-2'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "0523b02d-34c3-4c75-af2b-ac90274c1860"}
+    [pre_send] dep=ch-2 jur=CH api_base=http://127.0.0.1:9102/v1 decision=allowed kw.model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-2... num_retries=None
+    [pre_send] dep=ch-2 jur=CH api_base=http://127.0.0.1:9102/v1 decision=allowed kw.model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-2... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-2] got model=apertus-ch-upstream auth='Bearer k-ch-2' extra_keys=[]
+    [mock-ch-2] got model=apertus-ch-upstream auth='Bearer k-ch-2' extra_keys=[]
+
+--- V09 body api_base -> sg mock
+    status=[401] counts={} model-id=None group=None body.model=None content=None
+    error='Authentication Error, Rejected Request: api_base is not allowed in request body. Clientside passthrough requires explicit admin opt-in via either `general_settings.allow_client_side_credentials = true` (proxy-wide) or `configurabl' code=401
+    [filter] async_filter_deployments NOT called
+
+--- V10 body base_url -> sg mock
+    status=[401] counts={} model-id=None group=None body.model=None content=None
+    error='Authentication Error, Rejected Request: base_url is not allowed in request body. Clientside passthrough requires explicit admin opt-in via either `general_settings.allow_client_side_credentials = true` (proxy-wide) or `configurabl' code=401
+    [filter] async_filter_deployments NOT called
+
+--- V11 body api_key only (clientside credential)
+    status=[200] counts={'mock-ch-1': 1} model-id=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c group=apertus-ch body.model='apertus-ch' content='hello from mock-ch-1'
+    [filter] model=apertus-ch in=['ch-1', 'ch-2'] out=['ch-1', 'ch-2'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"api_key": "client...", "litellm_call_id": "1afed1f9-e731-479f-bab2-fd79799f45e4"}
+    [pre_send] dep=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'updated_at': None, 'updated_by': None, 'created_at': None, 'created_by': None, 'base_model': None, 'tier': None, 'team_id': None, 'team_public_model_name': None, 'blocked': None, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'} kw.api_key=client... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'updated_at': None, 'updated_by': None, 'created_at': None, 'created_by': None, 'base_model': None, 'tier': None, 'team_id': None, 'team_public_model_name': None, 'blocked': None, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'}
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer client-supplied' extra_keys=[]
+
+--- V12 model = deployment id 'sg-1'
+    status=[500] counts={} model-id=None group=None body.model=None content=None
+    error='policy CH-only: deployment sg-1 (SG) blocked before send' code=500
+    [filter] async_filter_deployments NOT called
+    [pre_send] dep=sg-1 jur=SG api_base=http://127.0.0.1:9103/v1 decision=blocked_before_send kw.model_info={'id': 'sg-1', 'db_model': False, 'provider': 'sea-lion', 'country': 'SG', 'jurisdiction': 'SG'} kw.api_key=k-sg-1... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={'id': 'sg-1', 'db_model': False, 'provider': 'sea-lion', 'country': 'SG', 'jurisdiction': 'SG'}
+
+--- V13 model = litellm_params.model 'openai/sealion-sg-upstream'
+    status=[429] counts={} model-id=None group=None body.model=None content=None
+    error='No deployments available for selected model, Try again in 5 seconds. Passed model=openai/sealion-sg-upstream. pre-call-checks=False, cooldown_list=[]' code=429
+    [filter] model=openai/sealion-sg-upstream in=['sg-1'] out=[] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "b039c82e-b5a3-4724-8667-35274d8c1737"}
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={}
+
+--- V14 model = unlisted 'openai/gpt-x'
+    status=[400] counts={} model-id=None group=None body.model=None content=None
+    error='/chat/completions: Invalid model name passed in model=openai/gpt-x. Call `/v1/models` to view available models for your key.' code=400
+    [filter] async_filter_deployments NOT called
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={}
+
+--- V15 model = 'apertus-ch,sealion-sg' (comma -> batch completion)
+    status=[200] counts={'mock-ch-2': 1} model-id=None group=None body.model=None content=None
+    [filter] model=apertus-ch in=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] out=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "e5942d08-10ae-40cd-b358-94b881e5ed5f"}
+    [pre_send] dep=ch-2 jur=CH api_base=http://127.0.0.1:9102/v1 decision=allowed kw.model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-2... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-2] got model=apertus-ch-upstream auth='Bearer k-ch-2' extra_keys=[]
+
+--- V16 mock_response
+    status=[200] counts={'mock-ch-1': 1} model-id=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c group=apertus-ch body.model='apertus-ch' content='hello from mock-ch-1'
+    [filter] model=apertus-ch in=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] out=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "684c2669-aeea-4ede-9370-46ebf6fa8cdb"}
+    [pre_send] dep=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'} kw.api_key=client... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'}
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer client-supplied' extra_keys=[]
+
+--- V17 mock_testing_fallbacks=true (all up)
+    status=[200] counts={'mock-ch-1': 1} model-id=ch-1 group=apertus-ch body.model='apertus-ch' content='hello from mock-ch-1'
+    [filter] model=apertus-ch in=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] out=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "01b3ae38-8849-4c51-b200-bf51aee31e5f"}
+    [pre_send] dep=ch-1 jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'ch-1', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-1... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=ch-1 model_info={'id': 'ch-1', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer k-ch-1' extra_keys=[]
+
+--- V18 disable_fallbacks=true, CH down
+    status=[503] counts={'mock-ch-1': 2} model-id=None group=None body.model=None content=None
+    error='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down' code=503
+    [filter] model=apertus-ch in=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] out=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "5d588373-bf6f-4816-ac6c-21c2357ab8e7"}
+    [pre_send] dep=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'} kw.api_key=client... num_retries=None
+    [pre_send] dep=ch-1 jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'ch-1', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-1... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={'id': 'ch-1', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer client-supplied' extra_keys=[]
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer k-ch-1' extra_keys=[]
+
+--- V19 body num_retries=4, CH down
+    status=[429] counts={'mock-ch-1': 4, 'mock-ch-2': 1} model-id=None group=None body.model=None content=None
+    error="litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down. Received Model Group=apertus-ch\nAvailable Model Group Fallbacks=['sealion-sg']\nError doing the fallback: No deployments available for sele" code=429
+    [filter] model=apertus-ch in=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] out=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "363a6a71-1e20-4370-a61e-5440c5c624f3"}
+    [pre_send] dep=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'} kw.api_key=client... num_retries=None
+    [pre_send] dep=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'} kw.api_key=client... num_retries=None
+    [pre_send] dep=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'} kw.api_key=client... num_retries=None
+    [pre_send] dep=ch-2 jur=CH api_base=http://127.0.0.1:9102/v1 decision=allowed kw.model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-2... num_retries=None
+    [pre_send] dep=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'} kw.api_key=client... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'}
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer client-supplied' extra_keys=[]
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer client-supplied' extra_keys=[]
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer client-supplied' extra_keys=[]
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer client-supplied' extra_keys=[]
+    [mock-ch-2] got model=apertus-ch-upstream auth='Bearer k-ch-2' extra_keys=[]
+
+--- V20 header x-litellm-num-retries: 4, CH down
+    status=[429] counts={'mock-ch-1': 2, 'mock-ch-2': 3} model-id=None group=None body.model=None content=None
+    error="litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-2 down. Received Model Group=apertus-ch\nAvailable Model Group Fallbacks=['sealion-sg']\nError doing the fallback: No deployments available for sele" code=429
+    [filter] model=apertus-ch in=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] out=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "9e6d71c3-13dc-4aca-9a05-b7a866cddddc"}
+    [pre_send] dep=ch-2 jur=CH api_base=http://127.0.0.1:9102/v1 decision=allowed kw.model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-2... num_retries=None
+    [pre_send] dep=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'} kw.api_key=client... num_retries=None
+    [pre_send] dep=ch-1 jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': 'ch-1', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-1... num_retries=None
+    [pre_send] dep=ch-2 jur=CH api_base=http://127.0.0.1:9102/v1 decision=allowed kw.model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-2... num_retries=None
+    [pre_send] dep=ch-2 jur=CH api_base=http://127.0.0.1:9102/v1 decision=allowed kw.model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-2... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer client-supplied' extra_keys=[]
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer k-ch-1' extra_keys=[]
+    [mock-ch-2] got model=apertus-ch-upstream auth='Bearer k-ch-2' extra_keys=[]
+    [mock-ch-2] got model=apertus-ch-upstream auth='Bearer k-ch-2' extra_keys=[]
+    [mock-ch-2] got model=apertus-ch-upstream auth='Bearer k-ch-2' extra_keys=[]
+
+--- V21 top-level model_info spoof + model=sealion-sg
+    status=[429] counts={} model-id=None group=None body.model=None content=None
+    error='No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]' code=429
+    [filter] model=sealion-sg in=['sg-1'] out=[] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"model_info": {"id": "ch-1", "jurisdiction": "CH"}, "litellm_call_id": "8f316b3b-fb41-403f-b3d4-6d38d7dfee62"}
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={}
+
+--- V22 header x-litellm-timeout: 0.001 (all up)
+    status=[200] counts={'mock-ch-1': 1} model-id=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c group=apertus-ch body.model='apertus-ch' content='hello from mock-ch-1'
+    [filter] model=apertus-ch in=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] out=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"timeout": 0.001, "litellm_call_id": "e9bd346d-40e6-4280-8171-538953d42ff5"}
+    [pre_send] dep=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c jur=CH api_base=http://127.0.0.1:9101/v1 decision=allowed kw.model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'} kw.api_key=client... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c model_info={'id': '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c', 'db_model': False, 'provider': 'infomaniak', 'country': 'CH', 'jurisdiction': 'CH', 'original_model_id': 'ch-1'}
+    [mock-ch-1] got model=apertus-ch-upstream auth='Bearer client-supplied' extra_keys=[]
+
+--- V23 user_config with own model_list
+    status=[401] counts={} model-id=None group=None body.model=None content=None
+    error='Authentication Error, Rejected Request: user_config is not allowed in request body. Clientside passthrough requires explicit admin opt-in via either `general_settings.allow_client_side_credentials = true` (proxy-wide) or `configur' code=401
+    [filter] async_filter_deployments NOT called
+
+--- V24 extra_body.api_base
+    status=[401] counts={} model-id=None group=None body.model=None content=None
+    error='Authentication Error, Rejected Request: api_base is not allowed in request body. Clientside passthrough requires explicit admin opt-in via either `general_settings.allow_client_side_credentials = true` (proxy-wide) or `configurabl' code=401
+    [filter] async_filter_deployments NOT called
+
+--- V25 body timeout=0.001 (all up)
+    status=[200] counts={'mock-ch-2': 1} model-id=ch-2 group=apertus-ch body.model='apertus-ch' content='hello from mock-ch-2'
+    [filter] model=apertus-ch in=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] out=['ch-1', 'ch-2', '7f577dfe531d82243f28a6aaacf7147789bd185afe78ab4a22981e15b2485d3c'] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"timeout": 0.001, "litellm_call_id": "fa9dbcc6-8600-4110-ba0e-63e64f136e74"}
+    [pre_send] dep=ch-2 jur=CH api_base=http://127.0.0.1:9102/v1 decision=allowed kw.model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'} kw.api_key=k-ch-2... num_retries=None
+    [resp_headers_hook] litellm_call_info.model_id=ch-2 model_info={'id': 'ch-2', 'db_model': False, 'provider': 'phoeniqs', 'country': 'CH', 'jurisdiction': 'CH'}
+    [mock-ch-2] got model=apertus-ch-upstream auth='Bearer k-ch-2' extra_keys=[]
+
+--- V26 specific_deployment=true + model=sealion-sg-upstream name
+    status=[429] counts={} model-id=None group=None body.model=None content=None
+    error='No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]' code=429
+    [filter] model=sealion-sg in=[] out=[] policy(user_api_key_metadata)=['CH'] tags=['commune-a'] alias=commune-a team=team-commune-a md.allowed_jurisdictions=None md.policy_id=None
+    [filter] top-level kwargs: {"litellm_call_id": "7677e4c0-01c1-4ae5-9e55-6068bd583cac"}
+    [resp_headers_hook] litellm_call_info.model_id=None model_info={}
+
+    deployments after all vectors: 8

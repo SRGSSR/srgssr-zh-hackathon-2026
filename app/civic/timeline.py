@@ -33,11 +33,15 @@ def rows(events: List[Dict], eps: Dict) -> List[Dict]:
         elif t in ("routing_decision", "job_started", "job_resumed"):
             last_empty_group = None
         row = {"ts": typ, "type": t, "tone": "info", "title": t, "detail": "", "entries": []}
-        if t == "job_created":
-            row.update(title="Letter received and stored locally", detail=f"Output language: {e.get('language')}")
+        if t == "letter_stored":
+            row.update(title="Letter received", detail=f"Stored in this service. Output language: {e.get('language')}")
+        elif t == "job_created":
+            row.update(title="Handed to the gateway", detail=f"Deferred request {e.get('gateway_job')}: the gateway keeps it until it can be served within the rule.")
         elif t in ("job_started", "job_resumed"):
-            row.update(title="Job resumed" if t == "job_resumed" else "Job started", detail=f"Run {e.get('run')}",
-                       tone="info" if t == "job_started" else "good")
+            row.update(title="Gateway retries the request" if t == "job_resumed" else "Gateway starts the request",
+                       detail=f"Run {e.get('run')}", tone="info" if t == "job_started" else "good")
+        elif t == "retry_requested":
+            row.update(title="Retry requested", tone="muted")
         elif t == "request_accepted":
             row.update(title=f"Rule applied: {e.get('policy_id')}", detail=f"Bound to API key '{e.get('key_alias')}', not to the request. {e.get('rule') or ''}")
         elif t == "request_rejected":
@@ -84,11 +88,15 @@ def rows(events: List[Dict], eps: Dict) -> List[Dict]:
         elif t == "job_waiting":
             row.update(
                 title="Waiting: no approved endpoint available",
-                detail=f"Job kept in the local database, nothing sent elsewhere. Next try in {int(e.get('retry_in_s', 0))} s.",
+                detail=f"The request stays in the gateway's local store, nothing is sent elsewhere. Next try in {int(e.get('retry_in_s', 0))} s.",
                 tone="warn",
             )
         elif t == "job_resumed_after_restart":
-            row.update(title="Job recovered after a restart", tone="good")
+            row.update(title="Gateway restarted: request recovered from its store", tone="good")
+        elif t == "job_expired":
+            row.update(title="Expired before an approved endpoint was available", tone="bad")
+        elif t == "gateway_unreachable":
+            row.update(title="Gateway not reachable right now", tone="warn")
         elif t == "job_done":
             row.update(title="Done", detail=f"Answered by {e.get('deployment_id')} ({e.get('llm_calls')} model call(s))", tone="good")
         elif t == "job_cancelled":

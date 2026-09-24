@@ -1,0 +1,236 @@
+---
+# Source: litellm/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: litellm
+  namespace: platform
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  progressDeadlineSeconds: 300
+  minReadySeconds: 30
+  selector:
+    matchLabels:
+      app: litellm
+  template:
+    metadata:
+      labels:
+        app: litellm
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4000"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 30
+      serviceAccountName: litellm-sa
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - litellm
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+          - podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - litellm
+              topologyKey: topology.kubernetes.io/zone
+            weight: 50
+      topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              app: litellm
+          maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+      containers:
+        - name: litellm
+          image: ghcr.io/forpublicai/litellm-database:v1.98.0
+          imagePullPolicy: Always
+          args:
+            - "--config"
+            - "/app/config.yaml"
+          env:
+            - name: AWS_REGION
+              value: "eu-central-1"
+            - name: LITELLM_MODE
+              value: "PRODUCTION"
+            - name: LITELLM_SALT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: litellm_salt_key
+            - name: USE_PRISMA_MIGRATE
+              value: "True"
+            - name: LITELLM_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: litellm_master_key
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: database_url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: redis_url
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: redis_host
+            - name: REDIS_PORT
+              value: "6379"
+            - name: LITELLM_REDIS_PORT
+              value: "6379"
+            - name: SEALION_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: sealion_api_key
+                  optional: true
+            - name: VLLM_API_KEY_INTEL
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: vllm_api_key_intel
+                  optional: true
+            - name: LAGO_API_BASE
+              value: "http://platform-api-svc.platform.svc.cluster.local:3000"
+            - name: LAGO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: lago_api_key
+                  optional: true
+            - name: LAGO_API_EVENT_CODE
+              value: "public_ai_models"
+            - name: LAGO_API_CHARGE_BY
+              value: "end_user_id"
+            - name: INFOMANIAK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: infomaniak_api_key
+                  optional: true
+            - name: FEATHERLESS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: featherless_api_key
+                  optional: true
+            - name: PHOENIQS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: phoeniqs_api_key
+                  optional: true
+            - name: BIELIK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: bielik_api_key
+                  optional: true
+            - name: NEXBIT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: nexbit_api_key
+                  optional: true
+            - name: CSCS_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: cscs_api_key
+                  optional: true
+            - name: HF_CURRENT_AI_CREDITS
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: hf_current_ai_credits
+                  optional: true
+            - name: SLACK_WEBHOOK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: slack_webhook_url
+                  optional: true
+
+
+
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+              readOnly: true
+            - name: custom-auth-volume
+              mountPath: /app/custom_auth.py
+              subPath: custom_auth.py
+              readOnly: true
+            - name: custom-lago-callback-volume
+              mountPath: /app/custom_lago_callback.py
+              subPath: custom_lago_callback.py
+              readOnly: true
+          ports:
+            - containerPort: 4000
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sleep", "5"]
+          startupProbe:
+            httpGet:
+              path: /health/liveliness
+              port: 4000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 20
+          livenessProbe:
+            httpGet:
+              path: /health/liveliness
+              port: 4000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/readiness
+              port: 4000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 4Gi
+            requests:
+              cpu: 300m
+              memory: 3Gi
+      volumes:
+        - name: config-volume
+          configMap:
+            name: litellm-config
+        - name: custom-auth-volume
+          configMap:
+            name: litellm-custom-auth
+        - name: custom-lago-callback-volume
+          configMap:
+            name: litellm-custom-lago-callback

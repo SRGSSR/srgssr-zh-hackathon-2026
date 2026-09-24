@@ -1,0 +1,14 @@
+general_settings:
+  master_key: sk-m
+litellm_settings:
+  callbacks:
+  - deferred_plugin.plugin
+model_list:
+- litellm_params:
+    api_base: http://127.0.0.1:9301/v1
+    api_key: k
+    model: openai/x
+  model_name: apertus
+router_settings:
+  disable_cooldowns: true
+  num_retries: 0

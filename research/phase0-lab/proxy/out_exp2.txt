@@ -1,0 +1,81 @@
+
+##### config A, key sk-commune-a
+t1 normal apertus-ch          : status=200 counts={'mock-ch-1': 1} model-id=ch-1 group=apertus-ch err=''
+   [pre_call_hook] user_api_key_dict: {"key_alias": "commune-a", "team_id": "team-commune-a", "team_alias": "Gemeinde A", "models": ["apertus-ch"], "metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "tags": ["commune-a"], "commune": "Gemeinde A"}, "team_metadata": {"policy_id": "CH-only", "commune": "Gemeinde A"}, "api_key": "bbeb802aa21542265f43dc48719ef9f6d447dd6c46bb8197d321824ad0fca96d", "token": "bbeb802aa21542265f43dc48719ef9f6d447dd6c46bb8197d321824ad0fca96d"}
+   [async_pre_call_hook] metadata: {"tags": ["commune-a"], "user_api_key_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "tags": ["commune-a"], "commune": "Gemeinde A"}, "user_api_key_team_metadata": {"policy_id": "CH-only", "commune": "Gemeinde A"}, "user_api_key_team_id": "team-commune-a", "user_api_key_alias": "commune-a", "user_api_key_auth_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "tags": ["commune-a"], "commune": "Gemeinde A"}, "requester_metadata": {"headers": {"host": "127.0.0.1:4000", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "python-httpx/0.28.1", "content-length": "96", "content-type": "application/json"}}, "user_api_key_hash": "bbeb802aa21542265f43dc48719ef9f6d447dd6c46bb8197d321824ad0fca96d"}
+   [async_filter_deployments] metadata: {"tags": ["commune-a"], "user_api_key_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "tags": ["commune-a"], "commune": "Gemeinde A"}, "user_api_key_team_metadata": {"policy_id": "CH-only", "commune": "Gemeinde A"}, "user_api_key_team_id": "team-commune-a", "user_api_key_alias": "commune-a", "user_api_key_auth_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "tags": ["commune-a"], "commune": "Gemeinde A"}, "model_group": "apertus-ch", "requester_metadata": {"headers": {"host": "127.0.0.1:4000", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "python-httpx/0.28.1", "content-length": "96", "content-type": "application/json"}}, "user_api_key_hash": "bbeb802aa21542265f43dc48719ef9f6d447dd6c46bb8197d321824ad0fca96d"}
+   [async_pre_call_deployment_hook] metadata: {"tags": ["commune-a"], "user_api_key_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "tags": ["commune-a"], "commune": "Gemeinde A"}, "user_api_key_team_metadata": {"policy_id": "CH-only", "commune": "Gemeinde A"}, "user_api_key_team_id": "team-commune-a", "user_api_key_alias": "commune-a", "user_api_key_auth_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "tags": ["commune-a"], "commune": "Gemeinde A"}, "model_group": "apertus-ch", "deployment": "openai/apertus-ch-upstream", "api_base": "http://127.0.0.1:9101/v1", "model_info": {"id": "ch-1", "db_model": false, "provider": "infomaniak", "country": "CH", "jurisdiction": "CH"}, "requester_metadata": {"headers": {"host": "127.0.0.1:4000", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "python-httpx/0.28.1", "content-length": "96", "content-type": "ap
+t2 model=sealion-sg direct    : status=200 counts={'mock-sg-1': 1} model-id=sg-1 group=sealion-sg err=''
+t2b model=nometa direct       : status=200 counts={'mock-nometa': 1} model-id=nm-1 group=nometa err=''
+t3 CH down, server fallback sg: status=200 counts={'mock-ch-1': 1, 'mock-ch-2': 1, 'mock-sg-1': 1} model-id=sg-1 group=sealion-sg err=''
+t4 CH down, body fallbacks pl : status=200 counts={'mock-ch-2': 2, 'mock-pl-1': 1} model-id=pl-1 group=bielik-pl err=''
+t5 CH down, disable_fallbacks : status=503 counts={'mock-ch-1': 1, 'mock-ch-2': 1} model-id=None group=None err='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down'
+
+##### config A, key sk-commune-b
+t1 normal apertus-ch          : status=200 counts={'mock-ch-1': 1} model-id=ch-1 group=apertus-ch err=''
+   [pre_call_hook] user_api_key_dict: {"key_alias": "commune-b", "team_id": "team-commune-b", "team_alias": "Gemeinde B", "models": [], "metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "commune": "Gemeinde B"}, "team_metadata": {"policy_id": "CH-only", "commune": "Gemeinde B"}, "api_key": "b16f65516a7174f91b2120255592b420383b6150c3585a61990aebdaca179e57", "token": "b16f65516a7174f91b2120255592b420383b6150c3585a61990aebdaca179e57"}
+   [async_pre_call_hook] metadata: {"user_api_key_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "commune": "Gemeinde B"}, "user_api_key_team_metadata": {"policy_id": "CH-only", "commune": "Gemeinde B"}, "user_api_key_team_id": "team-commune-b", "user_api_key_alias": "commune-b", "user_api_key_auth_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "commune": "Gemeinde B"}, "requester_metadata": {"headers": {"host": "127.0.0.1:4000", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "python-httpx/0.28.1", "content-length": "96", "content-type": "application/json"}}, "user_api_key_hash": "b16f65516a7174f91b2120255592b420383b6150c3585a61990aebdaca179e57"}
+   [async_filter_deployments] metadata: {"user_api_key_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "commune": "Gemeinde B"}, "user_api_key_team_metadata": {"policy_id": "CH-only", "commune": "Gemeinde B"}, "user_api_key_team_id": "team-commune-b", "user_api_key_alias": "commune-b", "user_api_key_auth_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "commune": "Gemeinde B"}, "model_group": "apertus-ch", "requester_metadata": {"headers": {"host": "127.0.0.1:4000", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "python-httpx/0.28.1", "content-length": "96", "content-type": "application/json"}}, "user_api_key_hash": "b16f65516a7174f91b2120255592b420383b6150c3585a61990aebdaca179e57"}
+   [async_pre_call_deployment_hook] metadata: {"user_api_key_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "commune": "Gemeinde B"}, "user_api_key_team_metadata": {"policy_id": "CH-only", "commune": "Gemeinde B"}, "user_api_key_team_id": "team-commune-b", "user_api_key_alias": "commune-b", "user_api_key_auth_metadata": {"policy_id": "CH-only", "allowed_jurisdictions": ["CH"], "commune": "Gemeinde B"}, "model_group": "apertus-ch", "deployment": "openai/apertus-ch-upstream", "api_base": "http://127.0.0.1:9101/v1", "model_info": {"id": "ch-1", "db_model": false, "provider": "infomaniak", "country": "CH", "jurisdiction": "CH"}, "requester_metadata": {"headers": {"host": "127.0.0.1:4000", "accept": "*/*", "accept-encoding": "gzip, deflate", "connection": "keep-alive", "user-agent": "python-httpx/0.28.1", "content-length": "96", "content-type": "application/json"}}, "user_api_key_hash": "b16f65516a7174f91b2120255592
+t2 model=sealion-sg direct    : status=200 counts={'mock-sg-1': 1} model-id=sg-1 group=sealion-sg err=''
+t2b model=nometa direct       : status=200 counts={'mock-nometa': 1} model-id=nm-1 group=nometa err=''
+t3 CH down, server fallback sg: status=200 counts={'mock-ch-1': 2, 'mock-sg-1': 1} model-id=sg-1 group=sealion-sg err=''
+t4 CH down, body fallbacks pl : status=200 counts={'mock-ch-1': 2, 'mock-pl-1': 1} model-id=pl-1 group=bielik-pl err=''
+t5 CH down, disable_fallbacks : status=503 counts={'mock-ch-2': 2} model-id=None group=None err='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-2 down'
+
+unknown key (falls through to LiteLLM auth, no DB): 400 ('No connected db.', 'no_db_connection', '400')
+
+##### config B, key sk-commune-a
+t1 normal apertus-ch          : status=200 counts={'mock-ch-2': 1} model-id=ch-2 group=apertus-ch err=''
+t2 model=sealion-sg direct    : status=403 counts={} model-id=None group=None err="key not allowed to access model. This key can only access models=['apertus-ch']. Tried to access sealion-sg"
+t2b model=nometa direct       : status=403 counts={} model-id=None group=None err="key not allowed to access model. This key can only access models=['apertus-ch']. Tried to access nometa"
+t3 CH down, server fallback sg: status=200 counts={'mock-ch-2': 2, 'mock-sg-1': 1} model-id=sg-1 group=sealion-sg err=''
+t4 CH down, body fallbacks pl : status=403 counts={} model-id=None group=None err="key not allowed to access model. This key can only access models=['apertus-ch']. Tried to access bielik-pl"
+t5 CH down, disable_fallbacks : status=503 counts={'mock-ch-1': 2} model-id=None group=None err='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down'
+
+##### config B, key sk-commune-b
+t1 normal apertus-ch          : status=200 counts={'mock-ch-1': 1} model-id=ch-1 group=apertus-ch err=''
+t2 model=sealion-sg direct    : status=200 counts={'mock-sg-1': 1} model-id=sg-1 group=sealion-sg err=''
+t2b model=nometa direct       : status=200 counts={'mock-nometa': 1} model-id=nm-1 group=nometa err=''
+t3 CH down, server fallback sg: status=200 counts={'mock-ch-2': 2, 'mock-sg-1': 1} model-id=sg-1 group=sealion-sg err=''
+t4 CH down, body fallbacks pl : status=200 counts={'mock-ch-1': 1, 'mock-ch-2': 1, 'mock-pl-1': 1} model-id=pl-1 group=bielik-pl err=''
+t5 CH down, disable_fallbacks : status=503 counts={'mock-ch-1': 1, 'mock-ch-2': 1} model-id=None group=None err='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down'
+
+##### config C, key sk-commune-a
+t1 normal apertus-ch          : status=200 counts={'mock-ch-2': 1} model-id=ch-2 group=apertus-ch err=''
+t2 model=sealion-sg direct    : status=429 counts={} model-id=None group=None err='No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]'
+t2b model=nometa direct       : status=429 counts={} model-id=None group=None err='No deployments available for selected model, Try again in 5 seconds. Passed model=nometa. pre-call-checks=False, cooldown_list=[]'
+t3 CH down, server fallback sg: status=429 counts={'mock-ch-1': 2} model-id=None group=None err='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down. Received Model Group=apertus-ch\nAvailable Model '
+t4 CH down, body fallbacks pl : status=429 counts={'mock-ch-1': 1, 'mock-ch-2': 1} model-id=None group=None err='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down. Received Model Group=apertus-ch\nAvailable Model '
+t5 CH down, disable_fallbacks : status=503 counts={'mock-ch-1': 1, 'mock-ch-2': 1} model-id=None group=None err='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-2 down'
+
+##### config C, key sk-commune-b
+t1 normal apertus-ch          : status=200 counts={'mock-ch-1': 1} model-id=ch-1 group=apertus-ch err=''
+t2 model=sealion-sg direct    : status=429 counts={} model-id=None group=None err='No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]'
+t2b model=nometa direct       : status=429 counts={} model-id=None group=None err='No deployments available for selected model, Try again in 5 seconds. Passed model=nometa. pre-call-checks=False, cooldown_list=[]'
+t3 CH down, server fallback sg: status=429 counts={'mock-ch-1': 1, 'mock-ch-2': 1} model-id=None group=None err='litellm.Timeout: APITimeoutError - Request timed out. Error_str: Request timed out. - timeout value=3.0, time taken=0.0 seconds\n\nDeployment '
+t4 CH down, body fallbacks pl : status=429 counts={'mock-ch-1': 2} model-id=None group=None err='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down. Received Model Group=apertus-ch\nAvailable Model '
+t5 CH down, disable_fallbacks : status=503 counts={'mock-ch-1': 2} model-id=None group=None err='litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down'
+
+=== C: commune-b, both CH down, policy enforced
+status: 429 | mock counts: {'mock-ch-2': 2}
+model: None | content: None | error: ("litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-2 down. Received Model Group=apertus-ch\nAvailable Model Group Fallbacks=['sealion-sg']\nError doing the fallback: No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-", None, '429')
+headers: {
+ "x-commune-final-deployment": "ch-2",
+ "x-commune-final-jurisdiction": "CH",
+ "x-commune-policy": "CH-only",
+ "x-litellm-call-id": "536e0342-4315-4e4a-9718-5ee401732daf",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-response-cost": "0",
+ "x-litellm-timeout": "3"
+}
+    async_filter_deployments {'model': 'apertus-ch', 'in_ids': ['ch-1', 'ch-2'], 'out_ids': ['ch-1', 'ch-2'], 'policy': ['CH']}
+    async_pre_call_deployment_hook {'model': 'openai/apertus-ch-upstream', 'policy': ['CH'], 'deployment_id': 'ch-2', 'decision': 'allowed'}
+    async_log_failure_event {'exception': 'litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-2 down'}
+    async_filter_deployments {'model': 'apertus-ch', 'in_ids': ['ch-1', 'ch-2'], 'out_ids': ['ch-1', 'ch-2'], 'policy': ['CH']}
+    async_pre_call_deployment_hook {'model': 'openai/apertus-ch-upstream', 'policy': ['CH'], 'deployment_id': 'ch-2', 'decision': 'allowed'}
+    async_filter_deployments {'model': 'sealion-sg', 'in_ids': ['sg-1'], 'out_ids': [], 'policy': ['CH']}
+    async_filter_deployments {'model': 'sealion-sg', 'in_ids': ['sg-1'], 'out_ids': [], 'policy': ['CH']}
+    log_failure_fallback_event {'original_model_group': 'apertus-ch'}
+
+C: master key, CH down: status=200 counts={'mock-ch-1': 2, 'mock-sg-1': 1} model-id=sg-1 group=sealion-sg err=''

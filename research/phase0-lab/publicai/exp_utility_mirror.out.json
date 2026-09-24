@@ -1,0 +1,115 @@
+{
+ "Q1_models_noauth": {
+  "status": 401,
+  "body": "{\"error\":{\"message\":\"Authentication Error, No api key passed in.\",\"type\":\"auth_error\",\"param\":\"None\",\"code\":\"401\"}}"
+ },
+ "Q1_models_auth": {
+  "status": 200,
+  "ids": [
+   "swiss-ai/apertus-v1.5-70b",
+   "aisingapore/Qwen-SEA-LION-v4-32B-IT",
+   "speakleash/Bielik-11B-v3.0-Instruct"
+  ]
+ },
+ "Q2_json_object": {
+  "status": 200,
+  "served_by": [
+   "featherless"
+  ],
+  "upstream_received_response_format": {
+   "type": "json_object"
+  },
+  "upstream_body_keys": [
+   "max_tokens",
+   "messages",
+   "model",
+   "response_format",
+   "supports_vision",
+   "temperature",
+   "top_p"
+  ]
+ },
+ "Q3_json_schema": {
+  "status": 200,
+  "served_by": [
+   "infomaniak"
+  ],
+  "forwarded_unchanged": true,
+  "upstream_received_response_format": {
+   "type": "json_schema",
+   "json_schema": {
+    "name": "ok",
+    "strict": true,
+    "schema": {
+     "type": "object",
+     "properties": {
+      "ok": {
+       "type": "boolean"
+      }
+     },
+     "required": [
+      "ok"
+     ],
+     "additionalProperties": false
+    }
+   }
+  }
+ },
+ "Q4_success_visibility": {
+  "status": 200,
+  "served_by": [
+   "infomaniak"
+  ],
+  "body_model": "swiss-ai/apertus-v1.5-70b",
+  "x_litellm_headers": {
+   "x-litellm-model-api-base": "http://127.0.0.1:9201/v1",
+   "x-litellm-model-id": "infomaniak-70b",
+   "x-litellm-model-group": "swiss-ai/apertus-v1.5-70b",
+   "x-litellm-attempted-fallbacks": "0",
+   "x-litellm-attempted-retries": "0",
+   "x-litellm-version": "1.92.0"
+  }
+ },
+ "Q6_param_precedence": {
+  "no_client_params_upstream_got": {
+   "temperature": 0.8,
+   "top_p": 0.9,
+   "max_tokens": 8192
+  },
+  "client_temp0.1_max50_upstream_got": {
+   "temperature": 0.1,
+   "top_p": 0.9,
+   "max_tokens": 50
+  }
+ },
+ "Q5_cross_model_fallback": {
+  "client_requested": "swiss-ai/apertus-v1.5-70b",
+  "status": 200,
+  "body_model": "aisingapore/Qwen-SEA-LION-v4-32B-IT@sealion",
+  "content": "hello from sealion",
+  "mock_counts": {
+   "infomaniak": 2,
+   "featherless": 0,
+   "sealion": 1,
+   "bielik": 0
+  },
+  "x_litellm_headers": {
+   "x-litellm-model-api-base": "http://127.0.0.1:9203/v1",
+   "x-litellm-model-id": "sealion-32b",
+   "x-litellm-model-group": "aisingapore/Qwen-SEA-LION-v4-32B-IT",
+   "x-litellm-attempted-fallbacks": "1",
+   "x-litellm-attempted-retries": "0"
+  },
+  "sealion_received_same_prompt": true
+ },
+ "Q7_client_disable_fallbacks": {
+  "status": 503,
+  "error": "litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - infomaniak down",
+  "mock_counts": {
+   "infomaniak": 2,
+   "featherless": 0,
+   "sealion": 0,
+   "bielik": 0
+  }
+ }
+}

@@ -1,0 +1,40 @@
+proxy up, variant=reject_common
+
+### T0 control: no client tags, model D, n=20
+  counts={'d-ch': 20}
+  responses={'200:d-ch': 20}
+
+### T1 body metadata.tags=['us'] n=20
+  counts={}
+  responses={'400:None': 20}
+  last_error={"error":{"message":"Client-side 'metadata.tags' not allowed in request. 'reject_clientside_metadata_tags'=True. Tags can only be set via API key metadata.","type":"bad_request_error","param":"metadata.tags","code":"400"
+
+### T2 body root tags=['us'] n=20
+  counts={'d-ch': 9, 'd-us': 11}
+  responses={'200:d-us': 11, '200:d-ch': 9}
+
+### T3 header x-litellm-tags: us n=20
+  counts={}
+  responses={'400:None': 20}
+  last_error={"error":{"message":"Client-side 'metadata.tags' not allowed in request. 'reject_clientside_metadata_tags'=True. Tags can only be set via API key metadata.","type":"bad_request_error","param":"metadata.tags","code":"400"
+
+### T4 body litellm_metadata.tags=['us'] n=20
+  counts={'d-ch': 14, 'd-us': 6}
+  responses={'200:d-ch': 14, '200:d-us': 6}
+
+### T5 body litellm_metadata={} (empty) n=20
+  counts={'d-ch': 20}
+  responses={'200:d-ch': 20}
+
+### T6 model A (a-ch down), client fallbacks=[{'model':'B','metadata':{'tags':['us']}}]
+  counts={'a-ch': 1, 'b-us': 1}
+  responses={'200:b-us': 1}
+
+### T7 model A (a-ch down), client fallbacks=[{'model':'B','metadata':{}}]
+  counts={'a-ch': 1, 'b-us': 1}
+  responses={'200:b-us': 1}
+
+### T8 model A (a-ch down), router fallback A->B only
+  counts={'a-ch': 1}
+  responses={'401:None': 1}
+  last_error={"error":{"message":"litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A\nAvailable Model Group Fallbacks=['B']\nError doing the fallback: Not allowed to access m

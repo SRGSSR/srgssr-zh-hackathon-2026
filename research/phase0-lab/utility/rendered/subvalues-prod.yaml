@@ -1,0 +1,18 @@
+---
+app:
+  image:
+    tag: v1.98.0
+  replicas: 2
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 4
+enabled: true
+secrets:
+  manualSecretsName: prod/publicai/litellm/manual-secrets
+  managedSecretsName: prod/publicai/open-webui/managed-secrets
+  dbPasswordArn: prod/publicai/database/password
+prometheus:
+  enabled: true
+global:
+  environment: prod
+  namespace: platform

@@ -1,0 +1,57 @@
+environments:
+  - staging
+  - prod
+models:
+- model_name: swiss-ai/apertus-v1.5-70b
+  litellm_params:
+    model: openai/swiss-ai/Apertus-v1.5-70B
+    api_base: https://api.infomaniak.com/2/ai/106744/openai/v1
+    api_key: os.environ/INFOMANIAK_API_KEY
+    supports_vision: true
+    weight: 1
+    temperature: 0.8
+    top_p: 0.9
+    max_tokens: 8192
+    # Optional: lets LiteLLM's own tag-based routing select by jurisdiction.
+    tags:
+      - jurisdiction:CH
+  model_info:
+    # Stable, human-readable deployment id. Without it LiteLLM uses a sha256 of
+    # model_name + resolved litellm_params (changes whenever the API key rotates).
+    id: swiss-ai/apertus-v1.5-70b@infomaniak
+    input_cost_per_token: 0.00000082
+    output_cost_per_token: 0.00000292
+    # --- data-residency metadata (proposal) ---
+    hosting_provider: infomaniak             # slug of the operator of api_base
+    hosting_entity: Infomaniak Network SA    # legal entity Public AI contracts with
+    hosting_entity_country: CH               # ISO 3166-1 alpha-2, seat of that entity
+    datacenter_country: CH                   # ISO 3166-1 alpha-2, where inference runs
+    jurisdiction: CH                         # policy tag: CH | EU | SG | US | ... | unknown
+    jurisdiction_evidence: "TODO: link to DPA / provider statement"
+    jurisdiction_reviewed_at: "2026-09-24"
+- model_name: swiss-ai/apertus-v1.5-70b
+  litellm_params:
+    model: openai/swiss-ai/Apertus-v1.5-70B
+    api_base: https://api.featherless.ai/v1
+    api_key: os.environ/FEATHERLESS_API_KEY
+    supports_vision: true
+    weight: 1
+    temperature: 0.8
+    top_p: 0.9
+    max_tokens: 8192
+    tags:
+      - jurisdiction:unknown
+  model_info:
+    id: swiss-ai/apertus-v1.5-70b@featherless
+    input_cost_per_token: 0.00000082
+    output_cost_per_token: 0.00000292
+    hosting_provider: featherless
+    hosting_entity: unknown
+    hosting_entity_country: unknown
+    datacenter_country: unknown
+    jurisdiction: unknown                    # fail closed: CH-only policies must exclude this
+    jurisdiction_evidence: ""
+    jurisdiction_reviewed_at: "2026-09-24"
+fallbacks:
+- aisingapore/Qwen-SEA-LION-v4-32B-IT
+- speakleash/Bielik-11B-v3.0-Instruct

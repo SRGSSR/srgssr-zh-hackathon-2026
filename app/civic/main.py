@@ -1,5 +1,3 @@
-import asyncio
-import hmac
 import os
 from pathlib import Path
 
@@ -9,12 +7,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
-from . import db, endpoints, timeline, worker
+from . import db, endpoints, sync, timeline
 from .llm import LANGUAGES
 
-INTERNAL_TOKEN = os.environ.get("INTERNAL_TOKEN", "")
-# Endpoints that list jobs across citizens exist only for the test bench.
-TEST_API = os.environ.get("ENABLE_TEST_API", "0") == "1"
 SAMPLES_DIR = Path(os.environ.get("SAMPLES_DIR", "/samples"))
 HERE = Path(__file__).parent
 
@@ -26,61 +21,72 @@ templates = Jinja2Templates(directory=HERE / "templates")
 @app.on_event("startup")
 async def startup():
     db.init()
-    app.state.worker = asyncio.create_task(worker.loop())
 
 
 def _samples():
     return sorted(p.name for p in SAMPLES_DIR.glob("*.txt")) if SAMPLES_DIR.exists() else []
 
 
-def _job_view(job_id: str):
-    job = db.get_job(job_id)
+async def _view(letter_id: str):
+    job = await sync.refresh(letter_id)
     if not job:
         raise HTTPException(404, "job not found")
-    evs = db.events(job_id)
-    eps = endpoints.by_id()
-    return job, timeline.rows(evs, eps), timeline.summary(evs)
+    evs = await sync.events(letter_id)
+    return job, timeline.rows(evs, endpoints.by_id()), timeline.summary(evs), evs
+
+
+async def _create(letter: str, language: str) -> str:
+    letter_id = db.create(letter, language)
+    await sync.submit(letter_id)
+    return letter_id
 
 
 # ------------------------------------------------------------------------- pages
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse(
-        request, "index.html", {"languages": LANGUAGES, "samples": _samples(), "jobs": db.list_jobs()}
-    )
+    jobs = db.recent()
+    for j in jobs[:10]:
+        if j["status"] not in db.TERMINAL:
+            j["status"] = (await sync.refresh(j["id"]) or j)["status"]
+    return templates.TemplateResponse(request, "index.html", {"languages": LANGUAGES, "samples": _samples(), "jobs": jobs})
 
 
 @app.post("/jobs")
 async def create_job_form(letter: str = Form(...), language: str = Form("it")):
     if not letter.strip():
         raise HTTPException(400, "empty letter")
-    job_id = db.create_job(letter.strip(), language)
-    return RedirectResponse(f"/jobs/{job_id}", status_code=303)
+    return RedirectResponse(f"/jobs/{await _create(letter.strip(), language)}", status_code=303)
 
 
-@app.get("/jobs/{job_id}", response_class=HTMLResponse)
-async def job_page(request: Request, job_id: str):
-    job, rows, summ = _job_view(job_id)
+@app.get("/jobs/{letter_id}", response_class=HTMLResponse)
+async def job_page(request: Request, letter_id: str):
+    job, rows, summ, _ = await _view(letter_id)
     return templates.TemplateResponse(
         request, "job.html", {"job": job, "rows": rows, "summary": summ, "languages": LANGUAGES, "endpoints": await endpoints.status()}
     )
 
 
-@app.get("/jobs/{job_id}/panel", response_class=HTMLResponse)
-async def job_panel(request: Request, job_id: str):
-    job, rows, summ = _job_view(job_id)
+@app.get("/jobs/{letter_id}/panel", response_class=HTMLResponse)
+async def job_panel(request: Request, letter_id: str):
+    job, rows, summ, _ = await _view(letter_id)
     return templates.TemplateResponse(request, "_job_panel.html", {"job": job, "rows": rows, "summary": summ, "languages": LANGUAGES})
 
 
-@app.post("/jobs/{job_id}/wake")
-async def wake_form(job_id: str):
-    worker.wake(job_id)
-    return RedirectResponse(f"/jobs/{job_id}", status_code=303)
+@app.post("/jobs/{letter_id}/wake")
+async def wake_form(letter_id: str):
+    await sync.wake(letter_id)
+    return RedirectResponse(f"/jobs/{letter_id}", status_code=303)
+
+
+@app.post("/jobs/{letter_id}/cancel")
+async def cancel_form(letter_id: str):
+    await sync.cancel(letter_id)
+    return RedirectResponse(f"/jobs/{letter_id}", status_code=303)
 
 
 @app.get("/demo", response_class=HTMLResponse)
 async def demo_page(request: Request):
-    return templates.TemplateResponse(request, "demo.html", {"endpoints": await endpoints.status(), "jobs": db.list_jobs(10)})
+    return templates.TemplateResponse(request, "demo.html", {"endpoints": await endpoints.status(), "jobs": db.recent(10)})
 
 
 @app.get("/demo/panel", response_class=HTMLResponse)
@@ -127,58 +133,38 @@ class JobIn(BaseModel):
 
 @app.post("/api/jobs")
 async def api_create(job: JobIn):
-    return {"id": db.create_job(job.letter, job.language)}
+    return {"id": await _create(job.letter, job.language)}
 
 
-@app.get("/api/jobs/{job_id}")
-async def api_job(job_id: str):
-    job, _, summ = _job_view(job_id)
+@app.get("/api/jobs/{letter_id}")
+async def api_job(letter_id: str):
+    job, _, summ, _ = await _view(letter_id)
     job.pop("letter", None)
     return {**job, "summary": summ}
 
 
-@app.get("/api/jobs/{job_id}/events")
-async def api_job_events(job_id: str):
-    return db.events(job_id)
+@app.get("/api/jobs/{letter_id}/events")
+async def api_job_events(letter_id: str):
+    if not db.get(letter_id):
+        raise HTTPException(404)
+    return await sync.events(letter_id)
 
 
-@app.post("/api/jobs/{job_id}/wake")
-async def api_wake(job_id: str):
-    worker.wake(job_id)
+@app.post("/api/jobs/{letter_id}/wake")
+async def api_wake(letter_id: str):
+    await sync.wake(letter_id)
     return {"ok": True}
 
 
-@app.post("/api/jobs/{job_id}/cancel")
-async def api_cancel(job_id: str):
-    return {"cancelled": db.cancel_job(job_id)}
-
-
-@app.get("/api/pending")
-async def api_pending():
-    if not TEST_API:
-        raise HTTPException(404)
-    return db.pending_job_ids()
-
-
-@app.post("/jobs/{job_id}/cancel")
-async def cancel_form(job_id: str):
-    db.cancel_job(job_id)
-    return RedirectResponse(f"/jobs/{job_id}", status_code=303)
+@app.post("/api/jobs/{letter_id}/cancel")
+async def api_cancel(letter_id: str):
+    await sync.cancel(letter_id)
+    return {"ok": True}
 
 
 @app.get("/api/endpoints")
 async def api_endpoints():
     return await endpoints.status()
-
-
-@app.post("/internal/events")
-async def internal_events(request: Request):
-    token = request.headers.get("x-internal-token", "")
-    if not INTERNAL_TOKEN or not hmac.compare_digest(token.encode(), INTERNAL_TOKEN.encode()):
-        raise HTTPException(403)
-    e = await request.json()
-    db.add_event(e.get("job_id"), "gateway", e)
-    return {"ok": True}
 
 
 @app.get("/healthz")

@@ -1,0 +1,250 @@
+---
+# Source: litellm/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litellm-config
+  namespace: platform
+data:
+  config.yaml: |
+    general_settings:
+      database_url: "os.environ/DATABASE_URL"
+      database_connection_pool_limit: 100
+      database_connection_timeout: 60
+      allow_requests_on_db_unavailable: true
+      master_key: "os.environ/LITELLM_MASTER_KEY"
+      user_header_mappings:
+        - header_name: X-OpenWebUI-User-Id
+          litellm_user_role: customer
+        # Rate limiting is currently based on customer/end-user, which should use the user-id.
+        # - header_name: X-OpenWebUI-User-Email
+        #   litellm_user_role: customer
+      enforce_user_param: false
+      store_prompts_in_spend_logs: true
+      custom_auth: custom_auth.user_api_key_auth
+      custom_auth_settings:
+        mode: "auto"
+      alerting: ["slack"]
+      alert_types: [
+        "llm_too_slow",
+        "llm_requests_hanging",
+        "db_exceptions",
+        "cooldown_deployment",
+        "new_model_added",
+        "outage_alerts",
+      ]
+
+    router_settings:
+      routing_strategy: "latency-based-routing"
+      redis_url: "os.environ/REDIS_URL"
+      fallbacks:
+        - BSC-LT/ALIA-40b-instruct:
+            - swiss-ai/apertus-70b-instruct
+            - speakleash/Bielik-11B-v3.0-Instruct
+        - aisingapore/Gemma-SEA-LION-v4-27B-IT:
+            - swiss-ai/apertus-70b-instruct
+            - speakleash/Bielik-11B-v3.0-Instruct
+        - aisingapore/Qwen-SEA-LION-v4-32B-IT:
+            - swiss-ai/apertus-70b-instruct
+            - speakleash/Bielik-11B-v3.0-Instruct
+        - speakleash/Bielik-11B-v3.0-Instruct:
+            - aisingapore/Qwen-SEA-LION-v4-32B-IT
+            - swiss-ai/apertus-v1.5-70b
+        - swiss-ai/apertus-70b-instruct:
+            - swiss-ai/apertus-v1.5-70b
+            - aisingapore/Qwen-SEA-LION-v4-32B-IT
+            - speakleash/Bielik-11B-v3.0-Instruct
+        - swiss-ai/apertus-8b-instruct:
+            - swiss-ai/apertus-v1.5-70b
+            - aisingapore/Qwen-SEA-LION-v4-32B-IT
+            - speakleash/Bielik-11B-v3.0-Instruct
+        - swiss-ai/apertus-v1.5-70b-thinking:
+            - aisingapore/Qwen-SEA-LION-v4-32B-IT
+            - speakleash/Bielik-11B-v3.0-Instruct
+        - swiss-ai/apertus-v1.5-70b:
+            - aisingapore/Qwen-SEA-LION-v4-32B-IT
+            - speakleash/Bielik-11B-v3.0-Instruct
+        - swiss-ai/apertus-v1.5-8b-thinking:
+            - swiss-ai/apertus-v1.5-70b
+            - aisingapore/Qwen-SEA-LION-v4-32B-IT
+            - speakleash/Bielik-11B-v3.0-Instruct
+        - swiss-ai/apertus-v1.5-8b:
+            - swiss-ai/apertus-v1.5-70b
+            - aisingapore/Qwen-SEA-LION-v4-32B-IT
+            - speakleash/Bielik-11B-v3.0-Instruct
+
+    litellm_settings:
+      cache: true
+      cache_params:
+        type: redis
+        namespace: "litellm.caching"
+        ttl: 600
+      num_retries: 5
+      allowed_fails: 1
+      cooldown_time: 30
+      drop_params: true
+      ssl_verify: false
+      require_auth_for_metrics_endpoint: false
+      callbacks:
+        - "custom_lago_callback.lago_callback"
+        - "prometheus"
+      extra_spend_tag_headers:
+        - "x-openwebui-user-id"
+        - "x-openwebui-user-email"
+        - "x-openwebui-user-name"
+        - "x-zuplo-user-id"
+        
+    model_list:
+    - model_name: BSC-LT/ALIA-40b-instruct
+      litellm_params:
+        model: openai/alia-salamandra:40b
+        api_base: https://api.nextbit256.com/v1
+        api_key: "os.environ/NEXBIT_API_KEY"
+      model_info:
+        input_cost_per_token: 3e-07
+        output_cost_per_token: 6e-07
+    - model_name: aisingapore/Gemma-SEA-LION-v4-27B-IT
+      litellm_params:
+        model: openai/aisingapore/Gemma-SEA-LION-v4-27B-IT
+        api_base: https://api.sea-lion.ai
+        api_key: "os.environ/SEALION_API_KEY"
+        supports_vision: true
+      model_info:
+        input_cost_per_token: 2e-07
+        output_cost_per_token: 4e-07
+    - model_name: aisingapore/Qwen-SEA-LION-v4-32B-IT
+      litellm_params:
+        model: openai/aisingapore/Qwen-SEA-LION-v4-32B-IT
+        api_base: https://api.sea-lion.ai
+        api_key: "os.environ/SEALION_API_KEY"
+        supports_vision: true
+      model_info:
+        input_cost_per_token: 2.5e-07
+        output_cost_per_token: 5e-07
+    - model_name: Cohere/Cohere-embed-multilingual-v3.0
+      litellm_params:
+        model: bedrock/cohere.embed-multilingual-v3
+        aws_region_name: eu-central-1
+      model_info:
+        input_cost_per_token: 1e-07
+    - model_name: Cohere/rerank-v3.5
+      litellm_params:
+        model: bedrock/arn:aws:bedrock:eu-central-1::foundation-model/cohere.rerank-v3-5:0
+        aws_region_name: eu-central-1
+      model_info:
+        input_cost_per_token: 1e-06
+    - model_name: speakleash/Bielik-11B-v3.0-Instruct
+      litellm_params:
+        model: openai/speakleash/Bielik-11B-v3.0-Instruct
+        api_base: https://llmlab.plgrid.pl/api/v1
+        api_key: "os.environ/BIELIK_API_KEY"
+      model_info:
+        input_cost_per_token: 4e-07
+        output_cost_per_token: 4e-07
+    - model_name: swiss-ai/apertus-70b-instruct
+      litellm_params:
+        model: openai/swiss-ai/Apertus-70B-Instruct-2509
+        api_base: https://api.infomaniak.com/2/ai/106744/openai/v1
+        api_key: "os.environ/INFOMANIAK_API_KEY"
+        supports_vision: true
+        weight: 1
+        temperature: 0.8
+        top_p: 0.9
+        max_tokens: 8192
+      model_info:
+        input_cost_per_token: 8.2e-07
+        output_cost_per_token: 2.92e-06
+    - model_name: swiss-ai/apertus-8b-instruct
+      litellm_params:
+        model: openai/swiss-ai/Apertus-8B-Instruct-2509
+        api_base: https://api.featherless.ai/v1
+        api_key: "os.environ/FEATHERLESS_API_KEY"
+        ssl_verify: false
+        supports_vision: true
+        weight: 20
+        temperature: 0.8
+        top_p: 0.9
+        max_tokens: 16384
+      model_info:
+        input_cost_per_token: 1e-07
+        output_cost_per_token: 2e-07
+    - model_name: swiss-ai/apertus-v1.5-70b-thinking
+      litellm_params:
+        model: openai/swiss-ai/Apertus-v1.5-70B
+        api_base: https://api.infomaniak.com/2/ai/106744/openai/v1
+        api_key: "os.environ/INFOMANIAK_API_KEY"
+        supports_vision: true
+        weight: 1
+        temperature: 0.8
+        top_p: 0.9
+        max_tokens: 8192
+      model_info:
+        input_cost_per_token: 8.2e-07
+        output_cost_per_token: 2.92e-06
+    - model_name: swiss-ai/apertus-v1.5-70b-thinking
+      litellm_params:
+        model: openai/swiss-ai/Apertus-v1.5-70B
+        api_base: https://api.featherless.ai/v1
+        api_key: "os.environ/FEATHERLESS_API_KEY"
+        supports_vision: true
+        weight: 1
+        temperature: 0.8
+        top_p: 0.9
+        max_tokens: 8192
+      model_info:
+        input_cost_per_token: 8.2e-07
+        output_cost_per_token: 2.92e-06
+    - model_name: swiss-ai/apertus-v1.5-70b
+      litellm_params:
+        model: openai/swiss-ai/Apertus-v1.5-70B
+        api_base: https://api.infomaniak.com/2/ai/106744/openai/v1
+        api_key: "os.environ/INFOMANIAK_API_KEY"
+        supports_vision: true
+        weight: 1
+        temperature: 0.8
+        top_p: 0.9
+        max_tokens: 8192
+      model_info:
+        input_cost_per_token: 8.2e-07
+        output_cost_per_token: 2.92e-06
+    - model_name: swiss-ai/apertus-v1.5-70b
+      litellm_params:
+        model: openai/swiss-ai/Apertus-v1.5-70B
+        api_base: https://api.featherless.ai/v1
+        api_key: "os.environ/FEATHERLESS_API_KEY"
+        supports_vision: true
+        weight: 1
+        temperature: 0.8
+        top_p: 0.9
+        max_tokens: 8192
+      model_info:
+        input_cost_per_token: 8.2e-07
+        output_cost_per_token: 2.92e-06
+    - model_name: swiss-ai/apertus-v1.5-8b-thinking
+      litellm_params:
+        model: openai/swiss-ai/Apertus-8B-Instruct-2509
+        api_base: https://api.featherless.ai/v1
+        api_key: "os.environ/FEATHERLESS_API_KEY"
+        ssl_verify: false
+        supports_vision: true
+        weight: 20
+        temperature: 0.8
+        top_p: 0.9
+        max_tokens: 16384
+      model_info:
+        input_cost_per_token: 1e-07
+        output_cost_per_token: 2e-07
+    - model_name: swiss-ai/apertus-v1.5-8b
+      litellm_params:
+        model: openai/swiss-ai/Apertus-8B-Instruct-2509
+        api_base: https://api.featherless.ai/v1
+        api_key: "os.environ/FEATHERLESS_API_KEY"
+        ssl_verify: false
+        supports_vision: true
+        weight: 20
+        temperature: 0.8
+        top_p: 0.9
+        max_tokens: 16384
+      model_info:
+        input_cost_per_token: 1e-07
+        output_cost_per_token: 2e-07

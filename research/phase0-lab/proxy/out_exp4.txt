@@ -1,0 +1,63 @@
+
+##### (a) tag routing enable_tag_filtering=true match_any=True; key sk-commune-t tags=[ch]
+  no client tags               statuses=[200] counts={'mock-ch-1': 8} err=''
+  body tags=[sg]               statuses=[200] counts={'mock-ch-1': 3, 'mock-sg-1': 5} err=''
+  header x-litellm-tags: sg    statuses=[200] counts={'mock-ch-1': 4, 'mock-sg-1': 4} err=''
+  body metadata.tags=[sg]      statuses=[200] counts={'mock-ch-1': 3, 'mock-sg-1': 5} err=''
+  body tags=[!ch]              statuses=[401] counts={} err="Not allowed to access model due to tags configuration. Passed model=mixed and tags=['ch', '!ch']"
+
+##### (a) tag routing enable_tag_filtering=true match_any=False; key sk-commune-t tags=[ch]
+  no client tags               statuses=[200] counts={'mock-ch-1': 8} err=''
+  body tags=[sg]               statuses=[401] counts={} err="Not allowed to access model due to tags configuration. Passed model=mixed and tags=['ch', 'sg']"
+  header x-litellm-tags: sg    statuses=[401] counts={} err="Not allowed to access model due to tags configuration. Passed model=mixed and tags=['ch', 'sg']"
+  body metadata.tags=[sg]      statuses=[401] counts={} err="Not allowed to access model due to tags configuration. Passed model=mixed and tags=['sg', 'ch']"
+  body tags=[!ch]              statuses=[401] counts={} err="Not allowed to access model due to tags configuration. Passed model=mixed and tags=['ch', '!ch']"
+
+##### (b) routes, config A, key sk-commune-a (models=[apertus-ch])
+  GET /health                                          -> 200 counts={'mock-ch-1': 1, 'mock-ch-2': 1} other={} body='{"healthy_endpoints": [{"use_in_pass_through": false, "use_litellm_proxy": false, "use_xai_oauth": false, "merge_reasoning_content_in_choices": false, "model": '
+  GET /health/readiness                                -> 200 counts={} other={} body='{"status": "healthy", "db": "Not connected"}'
+  GET /v1/models                                       -> 200 counts={} other={} body='{"data": [{"id": "apertus-ch", "object": "model", "created": 1677610602, "owned_by": "openai"}], "object": "list"}'
+  GET /v1/model/info                                   -> 200 counts={} other={} body='{"data": [{"model_name": "apertus-ch", "litellm_params": {"api_base": "http://127.0.0.1:9101/v1", "use_in_pass_through": false, "use_litellm_proxy": false, "use'
+  POST /model/new                                       -> 500 counts={} other={} body='{"error": {"message": "{\'error\': \\"No DB Connected. Here\'s how to do it - https://docs.litellm.ai/docs/proxy/virtual_keys\\"}", "type": "auth_error", "param": "N'
+  POST /v1/responses                                    -> 404 counts={'mock-sg-1': 1} other={'mock-sg-1': ['POST /v1/responses']} body='{"error": {"message": "litellm.NotFoundError: NotFoundError: OpenAIException - {\\"error\\":{\\"message\\":\\"mock-sg-1: /v1/responses not implemented\\"}}No fallback'
+  POST /v1/completions                                  -> 404 counts={'mock-sg-1': 1} other={'mock-sg-1': ['POST /v1/completions']} body='{"error": {"message": "litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {\'error\': {\'message\': \'mock-sg-1: /v1/completions not implement'
+  POST /v1/messages                                     -> 404 counts={'mock-sg-1': 1} other={'mock-sg-1': ['POST /v1/responses']} body='{"error": {"message": "litellm.NotFoundError: NotFoundError: OpenAIException - {\\"error\\":{\\"message\\":\\"mock-sg-1: /v1/responses not implemented\\"}}No fallback'
+  POST /v1/embeddings                                   -> 404 counts={'mock-sg-1': 1} other={'mock-sg-1': ['POST /v1/embeddings']} body='{"error": {"message": "litellm.NotFoundError: NotFoundError: OpenAIException - Error code: 404 - {\'error\': {\'message\': \'mock-sg-1: /v1/embeddings not implemente'
+  POST /openai/deployments/sealion-sg/chat/completions  -> 200 counts={'mock-sg-1': 1} other={} body='{"id": "chatcmpl-mock-sg-1-1", "created": 1790272243, "model": "sealion-sg-upstream@mock-sg-1", "object": "chat.completion", "choices": [{"finish_reason": "stop'
+  POST /engines/sealion-sg/chat/completions             -> 200 counts={'mock-sg-1': 1} other={} body='{"id": "chatcmpl-mock-sg-1-1", "created": 1790272244, "model": "sealion-sg-upstream@mock-sg-1", "object": "chat.completion", "choices": [{"finish_reason": "stop'
+  [master] GET /health -> 200 counts={'mock-ch-1': 2, 'mock-ch-2': 1, 'mock-sg-1': 2, 'mock-pl-1': 1, 'mock-nometa': 1} (health checks call EVERY deployment)
+  [master] GET /v1/model/info -> 200 n=7
+
+##### (b) routes, config C, key sk-commune-a (models=[apertus-ch])
+  GET /health                                          -> 200 counts={'mock-ch-1': 1, 'mock-ch-2': 1} other={} body='{"healthy_endpoints": [{"use_in_pass_through": false, "use_litellm_proxy": false, "use_xai_oauth": false, "merge_reasoning_content_in_choices": false, "model": '
+  GET /health/readiness                                -> 200 counts={} other={} body='{"status": "healthy", "db": "Not connected"}'
+  GET /v1/models                                       -> 200 counts={} other={} body='{"data": [{"id": "apertus-ch", "object": "model", "created": 1677610602, "owned_by": "openai"}], "object": "list"}'
+  GET /v1/model/info                                   -> 200 counts={} other={} body='{"data": [{"model_name": "apertus-ch", "litellm_params": {"api_base": "http://127.0.0.1:9101/v1", "use_in_pass_through": false, "use_litellm_proxy": false, "use'
+  POST /model/new                                       -> 500 counts={} other={} body='{"error": {"message": "{\'error\': \\"No DB Connected. Here\'s how to do it - https://docs.litellm.ai/docs/proxy/virtual_keys\\"}", "type": "auth_error", "param": "N'
+  POST /v1/responses                                    -> 429 counts={} other={} body='{"error": {"message": "No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]", "'
+  POST /v1/completions                                  -> 429 counts={} other={} body='{"error": {"message": "No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]", "'
+  POST /v1/messages                                     -> 429 counts={} other={} body='{"error": {"message": "No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]", "'
+  POST /v1/embeddings                                   -> 429 counts={} other={} body='{"error": {"message": "No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]", "'
+  POST /openai/deployments/sealion-sg/chat/completions  -> 429 counts={} other={} body='{"error": {"message": "No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]", "'
+  POST /engines/sealion-sg/chat/completions             -> 429 counts={} other={} body='{"error": {"message": "No deployments available for selected model, Try again in 5 seconds. Passed model=sealion-sg. pre-call-checks=False, cooldown_list=[]", "'
+  [master] GET /health -> 200 counts={'mock-ch-1': 2, 'mock-ch-2': 1, 'mock-sg-1': 2, 'mock-pl-1': 1, 'mock-nometa': 1} (health checks call EVERY deployment)
+  [master] GET /v1/model/info -> 200 n=7
+
+##### (c) hardened config, key sk-commune-a
+  normal                                           -> 200 counts={'mock-ch-2': 1} model-id=ch-2 err=''
+  CH down -> server fallback sg must be blocked    -> 503 counts={'mock-ch-1': 1, 'mock-ch-2': 1} model-id=None err='no_approved_endpoint'
+  body api_key                                     -> 400 counts={} model-id=None err="policy: request fields not allowed: ['api_key']"
+  body fallbacks                                   -> 403 counts={} model-id=None err="key not allowed to access model. This key can only access models=['apertus-ch']. Tried to access sealion-sg"
+  router_settings_override                         -> 403 counts={} model-id=None err="key not allowed to access model. This key can only access models=['apertus-ch']. Tried to access bielik-pl"
+  body num_retries                                 -> 400 counts={} model-id=None err="policy: request fields not allowed: ['num_retries']"
+  header x-litellm-num-retries                     -> 400 counts={} model-id=None err="policy: request fields not allowed: ['num_retries']"
+  header x-litellm-timeout                         -> 400 counts={} model-id=None err="policy: request fields not allowed: ['timeout']"
+  body timeout                                     -> 400 counts={} model-id=None err="policy: request fields not allowed: ['timeout']"
+  model=deployment id sg-1                         -> 403 counts={} model-id=None err="key not allowed to access model. This key can only access models=['apertus-ch']. Tried to access sg-1"
+  model=apertus-ch,sealion-sg                      -> 403 counts={} model-id=None err="key not allowed to access model. This key can only access models=['apertus-ch']. Tried to access sealion-sg"
+  model=openai/sealion-sg-upstream                 -> 403 counts={} model-id=None err="key not allowed to access model. This key can only access models=['apertus-ch']. Tried to access openai/sealion-sg-upstream"
+  metadata spoof                                   -> 403 counts={} model-id=None err="key not allowed to access model. This key can only access models=['apertus-ch']. Tried to access sealion-sg"
+  streaming, CH down                               -> 503 counts={'mock-ch-1': 1, 'mock-ch-2': 1} model-id=None err=''
+  GET /health with commune key -> 200 '{"healthy_endpoints": [], "unhealthy_endpoints": [{"use_in_pass_through": false, "use_litellm_proxy": false, "use_xai_oauth": false, "merge_reasoning_'
+  POST /v1/responses sealion-sg -> 403 '{"error": {"message": "key not allowed to access model. This key can only access models=[\'apertus-ch\']. Tried to access sealion-sg", "type": "key_mode'
+  GET /v1/models -> 200 '{"data": [{"id": "apertus-ch", "object": "model", "created": 1677610602, "owned_by": "openai"}], "object": "list"}'

@@ -27,7 +27,7 @@
   <div class="card">
     <h2>What happens to your letter</h2>
     <ol class="steps">
-      <li>It is stored in this service's local database. It stays here if no approved endpoint is available.</li>
+      <li>It is stored in this service. If no approved endpoint is available, the commune's gateway keeps the request in its own local store, in the same authorized environment, and completes it later. No app has to do this itself.</li>
       <li>The commune's rule is <b>CH-only</b>: only endpoints declared in Swiss jurisdiction may receive it. The rule is bound to the commune's key and checked before <b>every</b> attempt, including retries and fallbacks.</li>
       <li>The timeline shows every endpoint that was contacted, every endpoint that was excluded before any data was sent, and what happened.</li>
     </ol>

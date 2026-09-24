@@ -1,0 +1,205 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.app.name }}-config
+  namespace: {{ .Values.global.namespace | default "web-services" }}
+data:
+  config.yaml: |
+    general_settings:
+      database_url: "os.environ/DATABASE_URL"
+      database_connection_pool_limit: 100
+      database_connection_timeout: 60
+      allow_requests_on_db_unavailable: true
+      master_key: "os.environ/LITELLM_MASTER_KEY"
+      user_header_mappings:
+        - header_name: X-OpenWebUI-User-Id
+          litellm_user_role: customer
+        # Rate limiting is currently based on customer/end-user, which should use the user-id.
+        # - header_name: X-OpenWebUI-User-Email
+        #   litellm_user_role: customer
+      enforce_user_param: false
+      store_prompts_in_spend_logs: true
+      custom_auth: custom_auth.user_api_key_auth
+      custom_auth_settings:
+        mode: "auto"
+      alerting: ["slack"]
+      alert_types: [
+        "llm_too_slow",
+        "llm_requests_hanging",
+        "db_exceptions",
+        "cooldown_deployment",
+        "new_model_added",
+        "outage_alerts",
+      ]
+
+
+    {{- $allFallbacks := list }}
+    {{- range $path, $_ := .Files.Glob "models/**/*.yaml" }}
+      {{- $data := $.Files.Get $path | fromYaml }}
+      {{- $env := "" }}
+      {{- if and $.Values.global (hasKey $.Values.global "environment") }}
+        {{- $env = $.Values.global.environment }}
+      {{- end }}
+      {{- $shouldRender := true }}
+      {{- if and $data $data.environments }}
+        {{- if not (has $env $data.environments) }}
+          {{- $shouldRender = false }}
+        {{- end }}
+      {{- end }}
+      {{- if and $shouldRender $data $data.fallbacks }}
+        {{- $modelName := (index $data.models 0).model_name }}
+        {{- $allFallbacks = append $allFallbacks (dict $modelName $data.fallbacks) }}
+      {{- end }}
+    {{- end }}
+
+    router_settings:
+      routing_strategy: "{{ .Values.router.routingStrategy }}"
+      redis_url: "{{ .Values.router.redisUrl | default "os.environ/REDIS_URL" }}"
+      {{- if $allFallbacks }}
+      fallbacks:
+        {{- range $fallbackMap := $allFallbacks }}
+          {{- range $modelName, $targets := $fallbackMap }}
+        - {{ $modelName }}:
+            {{- toYaml $targets | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+
+    litellm_settings:
+      {{- if .Values.config.litellm_settings }}
+      {{- if hasKey .Values.config.litellm_settings "cache" }}
+      cache: {{ .Values.config.litellm_settings.cache }}
+      {{- if .Values.config.litellm_settings.cache_params }}
+      cache_params:
+        type: {{ .Values.config.litellm_settings.cache_params.type }}
+        {{- if .Values.config.litellm_settings.cache_params.namespace }}
+        namespace: {{ .Values.config.litellm_settings.cache_params.namespace | quote }}
+        {{- end }}
+        {{- if .Values.config.litellm_settings.cache_params.ttl }}
+        ttl: {{ .Values.config.litellm_settings.cache_params.ttl }}
+        {{- end }}
+      {{- end }}
+      {{- else }}
+      cache: false
+      {{- end }}
+      {{- else }}
+      cache: false
+      {{- end }}
+      {{- if .Values.config.litellm_settings.num_retries }}
+      num_retries: {{ .Values.config.litellm_settings.num_retries }}
+      {{- end }}
+      {{- if .Values.config.litellm_settings.allowed_fails }}
+      allowed_fails: {{ .Values.config.litellm_settings.allowed_fails }}
+      {{- end }}
+      {{- if .Values.config.litellm_settings.cooldown_time }}
+      cooldown_time: {{ .Values.config.litellm_settings.cooldown_time }}
+      {{- end }}
+      drop_params: true
+      ssl_verify: false
+      {{- if hasKey .Values.config.litellm_settings "require_auth_for_metrics_endpoint" }}
+      require_auth_for_metrics_endpoint: {{ .Values.config.litellm_settings.require_auth_for_metrics_endpoint }}
+      {{- else }}
+      require_auth_for_metrics_endpoint: false
+      {{- end }}
+      {{- if or .Values.lago.enabled .Values.prometheus.enabled }}
+      callbacks:
+        {{- if .Values.lago.enabled }}
+        - "custom_lago_callback.lago_callback"
+        {{- end }}
+        {{- if .Values.prometheus.enabled }}
+        - "prometheus"
+        {{- end }}
+      {{- end }}
+      extra_spend_tag_headers:
+        - "x-openwebui-user-id"
+        - "x-openwebui-user-email"
+        - "x-openwebui-user-name"
+        - "x-zuplo-user-id"
+        
+    model_list:
+    {{- range $path, $_ := .Files.Glob "models/**/*.yaml" }}
+    {{- $data := $.Files.Get $path | fromYaml }}
+    {{- $env := "" }}
+    {{- if and $.Values.global (hasKey $.Values.global "environment") }}
+      {{- $env = $.Values.global.environment }}
+    {{- end }}
+    {{- $shouldRender := true }}
+    {{- if and $data $data.environments }}
+      {{- if not (has $env $data.environments) }}
+        {{- $shouldRender = false }}
+      {{- end }}
+    {{- end }}
+    {{- if $shouldRender }}
+    {{- range $data.models }}
+    - model_name: {{ .model_name }}
+      litellm_params:
+        model: {{ .litellm_params.model }}
+        {{- if .litellm_params.aws_region_name }}
+        aws_region_name: {{ .litellm_params.aws_region_name }}
+        {{- end }}
+        {{- if .litellm_params.api_base }}
+        api_base: {{ .litellm_params.api_base }}
+        {{- end }}
+        {{- if .litellm_params.api_key }}
+        api_key: {{ .litellm_params.api_key | quote }}
+        {{- end }}
+        {{- if eq .litellm_params.ssl_verify false }}
+        ssl_verify: false
+        {{- end }}
+        {{- if .litellm_params.supports_vision }}
+        supports_vision: {{ .litellm_params.supports_vision }}
+        {{- end }}
+        {{- if .litellm_params.weight }}
+        weight: {{ .litellm_params.weight }}
+        {{- end }}
+        {{- if .litellm_params.temperature }}
+        temperature: {{ .litellm_params.temperature }}
+        {{- end }}
+        {{- if .litellm_params.top_p }}
+        top_p: {{ .litellm_params.top_p }}
+        {{- end }}
+        {{- if .litellm_params.max_tokens }}
+        max_tokens: {{ .litellm_params.max_tokens }}
+        {{- end }}
+        {{- if hasKey .litellm_params "drop_params" }}
+        drop_params: {{ .litellm_params.drop_params }}
+        {{- end }}
+        {{- if .litellm_params.extra_headers }}
+        extra_headers:
+          {{- toYaml .litellm_params.extra_headers | nindent 10 }}
+        {{- end }}
+        {{- if .litellm_params.tags }}
+        tags:
+          {{- toYaml .litellm_params.tags | nindent 10 }}
+        {{- end }}
+        {{- if .litellm_params.complexity_router_config }}
+        complexity_router_config:
+          {{- toYaml .litellm_params.complexity_router_config | nindent 10 }}
+        {{- end }}
+      {{- if .model_info }}
+      model_info:
+        {{- toYaml .model_info | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    
+    {{- if .Values.config.guardrails }}
+    guardrails:
+    {{- range .Values.config.guardrails }}
+    - guardrail_name: {{ .guardrail_name | quote }}
+      litellm_params:
+        guardrail: {{ .litellm_params.guardrail }}
+        mode: {{ .litellm_params.mode | quote }}
+        guardrailIdentifier: {{ .litellm_params.guardrailIdentifier | quote }}
+        guardrailVersion: {{ .litellm_params.guardrailVersion | quote }}
+        aws_region_name: {{ .litellm_params.aws_region_name | quote }}
+        {{- if .litellm_params.disable_exception_on_block }}
+        disable_exception_on_block: {{ .litellm_params.disable_exception_on_block }}
+        {{- end }}
+        {{- if .litellm_params.default_on }}
+        default_on: {{ .litellm_params.default_on }}
+        {{- end }}
+    {{- end }}
+    {{- end }}
+    

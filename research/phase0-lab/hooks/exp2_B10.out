@@ -1,0 +1,66 @@
+  per-request results: ['a2', 'a2', 'a2', 'b1', 'a2', 'b1', 'b1', 'a2']  cooldowns: []
+
+===== B10 NO filter; async_pre_call_check vetoes a1 (8 requests, simple-shuffle) =====
+    1.554 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+    1.554 async_pre_call_check             {'id': 'a2'}
+    1.554 async_pre_call_deployment_hook   {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 11, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai
+    1.565 log_pre_api_call(sync)           {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+    1.745 SEND->a2                         {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+    1.751 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+    1.751 async_pre_call_check             {'id': 'a2'}
+    1.752 async_pre_call_deployment_hook   {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 11, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai
+    2.160 log_pre_api_call(sync)           {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+    2.161 SEND->a2                         {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+    2.163 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+    2.163 async_pre_call_check             {'id': 'a1'}
+    2.163 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jur
+    2.163 async_pre_call_check             {'id': 'a2'}
+    2.163 async_pre_call_deployment_hook   {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai
+    2.165 log_pre_api_call(sync)           {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+    2.166 SEND->a2                         {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+    2.167 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+    2.167 async_pre_call_check             {'id': 'a1'}
+    2.168 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jur
+    2.168 async_pre_call_check             {'id': 'a1'}
+    2.169 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jur
+    2.169 async_pre_call_check             {'id': 'a1'}
+    2.174 async_filter_deployments         {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'b1', 'jurisdict
+    2.174 async_pre_call_check             {'id': 'b1'}
+    2.174 async_pre_call_deployment_hook   {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-b1', 'api_base': 'http://127.0.0.1:9203/v1', 'kw_model_info_id': 'b1', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai
+    2.175 log_pre_api_call(sync)           {'model': 'x-b1', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9203, path='/v1/', query=None, fragment=None), 'model_info_id': 'b1'}
+    2.177 SEND->b1                         {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-b1'}
+    2.179 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+    2.179 async_pre_call_check             {'id': 'a2'}
+    2.179 async_pre_call_deployment_hook   {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 11, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai
+    2.181 log_pre_api_call(sync)           {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+    2.181 SEND->a2                         {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+    2.183 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+    2.183 async_pre_call_check             {'id': 'a1'}
+    2.183 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jur
+    2.183 async_pre_call_check             {'id': 'a1'}
+    2.183 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jur
+    2.183 async_pre_call_check             {'id': 'a1'}
+    2.185 async_filter_deployments         {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'b1', 'jurisdict
+    2.185 async_pre_call_check             {'id': 'b1'}
+    2.185 async_pre_call_deployment_hook   {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-b1', 'api_base': 'http://127.0.0.1:9203/v1', 'kw_model_info_id': 'b1', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai
+    2.186 log_pre_api_call(sync)           {'model': 'x-b1', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9203, path='/v1/', query=None, fragment=None), 'model_info_id': 'b1'}
+    2.186 SEND->b1                         {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-b1'}
+    2.188 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+    2.188 async_pre_call_check             {'id': 'a1'}
+    2.188 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jur
+    2.188 async_pre_call_check             {'id': 'a1'}
+    2.188 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jur
+    2.188 async_pre_call_check             {'id': 'a1'}
+    2.190 async_filter_deployments         {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'b1', 'jurisdict
+    2.190 async_pre_call_check             {'id': 'b1'}
+    2.190 async_pre_call_deployment_hook   {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-b1', 'api_base': 'http://127.0.0.1:9203/v1', 'kw_model_info_id': 'b1', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai
+    2.191 log_pre_api_call(sync)           {'model': 'x-b1', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9203, path='/v1/', query=None, fragment=None), 'model_info_id': 'b1'}
+    2.192 SEND->b1                         {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-b1'}
+    2.193 async_filter_deployments         {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+    2.193 async_pre_call_check             {'id': 'a2'}
+    2.193 async_pre_call_deployment_hook   {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 11, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai
+    2.194 log_pre_api_call(sync)           {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+    2.195 SEND->a2                         {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+  filter_calls= 18  deployment_hook_calls= 8
+  RESULT: OK model_id=None api_base=None (0.64s)
+  COUNTS: {'a2': 5, 'b1': 3}

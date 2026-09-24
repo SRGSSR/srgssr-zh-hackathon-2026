@@ -1,0 +1,89 @@
+=== prod: model groups (12)
+BSC-LT/ALIA-40b-instruct  (family ALIA)
+    deployments: api.nextbit256.com [unknown (NEXBIT_API_KEY) | unknown]
+aisingapore/Gemma-SEA-LION-v4-27B-IT  (family SEA-LION(Gemma))
+    deployments: api.sea-lion.ai [AI Singapore (SEA-LION API) | SG]
+aisingapore/Qwen-SEA-LION-v4-32B-IT  (family SEA-LION(Qwen))
+    deployments: api.sea-lion.ai [AI Singapore (SEA-LION API) | SG]
+Cohere/Cohere-embed-multilingual-v3.0  (family Cohere(Bedrock))
+    deployments: bedrock:eu-central-1 [AWS Bedrock | DE/EU region (AWS, US company)]
+Cohere/rerank-v3.5  (family Cohere(Bedrock))
+    deployments: bedrock:eu-central-1 [AWS Bedrock | DE/EU region (AWS, US company)]
+speakleash/Bielik-11B-v3.0-Instruct  (family Bielik)
+    deployments: llmlab.plgrid.pl [PLGrid / Cyfronet AGH | PL (EU)]
+swiss-ai/apertus-70b-instruct  (family Apertus)
+    deployments: api.infomaniak.com [Infomaniak | CH]
+swiss-ai/apertus-8b-instruct  (family Apertus)
+    deployments: api.featherless.ai [Featherless.ai | unknown]
+swiss-ai/apertus-v1.5-70b-thinking  (family Apertus)
+    deployments: api.infomaniak.com [Infomaniak | CH]; api.featherless.ai [Featherless.ai | unknown]
+swiss-ai/apertus-v1.5-70b  (family Apertus)
+    deployments: api.infomaniak.com [Infomaniak | CH]; api.featherless.ai [Featherless.ai | unknown]
+swiss-ai/apertus-v1.5-8b-thinking  (family Apertus)
+    deployments: api.featherless.ai [Featherless.ai | unknown]
+swiss-ai/apertus-v1.5-8b  (family Apertus)
+    deployments: api.featherless.ai [Featherless.ai | unknown]
+
+=== prod: direct fallbacks (flags: XF=cross-family, NONCH=target group has a deployment not assessed CH)
+BSC-LT/ALIA-40b-instruct -> swiss-ai/apertus-70b-instruct  XF
+BSC-LT/ALIA-40b-instruct -> speakleash/Bielik-11B-v3.0-Instruct  XF,NONCH
+aisingapore/Gemma-SEA-LION-v4-27B-IT -> swiss-ai/apertus-70b-instruct  XF
+aisingapore/Gemma-SEA-LION-v4-27B-IT -> speakleash/Bielik-11B-v3.0-Instruct  XF,NONCH
+aisingapore/Qwen-SEA-LION-v4-32B-IT -> swiss-ai/apertus-70b-instruct  XF
+aisingapore/Qwen-SEA-LION-v4-32B-IT -> speakleash/Bielik-11B-v3.0-Instruct  XF,NONCH
+speakleash/Bielik-11B-v3.0-Instruct -> aisingapore/Qwen-SEA-LION-v4-32B-IT  XF,NONCH
+speakleash/Bielik-11B-v3.0-Instruct -> swiss-ai/apertus-v1.5-70b  XF,NONCH
+swiss-ai/apertus-70b-instruct -> swiss-ai/apertus-v1.5-70b  NONCH
+swiss-ai/apertus-70b-instruct -> aisingapore/Qwen-SEA-LION-v4-32B-IT  XF,NONCH
+swiss-ai/apertus-70b-instruct -> speakleash/Bielik-11B-v3.0-Instruct  XF,NONCH
+swiss-ai/apertus-8b-instruct -> swiss-ai/apertus-v1.5-70b  NONCH
+swiss-ai/apertus-8b-instruct -> aisingapore/Qwen-SEA-LION-v4-32B-IT  XF,NONCH
+swiss-ai/apertus-8b-instruct -> speakleash/Bielik-11B-v3.0-Instruct  XF,NONCH
+swiss-ai/apertus-v1.5-70b-thinking -> aisingapore/Qwen-SEA-LION-v4-32B-IT  XF,NONCH
+swiss-ai/apertus-v1.5-70b-thinking -> speakleash/Bielik-11B-v3.0-Instruct  XF,NONCH
+swiss-ai/apertus-v1.5-70b -> aisingapore/Qwen-SEA-LION-v4-32B-IT  XF,NONCH
+swiss-ai/apertus-v1.5-70b -> speakleash/Bielik-11B-v3.0-Instruct  XF,NONCH
+swiss-ai/apertus-v1.5-8b-thinking -> swiss-ai/apertus-v1.5-70b  NONCH
+swiss-ai/apertus-v1.5-8b-thinking -> aisingapore/Qwen-SEA-LION-v4-32B-IT  XF,NONCH
+swiss-ai/apertus-v1.5-8b-thinking -> speakleash/Bielik-11B-v3.0-Instruct  XF,NONCH
+swiss-ai/apertus-v1.5-8b -> swiss-ai/apertus-v1.5-70b  NONCH
+swiss-ai/apertus-v1.5-8b -> aisingapore/Qwen-SEA-LION-v4-32B-IT  XF,NONCH
+swiss-ai/apertus-v1.5-8b -> speakleash/Bielik-11B-v3.0-Instruct  XF,NONCH
+
+=== prod: transitive reach (depth<=5) and hosts that can receive a request for that group
+BSC-LT/ALIA-40b-instruct: reach=["swiss-ai/apertus-70b-instruct", "speakleash/Bielik-11B-v3.0-Instruct", "swiss-ai/apertus-v1.5-70b", "aisingapore/Qwen-SEA-LION-v4-32B-IT"]
+    hosts=["api.nextbit256.com", "api.infomaniak.com", "llmlab.plgrid.pl", "api.featherless.ai", "api.sea-lion.ai"]
+    non-CH-or-unknown hosts reachable=["api.nextbit256.com", "llmlab.plgrid.pl", "api.featherless.ai", "api.sea-lion.ai"]
+aisingapore/Gemma-SEA-LION-v4-27B-IT: reach=["swiss-ai/apertus-70b-instruct", "speakleash/Bielik-11B-v3.0-Instruct", "swiss-ai/apertus-v1.5-70b", "aisingapore/Qwen-SEA-LION-v4-32B-IT"]
+    hosts=["api.sea-lion.ai", "api.infomaniak.com", "llmlab.plgrid.pl", "api.featherless.ai"]
+    non-CH-or-unknown hosts reachable=["api.sea-lion.ai", "llmlab.plgrid.pl", "api.featherless.ai"]
+aisingapore/Qwen-SEA-LION-v4-32B-IT: reach=["swiss-ai/apertus-70b-instruct", "speakleash/Bielik-11B-v3.0-Instruct", "swiss-ai/apertus-v1.5-70b"]
+    hosts=["api.sea-lion.ai", "api.infomaniak.com", "llmlab.plgrid.pl", "api.featherless.ai"]
+    non-CH-or-unknown hosts reachable=["api.sea-lion.ai", "llmlab.plgrid.pl", "api.featherless.ai"]
+Cohere/Cohere-embed-multilingual-v3.0: reach=[]
+    hosts=["bedrock:eu-central-1"]
+    non-CH-or-unknown hosts reachable=["bedrock:eu-central-1"]
+Cohere/rerank-v3.5: reach=[]
+    hosts=["bedrock:eu-central-1"]
+    non-CH-or-unknown hosts reachable=["bedrock:eu-central-1"]
+speakleash/Bielik-11B-v3.0-Instruct: reach=["aisingapore/Qwen-SEA-LION-v4-32B-IT", "swiss-ai/apertus-v1.5-70b", "swiss-ai/apertus-70b-instruct"]
+    hosts=["llmlab.plgrid.pl", "api.sea-lion.ai", "api.infomaniak.com", "api.featherless.ai"]
+    non-CH-or-unknown hosts reachable=["llmlab.plgrid.pl", "api.sea-lion.ai", "api.featherless.ai"]
+swiss-ai/apertus-70b-instruct: reach=["swiss-ai/apertus-v1.5-70b", "aisingapore/Qwen-SEA-LION-v4-32B-IT", "speakleash/Bielik-11B-v3.0-Instruct"]
+    hosts=["api.infomaniak.com", "api.featherless.ai", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+    non-CH-or-unknown hosts reachable=["api.featherless.ai", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+swiss-ai/apertus-8b-instruct: reach=["swiss-ai/apertus-v1.5-70b", "aisingapore/Qwen-SEA-LION-v4-32B-IT", "speakleash/Bielik-11B-v3.0-Instruct", "swiss-ai/apertus-70b-instruct"]
+    hosts=["api.featherless.ai", "api.infomaniak.com", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+    non-CH-or-unknown hosts reachable=["api.featherless.ai", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+swiss-ai/apertus-v1.5-70b-thinking: reach=["aisingapore/Qwen-SEA-LION-v4-32B-IT", "speakleash/Bielik-11B-v3.0-Instruct", "swiss-ai/apertus-70b-instruct", "swiss-ai/apertus-v1.5-70b"]
+    hosts=["api.infomaniak.com", "api.featherless.ai", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+    non-CH-or-unknown hosts reachable=["api.featherless.ai", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+swiss-ai/apertus-v1.5-70b: reach=["aisingapore/Qwen-SEA-LION-v4-32B-IT", "speakleash/Bielik-11B-v3.0-Instruct", "swiss-ai/apertus-70b-instruct"]
+    hosts=["api.infomaniak.com", "api.featherless.ai", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+    non-CH-or-unknown hosts reachable=["api.featherless.ai", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+swiss-ai/apertus-v1.5-8b-thinking: reach=["swiss-ai/apertus-v1.5-70b", "aisingapore/Qwen-SEA-LION-v4-32B-IT", "speakleash/Bielik-11B-v3.0-Instruct", "swiss-ai/apertus-70b-instruct"]
+    hosts=["api.featherless.ai", "api.infomaniak.com", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+    non-CH-or-unknown hosts reachable=["api.featherless.ai", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+swiss-ai/apertus-v1.5-8b: reach=["swiss-ai/apertus-v1.5-70b", "aisingapore/Qwen-SEA-LION-v4-32B-IT", "speakleash/Bielik-11B-v3.0-Instruct", "swiss-ai/apertus-70b-instruct"]
+    hosts=["api.featherless.ai", "api.infomaniak.com", "api.sea-lion.ai", "llmlab.plgrid.pl"]
+    non-CH-or-unknown hosts reachable=["api.featherless.ai", "api.sea-lion.ai", "llmlab.plgrid.pl"]

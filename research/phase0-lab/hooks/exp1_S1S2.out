@@ -1,0 +1,79 @@
+
+===== S1.0 a1 down / a2 up, no policy =====
+modes: {'a1': 'down'} policy: {'veto_exc': 'plain'}
+   1.572 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   1.572 async_pre_call_check               {'id': 'a1'}
+   1.572 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a1', 'api_base': 'http://127.0.0.1:9201/v1', 'kw_model_info_id': 'a1', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}}
+   1.586 log_pre_api_call(sync)             {'model': 'x-a1', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9201, path='/v1/', query=None, fragment=None), 'model_info_id': 'a1'}
+   1.775 SEND->a1                           {'path': '/v1/chat/completions', 'mode': 'down', 'auth': 'Bearer sk-admin-a1'}
+   2.173 async_log_failure_event            {'model_info_id': 'a1', 'exc': 'ServiceUnavailableError', 'status': 503}
+   2.173 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.173 async_pre_call_check               {'id': 'a2'}
+   2.173 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.175 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.176 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.182 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+RESULT[0]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.61s)
+MOCK COUNTS: {'a1': 1, 'a2': 1, 'b1': 0}
+COOLDOWNS: []
+
+===== S1.1 a1 down / a2 up, no policy =====
+modes: {'a1': 'down'} policy: {'veto_exc': 'plain'}
+   2.688 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.688 async_pre_call_check               {'id': 'a2'}
+   2.688 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.689 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.690 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.693 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+RESULT[0]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.01s)
+MOCK COUNTS: {'a1': 0, 'a2': 1, 'b1': 0}
+COOLDOWNS: []
+
+===== S1.2 a1 down / a2 up, no policy =====
+modes: {'a1': 'down'} policy: {'veto_exc': 'plain'}
+   3.203 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   3.203 async_pre_call_check               {'id': 'a1'}
+   3.203 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a1', 'api_base': 'http://127.0.0.1:9201/v1', 'kw_model_info_id': 'a1', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}}
+   3.206 log_pre_api_call(sync)             {'model': 'x-a1', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9201, path='/v1/', query=None, fragment=None), 'model_info_id': 'a1'}
+   3.208 SEND->a1                           {'path': '/v1/chat/completions', 'mode': 'down', 'auth': 'Bearer sk-admin-a1'}
+   3.224 async_log_failure_event            {'model_info_id': 'a1', 'exc': 'ServiceUnavailableError', 'status': 503}
+   3.225 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   3.225 async_pre_call_check               {'id': 'a2'}
+   3.225 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   3.227 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   3.228 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   3.232 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+RESULT[0]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.03s)
+MOCK COUNTS: {'a1': 1, 'a2': 1, 'b1': 0}
+COOLDOWNS: []
+
+===== S2 all of A down -> retries in A -> fallback B, no policy =====
+modes: {'a1': 'down', 'a2': 'down'} policy: {'veto_exc': 'plain'}
+   3.738 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   3.738 async_pre_call_check               {'id': 'a1'}
+   3.739 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a1', 'api_base': 'http://127.0.0.1:9201/v1', 'kw_model_info_id': 'a1', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}}
+   3.740 log_pre_api_call(sync)             {'model': 'x-a1', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9201, path='/v1/', query=None, fragment=None), 'model_info_id': 'a1'}
+   3.742 SEND->a1                           {'path': '/v1/chat/completions', 'mode': 'down', 'auth': 'Bearer sk-admin-a1'}
+   3.757 async_log_failure_event            {'model_info_id': 'a1', 'exc': 'ServiceUnavailableError', 'status': 503}
+   3.758 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   3.758 async_pre_call_check               {'id': 'a1'}
+   3.758 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a1', 'api_base': 'http://127.0.0.1:9201/v1', 'kw_model_info_id': 'a1', 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}}
+   3.759 log_pre_api_call(sync)             {'model': 'x-a1', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9201, path='/v1/', query=None, fragment=None), 'model_info_id': 'a1'}
+   3.761 SEND->a1                           {'path': '/v1/chat/completions', 'mode': 'down', 'auth': 'Bearer sk-admin-a1'}
+   3.773 async_log_failure_event            {'model_info_id': 'a1', 'exc': 'ServiceUnavailableError', 'status': 503}
+   3.774 async_filter_deployments           {'model': 'A', 'in_ids': ['a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a1', 'model_info.id': 'a1'}, 'mi_sample': {'id': 'a2', 'jurisdiction': 'CH'}}
+   3.774 async_pre_call_check               {'id': 'a2'}
+   3.774 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   3.775 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   3.776 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'down', 'auth': 'Bearer sk-admin-a2'}
+   3.786 async_log_failure_event            {'model_info_id': 'a2', 'exc': 'ServiceUnavailableError', 'status': 503}
+   3.792 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+   3.792 async_pre_call_check               {'id': 'b1'}
+   3.792 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-b1', 'api_base': 'http://127.0.0.1:9203/v1', 'kw_model_info_id': 'b1', 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-b1', 'model_info.id': 'b1'}}
+   3.793 log_pre_api_call(sync)             {'model': 'x-b1', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9203, path='/v1/', query=None, fragment=None), 'model_info_id': 'b1'}
+   3.795 SEND->b1                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-b1'}
+   3.798 log_success_fallback_event         {'original_model_group': 'A', 'now_model': 'B'}
+   3.798 async_log_success_event            {'model_info_id': 'b1', 'api_base': 'http://127.0.0.1:9203/v1/'}
+RESULT[0]: OK model_id=b1 api_base=http://127.0.0.1:9203/v1 content='hello from b1' (0.06s)
+MOCK COUNTS: {'a1': 2, 'a2': 1, 'b1': 1}
+COOLDOWNS: ['a1']

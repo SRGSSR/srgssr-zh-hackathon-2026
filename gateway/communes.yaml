@@ -8,7 +8,14 @@ communes:
     team_id: gemeinde-musterstadt
     team_alias: Gemeinde Musterstadt
     models: ["swiss-ai/apertus-v1.5-70b"]
-    allowed_routes: ["/chat/completions", "/v1/chat/completions"]
+    allowed_routes: &commune_routes
+      - /chat/completions
+      - /v1/chat/completions
+      - /v1/deferred/chat/completions
+      - /v1/deferred/jobs
+      - /v1/deferred/events
+      - /v1/deferred/retry
+      - /v1/deferred/cancel
     routing_policy:
       id: CH-only
       description: >-
@@ -23,4 +30,4 @@ communes:
     team_id: test-no-policy
     team_alias: Test key without policy
     models: ["swiss-ai/apertus-v1.5-70b"]
-    allowed_routes: ["/chat/completions", "/v1/chat/completions"]
+    allowed_routes: *commune_routes

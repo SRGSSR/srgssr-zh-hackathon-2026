@@ -1,0 +1,68 @@
+model_list:
+- model_name: apertus-ch
+  litellm_params:
+    model: openai/apertus-ch-upstream
+    api_base: http://127.0.0.1:9101/v1
+    api_key: k-ch-1
+  model_info:
+    id: ch-1
+    provider: infomaniak
+    country: CH
+    jurisdiction: CH
+- model_name: apertus-ch
+  litellm_params:
+    model: openai/apertus-ch-upstream
+    api_base: http://127.0.0.1:9102/v1
+    api_key: k-ch-2
+  model_info:
+    id: ch-2
+    provider: phoeniqs
+    country: CH
+    jurisdiction: CH
+- model_name: sealion-sg
+  litellm_params:
+    model: openai/sealion-sg-upstream
+    api_base: http://127.0.0.1:9103/v1
+    api_key: k-sg-1
+  model_info:
+    id: sg-1
+    provider: sea-lion
+    country: SG
+    jurisdiction: SG
+- model_name: bielik-pl
+  litellm_params:
+    model: openai/bielik-pl-upstream
+    api_base: http://127.0.0.1:9104/v1
+    api_key: k-pl-1
+  model_info:
+    id: pl-1
+    provider: plgrid
+    country: PL
+    jurisdiction: EU
+- model_name: nometa
+  litellm_params:
+    model: openai/nometa-upstream
+    api_base: http://127.0.0.1:9105/v1
+    api_key: k-nm-1
+  model_info:
+    id: nm-1
+router_settings:
+  fallbacks:
+  - apertus-ch:
+    - sealion-sg
+  num_retries: 1
+  retry_after: 0
+  disable_cooldowns: true
+  routing_strategy: simple-shuffle
+litellm_settings:
+  callbacks:
+  - probe.probe_instance
+  request_timeout: 3
+  drop_params: true
+  enable_post_custom_auth_checks: true
+general_settings:
+  master_key: sk-master
+  custom_auth: custom_auth_commune.user_api_key_auth
+  custom_auth_settings:
+    mode: auto
+  custom_auth_run_common_checks: true

@@ -1,0 +1,69 @@
+model_list:
+- model_name: apertus
+  litellm_params:
+    model: openai/x
+    api_base: http://127.0.0.1:9101/v1
+    api_key: k
+    weight: 1000
+  model_info:
+    id: ch-1
+    jurisdiction: CH
+    provider: mock
+    country: CH
+- model_name: apertus
+  litellm_params:
+    model: openai/x
+    api_base: http://127.0.0.1:9102/v1
+    api_key: k
+    weight: 1
+  model_info:
+    id: ch-2
+    jurisdiction: CH
+    provider: mock
+    country: CH
+- model_name: usgrp
+  litellm_params:
+    model: openai/x
+    api_base: http://127.0.0.1:9104/v1
+    api_key: k
+  model_info:
+    id: us-1
+    jurisdiction: US
+    provider: mock
+    country: US
+- model_name: rl
+  litellm_params:
+    model: openai/x
+    api_base: http://127.0.0.1:9106/v1
+    api_key: k
+  model_info:
+    id: rl-1
+    jurisdiction: CH
+    provider: mock
+    country: CH
+- model_name: rl
+  litellm_params:
+    model: openai/x
+    api_base: http://127.0.0.1:9107/v1
+    api_key: k
+  model_info:
+    id: rl-2
+    jurisdiction: CH
+    provider: mock
+    country: CH
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 1
+  allowed_fails: 0
+  cooldown_time: 3
+  timeout: 2
+  fallbacks:
+  - apertus:
+    - usgrp
+litellm_settings:
+  callbacks:
+  - proxy_recorder2.probe
+  drop_params: true
+  global_disable_no_log_param: true
+general_settings:
+  master_key: sk-lab-master

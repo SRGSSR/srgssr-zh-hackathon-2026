@@ -1,0 +1,1151 @@
+
+===== S3 policy drops a1 (US); a1 up; 10 requests =====
+modes: {} policy: {'drop_ids': {'a1'}, 'veto_exc': 'plain'}
+   1.571 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   1.571   filter.dropped                   {'ids': ['a1']}
+   1.571 async_pre_call_check               {'id': 'a2'}
+   1.571 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   1.585 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   1.778 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   1.785 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   1.785   filter.dropped                   {'ids': ['a1']}
+   1.785 async_pre_call_check               {'id': 'a2'}
+   1.785 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.152 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+   2.152 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.153 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.155 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.155   filter.dropped                   {'ids': ['a1']}
+   2.155 async_pre_call_check               {'id': 'a2'}
+   2.155 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.156 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+   2.156 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.157 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.158 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.158   filter.dropped                   {'ids': ['a1']}
+   2.158 async_pre_call_check               {'id': 'a2'}
+   2.158 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.158 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+   2.159 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.159 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.160 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.160   filter.dropped                   {'ids': ['a1']}
+   2.160 async_pre_call_check               {'id': 'a2'}
+   2.161 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.161 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+   2.161 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.162 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.163 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.163   filter.dropped                   {'ids': ['a1']}
+   2.163 async_pre_call_check               {'id': 'a2'}
+   2.163 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.163 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+   2.164 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.164 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.165 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.165   filter.dropped                   {'ids': ['a1']}
+   2.165 async_pre_call_check               {'id': 'a2'}
+   2.166 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.166 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+   2.166 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.167 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.168 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.168   filter.dropped                   {'ids': ['a1']}
+   2.168 async_pre_call_check               {'id': 'a2'}
+   2.168 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}[92m17:40:51 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=['a2']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a2 down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a2 down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a2 down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=A. pre-call-checks=False, cooldown_list=['a2']
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=['a2']
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=['a2']
+
+
+Debug Information:
+Cooldown Deployments=[('a2', {'exception_received': 'litellm.ServiceUnavailableError: ServiceUnavailabl*********************************', 'status_code': '503', 'timestamp': 1790271646.3365874, 'cooldown_time': 30})]
+[92m17:40:51 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=['a2']
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 886, in acompletion
+    headers, response = await self.make_openai_chat_completion_request(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/logging_utils.py", line 289, in async_wrapper
+    result = await func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 447, in make_openai_chat_completion_request
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 427, in make_openai_chat_completion_request
+    raw_response = await openai_aclient.chat.completions.with_raw_response.create(**data, timeout=timeout)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_legacy_response.py", line 384, in wrapped
+    return cast(LegacyAPIResponse[R], await func(*args, **kwargs))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/resources/chat/completions/completions.py", line 2714, in create
+    return await self._post(
+           ^^^^^^^^^^^^^^^^^
+    ...<49 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1913, in post
+    return await self.request(cast_to, opts, stream=stream, stream_cls=stream_cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/openai/_base_client.py", line 1698, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.InternalServerError: Error code: 503 - {'error': {'message': 'a2 down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 639, in acompletion
+    response = await init_response
+               ^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/llms/openai/openai.py", line 946, in acompletion
+    raise OpenAIError(
+    ...<4 lines>...
+    )
+litellm.llms.openai.common_utils.OpenAIError: Error code: 503 - {'error': {'message': 'a2 down', 'type': 'server_error'}}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2722, in _acompletion
+    response = await _response
+               ^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1870, in wrapper_async
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/utils.py", line 1689, in wrapper_async
+    result = await original_function(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/main.py", line 692, in acompletion
+    raise exception_type(
+          ~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        extra_kwargs=kwargs,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2499, in exception_type
+    raise e  # it's already mapped
+    ^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 2265, in exception_type
+    _map_openai_exception(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        model=model,
+        ^^^^^^^^^^^^
+    ...<5 lines>...
+        extra_information=extra_information,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/litellm_core_utils/exception_mapping_utils.py", line 455, in _map_openai_exception
+    raise ServiceUnavailableError(
+    ...<5 lines>...
+    )
+litellm.exceptions.ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a2 down
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=A. pre-call-checks=False, cooldown_list=['a2']
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=['a2']
+
+
+Debug Information:
+Cooldown Deployments=[('a2', {'exception_received': 'litellm.ServiceUnavailableError: ServiceUnavailabl*********************************', 'status_code': '503', 'timestamp': 1790271646.3365874, 'cooldown_time': 30})]
+[92m17:40:56 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=[]
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=A. pre-call-checks=False, cooldown_list=[]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=A. pre-call-checks=False, cooldown_list=[]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=[]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=[]
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:40:56 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=[]
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=A. pre-call-checks=False, cooldown_list=[]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=A. pre-call-checks=False, cooldown_list=[]
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10257, in async_get_healthy_deployments
+    raise exception
+litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=B. pre-call-checks=False, cooldown_list=[]
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+   2.168 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+   2.169 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.169 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.170 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.170   filter.dropped                   {'ids': ['a1']}
+   2.170 async_pre_call_check               {'id': 'a2'}
+   2.170 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.171 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+   2.171 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.172 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.173 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.173   filter.dropped                   {'ids': ['a1']}
+   2.173 async_pre_call_check               {'id': 'a2'}
+   2.173 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.173 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+   2.174 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.174 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-a2'}
+   2.175 async_log_success_event            {'model_info_id': 'a2', 'api_base': 'http://127.0.0.1:9202/v1/'}
+RESULT[0]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.21s)
+RESULT[1]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.37s)
+RESULT[2]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.00s)
+RESULT[3]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.00s)
+RESULT[4]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.00s)
+RESULT[5]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.00s)
+RESULT[6]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.00s)
+RESULT[7]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.00s)
+RESULT[8]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.00s)
+RESULT[9]: OK model_id=a2 api_base=http://127.0.0.1:9202/v1 content='hello from a2' (0.00s)
+MOCK COUNTS: {'a1': 0, 'a2': 10, 'b1': 0}
+COOLDOWNS: []
+
+===== S4 policy drops a1 and b1 (B = disallowed group); a2 down =====
+modes: {'a2': 'down'} policy: {'drop_ids': {'a1', 'b1'}, 'veto_exc': 'plain'}
+   2.688 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.688   filter.dropped                   {'ids': ['a1']}
+   2.689 async_pre_call_check               {'id': 'a2'}
+   2.689 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.691 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.694 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'down', 'auth': 'Bearer sk-admin-a2'}
+   2.716 async_log_failure_event            {'model_info_id': 'a2', 'exc': 'ServiceUnavailableError', 'status': 503}
+   2.717 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.717   filter.dropped                   {'ids': ['a1']}
+   2.717 async_pre_call_check               {'id': 'a2'}
+   2.717 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+   2.718 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+   2.719 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'down', 'auth': 'Bearer sk-admin-a2'}
+   2.729 async_log_failure_event            {'model_info_id': 'a2', 'exc': 'ServiceUnavailableError', 'status': 503}
+   2.730 async_filter_deployments           {'model': 'A', 'in_ids': ['a1'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   2.730   filter.dropped                   {'ids': ['a1']}
+   2.739 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+   2.739   filter.dropped                   {'ids': ['b1']}
+   3.971 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+   3.971   filter.dropped                   {'ids': ['b1']}
+   5.015 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+   5.015   filter.dropped                   {'ids': ['b1']}
+   7.411 log_failure_fallback_event         {'original_model_group': 'A', 'now_model': 'B'}
+RESULT[0]: EXC litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=A. pre-call-checks=False, cooldown_list=['a2'] (4.74s)
+MOCK COUNTS: {'a1': 0, 'a2': 2, 'b1': 0}
+COOLDOWNS: ['a2']
+
+===== S5 policy drops everything (a1,a2,b1): zero approved =====
+modes: {} policy: {'drop_ids': {'a1', 'b1', 'a2'}, 'veto_exc': 'plain'}
+   7.938 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}[92m17:41:01 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - filter veto for B
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10212, in async_get_healthy_deployments
+    healthy_deployments = await self.async_callback_filter_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7236, in async_callback_filter_deployments
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7214, in async_callback_filter_deployments
+    returned_healthy_deployments = await _callback.async_filter_deployments(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/lab/hooks/hooklab.py", line 135, in async_filter_deployments
+    raise PolicyVeto(f"filter veto for {model}")
+hooklab.PolicyVeto: filter veto for A
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10212, in async_get_healthy_deployments
+    healthy_deployments = await self.async_callback_filter_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7236, in async_callback_filter_deployments
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7214, in async_callback_filter_deployments
+    returned_healthy_deployments = await _callback.async_filter_deployments(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/lab/hooks/hooklab.py", line 135, in async_filter_deployments
+    raise PolicyVeto(f"filter veto for {model}")
+hooklab.PolicyVeto: filter veto for A
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10212, in async_get_healthy_deployments
+    healthy_deployments = await self.async_callback_filter_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7236, in async_callback_filter_deployments
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7214, in async_callback_filter_deployments
+    returned_healthy_deployments = await _callback.async_filter_deployments(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/lab/hooks/hooklab.py", line 135, in async_filter_deployments
+    raise PolicyVeto(f"filter veto for {model}")
+hooklab.PolicyVeto: filter veto for B
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10212, in async_get_healthy_deployments
+    healthy_deployments = await self.async_callback_filter_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7236, in async_callback_filter_deployments
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7214, in async_callback_filter_deployments
+    returned_healthy_deployments = await _callback.async_filter_deployments(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/lab/hooks/hooklab.py", line 135, in async_filter_deployments
+    raise PolicyVeto(f"filter veto for {model}")
+hooklab.PolicyVeto: filter veto for B
+
+
+Debug Information:
+Cooldown Deployments=[]
+[92m17:41:01 - LiteLLM Router:ERROR[0m: router.py:6197 - litellm.router.py::async_function_with_fallbacks() - Error occurred while trying to do fallbacks - filter veto for B
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6349, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10212, in async_get_healthy_deployments
+    healthy_deployments = await self.async_callback_filter_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7236, in async_callback_filter_deployments
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7214, in async_callback_filter_deployments
+    returned_healthy_deployments = await _callback.async_filter_deployments(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/lab/hooks/hooklab.py", line 135, in async_filter_deployments
+    raise PolicyVeto(f"filter veto for {model}")
+hooklab.PolicyVeto: filter veto for A
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10212, in async_get_healthy_deployments
+    healthy_deployments = await self.async_callback_filter_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7236, in async_callback_filter_deployments
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7214, in async_callback_filter_deployments
+    returned_healthy_deployments = await _callback.async_filter_deployments(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/lab/hooks/hooklab.py", line 135, in async_filter_deployments
+    raise PolicyVeto(f"filter veto for {model}")
+hooklab.PolicyVeto: filter veto for A
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6188, in async_function_with_fallbacks_common_utils
+    response = await run_async_fallback(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 165, in run_async_fallback
+    raise error_from_fallbacks
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router_utils/fallback_event_handlers.py", line 143, in run_async_fallback
+    response = await litellm_router.async_function_with_fallbacks(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6257, in async_function_with_fallbacks
+    return await self.async_function_with_fallbacks_common_utils(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6219, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6179, in async_function_with_fallbacks_common_utils
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6248, in async_function_with_fallbacks
+    response = await self.async_function_with_retries(*args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6494, in async_function_with_retries
+    raise original_exception
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6427, in async_function_with_retries
+    response = await self.make_call(original_function, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 6503, in make_call
+    response = await response
+               ^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2771, in _acompletion
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 2632, in _acompletion
+    deployment = await self.async_get_available_deployment(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10384, in async_get_available_deployment
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10312, in async_get_available_deployment
+    healthy_deployments = await self.async_get_healthy_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 10212, in async_get_healthy_deployments
+    healthy_deployments = await self.async_callback_filter_deployments(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7236, in async_callback_filter_deployments
+    raise e
+  File "/app/.venv/lib/python3.13/site-packages/litellm/router.py", line 7214, in async_callback_filter_deployments
+    returned_healthy_deployments = await _callback.async_filter_deployments(
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "/lab/hooks/hooklab.py", line 135, in async_filter_deployments
+    raise PolicyVeto(f"filter veto for {model}")
+hooklab.PolicyVeto: filter veto for B
+
+
+Debug Information:
+Cooldown Deployments=[]
+
+   7.938   filter.dropped                   {'ids': ['a1', 'a2']}
+   7.939 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   7.939   filter.dropped                   {'ids': ['a1', 'a2']}
+   7.940 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+   7.940   filter.dropped                   {'ids': ['a1', 'a2']}
+   7.943 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'B'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+   7.943   filter.dropped                   {'ids': ['b1']}
+   8.731 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'B'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+   8.731   filter.dropped                   {'ids': ['b1']}
+  10.428 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'B'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+  10.428   filter.dropped                   {'ids': ['b1']}
+  12.646 log_failure_fallback_event         {'original_model_group': 'A', 'now_model': 'B'}
+RESULT[0]: EXC litellm.types.router.RouterRateLimitError: No deployments available for selected model, Try again in 30 seconds. Passed model=A. pre-call-checks=False, cooldown_list=[] (4.72s)
+MOCK COUNTS: {'a1': 0, 'a2': 0, 'b1': 0}
+COOLDOWNS: []
+
+===== S6 filter RAISES (PolicyVeto) for every call =====
+modes: {} policy: {'filter_raises': True, 'veto_exc': 'plain'}
+  13.162 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+  13.163 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+  13.165 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+  13.167 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'B'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+  13.936 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'B'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+  15.374 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 7, 'user_api_key_team_id': 'commune-x', 'model_group': 'B'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+  17.964 log_failure_fallback_event         {'original_model_group': 'A', 'now_model': 'B'}
+RESULT[0]: EXC hooklab.PolicyVeto: filter veto for A (4.82s)
+MOCK COUNTS: {'a1': 0, 'a2': 0, 'b1': 0}
+COOLDOWNS: []
+
+===== S7 a2 down, drop a1; B allowed -> expect a2 retries then b1 =====
+modes: {'a2': 'down'} policy: {'drop_ids': {'a1'}, 'veto_exc': 'plain'}
+  18.485 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 6, 'user_api_key_team_id': 'commune-x', 'model_group': 'A'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+  18.485   filter.dropped                   {'ids': ['a1']}
+  18.486 async_pre_call_check               {'id': 'a2'}
+  18.486 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 12, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+  18.488 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+  18.490 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'down', 'auth': 'Bearer sk-admin-a2'}
+  18.504 async_log_failure_event            {'model_info_id': 'a2', 'exc': 'ServiceUnavailableError', 'status': 503}
+  18.505 async_filter_deployments           {'model': 'A', 'in_ids': ['a1', 'a2'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+  18.505   filter.dropped                   {'ids': ['a1']}
+  18.505 async_pre_call_check               {'id': 'a2'}
+  18.506 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-a2', 'api_base': 'http://127.0.0.1:9202/v1', 'kw_model_info_id': 'a2', 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}}
+  18.507 log_pre_api_call(sync)             {'model': 'x-a2', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9202, path='/v1/', query=None, fragment=None), 'model_info_id': 'a2'}
+  18.508 SEND->a2                           {'path': '/v1/chat/completions', 'mode': 'down', 'auth': 'Bearer sk-admin-a2'}
+  18.520 async_log_failure_event            {'model_info_id': 'a2', 'exc': 'ServiceUnavailableError', 'status': 503}
+  18.521 async_filter_deployments           {'model': 'A', 'in_ids': ['a1'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'A', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}, 'mi_sample': {'id': 'a1', 'jurisdiction': 'US'}}
+  18.521   filter.dropped                   {'ids': ['a1']}
+  18.529 async_filter_deployments           {'model': 'B', 'in_ids': ['b1'], 'has_request_kwargs': True, 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-a2', 'model_info.id': 'a2'}, 'mi_sample': {'id': 'b1', 'jurisdiction': 'CH'}}
+  18.529 async_pre_call_check               {'id': 'b1'}
+  18.529 async_pre_call_deployment_hook     {'call_type': 'CallTypes.acompletion', 'model': 'openai/x-b1', 'api_base': 'http://127.0.0.1:9203/v1', 'kw_model_info_id': 'b1', 'meta': {'keys_n': 13, 'user_api_key_team_id': 'commune-x', 'model_group': 'B', 'deployment': 'openai/x-b1', 'model_info.id': 'b1'}}
+  18.530 log_pre_api_call(sync)             {'model': 'x-b1', 'api_base': ParseResult(scheme='http', userinfo='', host='127.0.0.1', port=9203, path='/v1/', query=None, fragment=None), 'model_info_id': 'b1'}
+  18.531 SEND->b1                           {'path': '/v1/chat/completions', 'mode': 'up', 'auth': 'Bearer sk-admin-b1'}
+  18.534 log_success_fallback_event         {'original_model_group': 'A', 'now_model': 'B'}
+  18.534 async_log_success_event            {'model_info_id': 'b1', 'api_base': 'http://127.0.0.1:9203/v1/'}
+RESULT[0]: OK model_id=b1 api_base=http://127.0.0.1:9203/v1 content='hello from b1' (0.05s)
+MOCK COUNTS: {'a1': 0, 'a2': 2, 'b1': 1}
+COOLDOWNS: ['a2']

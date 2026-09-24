@@ -1,0 +1,12 @@
+R1a fallback A(ch,shared; down)->B(us,shared), req tags=[ch]: counts={'ch': 1, 'us': 1} served_by=us request_tags_after=['ch', 'shared', 'us']
+R1b retries in A=[ch(ch,shared; down), us(us,shared)], req tags=[ch]: counts={'ch': 1, 'us': 1} served_by=us request_tags_after=['ch', 'shared', 'us']
+R2 SYNC Router.completion x20, req tags=[ch]: counts={'ch': 7, 'us': 13} 
+R2 control ASYNC Router.acompletion x20, req tags=[ch]: counts={'ch': 20, 'us': 0} 
+R3 routing_strategy=usage-based-routing, acompletion x20, req tags=[ch]: counts={'ch': 10, 'us': 10} 
+R4 router enable_tag_filtering=False + model_info.enable_tag_filtering=True, x20, req tags=[ch]: counts={'ch': 10, 'us': 10} 
+  R5 request 1: ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - ch down. Received Model Group=A
+Available Model Group Fallbacks=None
+  R5 request 2: ValueError: Not allowed to access model due to tags configuration. Passed model=A and tags=['ch']
+R5 A=[ch(down), us], allowed_fails=0 cooldown 60s, 2 requests tagged [ch]: counts={'ch': 1, 'us': 0} 
+  R6 error: ServiceUnavailableError: ...Error doing the fallback: Not allowed to access model due to tags configuration. Passed model=B and tags=['ch']
+R6 UNTAGGED request, A=[ch(ch) down] -> B=[us(us)]: counts={'ch': 1, 'us': 0} request_tags_after=['ch']

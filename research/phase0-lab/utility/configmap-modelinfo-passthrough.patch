@@ -1,0 +1,26 @@
+--- a/charts/platform/charts/litellm/templates/configmap.yaml
++++ b/charts/platform/charts/litellm/templates/configmap.yaml
+@@ -168,18 +168,17 @@
+         extra_headers:
+           {{- toYaml .litellm_params.extra_headers | nindent 10 }}
+         {{- end }}
++        {{- if .litellm_params.tags }}
++        tags:
++          {{- toYaml .litellm_params.tags | nindent 10 }}
++        {{- end }}
+         {{- if .litellm_params.complexity_router_config }}
+         complexity_router_config:
+           {{- toYaml .litellm_params.complexity_router_config | nindent 10 }}
+         {{- end }}
+       {{- if .model_info }}
+       model_info:
+-        {{- if .model_info.input_cost_per_token }}
+-        input_cost_per_token: {{ .model_info.input_cost_per_token }}
+-        {{- end }}
+-        {{- if .model_info.output_cost_per_token }}
+-        output_cost_per_token: {{ .model_info.output_cost_per_token }}
+-        {{- end }}
++        {{- toYaml .model_info | nindent 8 }}
+       {{- end }}
+     {{- end }}
+     {{- end }}

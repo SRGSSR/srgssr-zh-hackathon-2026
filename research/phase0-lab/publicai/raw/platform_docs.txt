@@ -1,0 +1,87 @@
+ 
+ Public AI Gateway - Developer Portal 
+ Docs 
+ API Reference 
+ Account 
+ Public AI Website 
+ Chat 
+ GitHub 
+ Get Involved 
+ Legal Terms & Privacy 
+ © 2026 Public AI Inference Utility. All rights reserved.
+ Quick Start Available Models Plans & Rate Limits Inference Partners FAQ Support Us 
+ Menu 
+ Docs
+ Copy page 
+ Quick Start 
+ Welcome to the Public AI Inference Utility developer portal.
+ 1. Get your API key 
+ Every new user account receives $2 of free starter credit, used for API calls at the listed per-token prices.
+ Sign up : Click Login in the top right and sign up
+ Open Account : Go to the Account tab in the top navigation
+ Create API key : Open API Keys and click Create API Key 
+ Generate : Enter a name, set expiration, and click Generate Key 
+ 2. Explore available models 
+ See Available Models for the full catalog of hosted models, including Swiss AI Apertus, AISingapore SEA-LION, Allen AI Olmo, and more.
+ You can also list models programmatically:
+ Terminal 
+ Code
+ curl -X GET https://api.publicai.co/v1/models \ 
+ -H "Authorization: Bearer YOUR_API_KEY" \ 
+ -H "User-Agent: MyApp/1.0" 
+ Or try it interactively: 
+ Open in Playground 
+ 3. Make your first request 
+ Once you have an API key, you can start making requests to our AI models. Here's a simple example:
+ Terminal 
+ Code
+ curl -X POST https://api.publicai.co/v1/chat/completions \ 
+ -H "Content-Type: application/json" \ 
+ -H "Authorization: Bearer YOUR_API_KEY" \ 
+ -H "User-Agent: MyApp/1.0" \ 
+ -d '{ 
+ "model": "swiss-ai/apertus-v1.5-8b", 
+ "messages": [ 
+ { 
+ "role": "user", 
+ "content": "Hello! Can you help me understand open-source AI?" 
+ } 
+ ] 
+ }' 
+ Or try it interactively: 
+ Open in Playground 
+ Authentication 
+ All API requests require:
+ API Key : Include your key in the Authorization header:
+ Code
+ Authorization: Bearer YOUR_API_KEY 
+ User-Agent Header : Specify a User-Agent to prevent bot spamming:
+ Code
+ User-Agent: MyApp/1.0 
+ Model configuration 
+ Inference parameters vary by model. See each model's Hugging Face card on the Available Models page, and use GET /v1/models
+ for context_length
+ and pricing.
+ Rate limits and billing 
+ Rate limits depend on your plan tier. See Plans & Rate Limits for details on Free, Plus, Pro, and Enterprise tiers. Usage and wallet balance are available under Account → Billing .
+ Support 
+ API Reference: Explore the full API Reference 
+ Community: Join our discussions at github.com/forpublicai 
+ Issues: Report problems via GitHub Issues
+ What's next? 
+ Browse Available Models and pick the right model for your use case
+ Review Plans & Rate Limits and Billing for usage and pricing
+ Explore the complete API Reference for detailed endpoint documentation
+ Support Us to upgrade to the Plus tier via OpenCollective
+ Last modified on September 24, 2026 
+ Available Models 
+ On this page
+ 1. Get your API key 
+ 2. Explore available models 
+ 3. Make your first request 
+ Authentication 
+ Model configuration 
+ Rate limits and billing 
+ Support 
+ What's next? 
+ 

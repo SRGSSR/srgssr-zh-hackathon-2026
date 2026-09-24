@@ -1,0 +1,78 @@
+
+### H1 model='b-us' (deployment id) (enforce_in_D=False)
+  OK served_by=b-us
+  counts={'b-us': 1}
+    ('C', 'b-us', 'http://127.0.0.1:9803/v1')
+    ('D', 'b-us', 'http://127.0.0.1:9803/v1', ['ch', 'us'])
+
+### H2 A down, request fallbacks=[{'model':'B','api_base':other-host}] (enforce_in_D=False)
+  OK served_by=254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08
+  counts={'a-ch': 1, 'other-host': 1}
+    ('F', 'A', ['a-ch'])
+    ('C', 'a-ch', 'http://127.0.0.1:9801/v1')
+    ('D', 'a-ch', 'http://127.0.0.1:9801/v1', ['ch'])
+    ('F', 'B', ['b-ch', 'b-us'])
+    ('C', 'b-ch', 'http://127.0.0.1:9802/v1')
+    ('D', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08', 'http://127.0.0.1:9809/v1', ['ch'])
+
+### H3 A down, request fallbacks=[{'model':'B','metadata':{'tags':['us']}}] (enforce_in_D=False)
+  OK served_by=b-us
+  counts={'a-ch': 1, 'b-us': 1}
+    ('F', 'A', ['a-ch'])
+    ('C', 'a-ch', 'http://127.0.0.1:9801/v1')
+    ('D', 'a-ch', 'http://127.0.0.1:9801/v1', ['ch'])
+    ('F', 'B', ['b-ch', 'b-us'])
+    ('C', 'b-us', 'http://127.0.0.1:9803/v1')
+    ('D', 'b-us', 'http://127.0.0.1:9803/v1', ['us'])
+
+### H1 model='b-us' (deployment id) (enforce_in_D=True)
+  ERR BadRequestError: litellm.BadRequestError: policy: blocked before send api_base=http://127.0.0.1:9803/v1. Received Model Group=b
+  counts={}
+    ('C', 'b-us', 'http://127.0.0.1:9803/v1')
+    ('D', 'b-us', 'http://127.0.0.1:9803/v1', ['ch', 'us'])
+
+### H2 A down, request fallbacks=[{'model':'B','api_base':other-host}] (enforce_in_D=True)
+  ERR ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A
+
+  counts={'a-ch': 1}
+    ('F', 'A', ['a-ch'])
+    ('C', 'a-ch', 'http://127.0.0.1:9801/v1')
+    ('D', 'a-ch', 'http://127.0.0.1:9801/v1', ['ch'])
+    ('F', 'B', ['b-ch', 'b-us'])
+    ('C', 'b-ch', 'http://127.0.0.1:9802/v1')
+    ('D', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08', 'http://127.0.0.1:9809/v1', ['ch'])
+    ('F', 'B', ['b-ch', 'b-us', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08'])
+    ('C', 'b-ch', 'http://127.0.0.1:9802/v1')
+    ('D', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08', 'http://127.0.0.1:9809/v1', ['ch'])
+    ('F', 'B', ['b-ch', 'b-us', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08'])
+    ('C', 'b-ch', 'http://127.0.0.1:9802/v1')
+    ('D', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08', 'http://127.0.0.1:9809/v1', ['ch'])
+    ('F', 'B', ['b-ch', 'b-us', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08'])
+    ('C', 'b-ch', 'http://127.0.0.1:9802/v1')
+    ('D', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08', 'http://127.0.0.1:9809/v1', ['ch'])
+    ('F', 'B', ['b-ch', 'b-us', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08'])
+    ('C', 'b-ch', 'http://127.0.0.1:9802/v1')
+    ('D', '254e370f6bdfd1ce0a68c6ecd88900bc76909f6267ff38fcf0741db1442cae08', 'http://127.0.0.1:9809/v1', ['ch'])
+
+### H3 A down, request fallbacks=[{'model':'B','metadata':{'tags':['us']}}] (enforce_in_D=True)
+  ERR ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A
+
+  counts={'a-ch': 1}
+    ('F', 'A', ['a-ch'])
+    ('C', 'a-ch', 'http://127.0.0.1:9801/v1')
+    ('D', 'a-ch', 'http://127.0.0.1:9801/v1', ['ch'])
+    ('F', 'B', ['b-ch', 'b-us'])
+    ('C', 'b-us', 'http://127.0.0.1:9803/v1')
+    ('D', 'b-us', 'http://127.0.0.1:9803/v1', ['us'])
+    ('F', 'B', ['b-ch', 'b-us'])
+    ('C', 'b-us', 'http://127.0.0.1:9803/v1')
+    ('D', 'b-us', 'http://127.0.0.1:9803/v1', ['us'])
+    ('F', 'B', ['b-ch', 'b-us'])
+    ('C', 'b-us', 'http://127.0.0.1:9803/v1')
+    ('D', 'b-us', 'http://127.0.0.1:9803/v1', ['us'])
+    ('F', 'B', ['b-ch', 'b-us'])
+    ('C', 'b-us', 'http://127.0.0.1:9803/v1')
+    ('D', 'b-us', 'http://127.0.0.1:9803/v1', ['us'])
+    ('F', 'B', ['b-ch', 'b-us'])
+    ('C', 'b-us', 'http://127.0.0.1:9803/v1')
+    ('D', 'b-us', 'http://127.0.0.1:9803/v1', ['us'])

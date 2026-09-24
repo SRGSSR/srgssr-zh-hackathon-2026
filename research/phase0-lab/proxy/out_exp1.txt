@@ -1,0 +1,398 @@
+
+=== 1a non-streaming success (all up)
+status: 200 | mock counts: {'mock-ch-2': 1}
+model: apertus-ch | content: hello from mock-ch-2 | error: None
+headers: {
+ "llm_provider-content-length": "295",
+ "llm_provider-content-type": "application/json",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:01 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-x-mock-name": "mock-ch-2",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "ch-2",
+ "x-commune-final-jurisdiction": "CH",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "0",
+ "x-litellm-attempted-retries": "0",
+ "x-litellm-call-id": "ecf1614d-58fc-4d80-920f-89f19ad7cb43",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-model-api-base": "http://127.0.0.1:9102/v1",
+ "x-litellm-model-group": "apertus-ch",
+ "x-litellm-model-id": "ch-2",
+ "x-litellm-overhead-duration-ms": "8.623",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "166.73399999999998",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}
+ALL response header names: ['content-length', 'content-security-policy', 'content-type', 'date', 'llm_provider-content-length', 'llm_provider-content-type', 'llm_provider-date', 'llm_provider-server', 'llm_provider-x-mock-name', 'llm_provider-x-ratelimit-remaining-requests', 'server', 'x-commune-final-deployment', 'x-commune-final-jurisdiction', 'x-commune-policy', 'x-content-type-options', 'x-frame-options', 'x-litellm-attempted-fallbacks', 'x-litellm-attempted-retries', 'x-litellm-call-id', 'x-litellm-callback-duration-ms', 'x-litellm-key-spend', 'x-litellm-model-api-base', 'x-litellm-model-group', 'x-litellm-model-id', 'x-litellm-overhead-duration-ms', 'x-litellm-response-cost-discount-amount', 'x-litellm-response-cost-margin-amount', 'x-litellm-response-cost-margin-percent', 'x-litellm-response-cost-original', 'x-litellm-response-duration-ms', 'x-litellm-version', 'x-ratelimit-remaining-requests']
+
+=== 1b ch-1 down, ch-2 up (try 0)
+status: 200 | mock counts: {'mock-ch-1': 1, 'mock-ch-2': 1}
+model: apertus-ch | content: hello from mock-ch-2 | error: None
+headers: {
+ "llm_provider-content-length": "295",
+ "llm_provider-content-type": "application/json",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:01 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-x-mock-name": "mock-ch-2",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "ch-2",
+ "x-commune-final-jurisdiction": "CH",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "0",
+ "x-litellm-attempted-retries": "1",
+ "x-litellm-call-id": "1f3ab40b-e435-4528-a107-f30d6606838c",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-max-retries": "1",
+ "x-litellm-model-api-base": "http://127.0.0.1:9102/v1",
+ "x-litellm-model-group": "apertus-ch",
+ "x-litellm-model-id": "ch-2",
+ "x-litellm-overhead-duration-ms": "0.843",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "2.0349999999999997",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}
+
+=== 1b ch-1 down, ch-2 up (try 1)
+status: 200 | mock counts: {'mock-ch-1': 2, 'mock-ch-2': 2}
+model: apertus-ch | content: hello from mock-ch-2 | error: None
+headers: {
+ "llm_provider-content-length": "295",
+ "llm_provider-content-type": "application/json",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:01 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-x-mock-name": "mock-ch-2",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "ch-2",
+ "x-commune-final-jurisdiction": "CH",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "0",
+ "x-litellm-attempted-retries": "1",
+ "x-litellm-call-id": "323873d7-47b6-4465-84d4-00096ff49dfb",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-max-retries": "1",
+ "x-litellm-model-api-base": "http://127.0.0.1:9102/v1",
+ "x-litellm-model-group": "apertus-ch",
+ "x-litellm-model-id": "ch-2",
+ "x-litellm-overhead-duration-ms": "0.836",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "1.9009999999999998",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}
+
+=== 1b ch-1 down, ch-2 up (try 2)
+status: 200 | mock counts: {'mock-ch-1': 2, 'mock-ch-2': 3}
+model: apertus-ch | content: hello from mock-ch-2 | error: None
+headers: {
+ "llm_provider-content-length": "295",
+ "llm_provider-content-type": "application/json",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:01 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-x-mock-name": "mock-ch-2",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "ch-2",
+ "x-commune-final-jurisdiction": "CH",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "0",
+ "x-litellm-attempted-retries": "0",
+ "x-litellm-call-id": "ee19136b-e39d-40cd-8505-71c3f21cdff7",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-model-api-base": "http://127.0.0.1:9102/v1",
+ "x-litellm-model-group": "apertus-ch",
+ "x-litellm-model-id": "ch-2",
+ "x-litellm-overhead-duration-ms": "0.857",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "1.974",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}
+
+=== 1c both CH down -> router fallback to sealion-sg (NOT enforced)
+status: 200 | mock counts: {'mock-ch-1': 1, 'mock-ch-2': 1, 'mock-sg-1': 1}
+model: sealion-sg-upstream@mock-sg-1 | content: hello from mock-sg-1 | error: None
+headers: {
+ "llm_provider-content-length": "295",
+ "llm_provider-content-type": "application/json",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:01 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-x-mock-name": "mock-sg-1",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "sg-1",
+ "x-commune-final-jurisdiction": "SG",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "1",
+ "x-litellm-attempted-retries": "0",
+ "x-litellm-call-id": "7408bcf0-0ee3-47be-b558-c9e16ba17139",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-model-api-base": "http://127.0.0.1:9103/v1",
+ "x-litellm-model-group": "sealion-sg",
+ "x-litellm-model-id": "sg-1",
+ "x-litellm-overhead-duration-ms": "0.964",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "3.258",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}
+  probe: async_pre_call_deployment_hook {'deployment_id': 'ch-1', 'jurisdiction': 'CH', 'litellm_call_id': '7408bcf0-0ee3-47be-b558-c9e16ba17139'}
+  probe: async_log_failure_event {'model_id': 'ch-1', 'litellm_call_id': '7408bcf0-0ee3-47be-b558-c9e16ba17139', 'exception': 'litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down'}
+  probe: async_pre_call_deployment_hook {'deployment_id': 'ch-2', 'jurisdiction': 'CH', 'litellm_call_id': '7408bcf0-0ee3-47be-b558-c9e16ba17139'}
+  probe: async_pre_call_deployment_hook {'deployment_id': 'sg-1', 'jurisdiction': 'SG', 'litellm_call_id': '7408bcf0-0ee3-47be-b558-c9e16ba17139'}
+  probe: log_success_fallback_event {'original_model_group': 'apertus-ch'}
+  probe: async_post_call_response_headers_hook {'litellm_call_info': {'custom_llm_provider': 'openai', 'model_info': {'id': 'sg-1', 'db_model': False, 'provider': 'sea-lion', 'country': 'SG', 'jurisdiction': 'SG'}, 'api_base': 'http://127.0.0.1:9103/v1', 'model_id': 'sg-1'}}ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/app/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/h11_impl.py", line 403, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/app/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1159, in __call__
+    await super().__call__(scope, receive, send)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/app/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/app/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/app/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/app/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/app/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/app/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 121, in app
+    await response(scope, receive, send)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/responses.py", line 273, in __call__
+    async with create_collapsing_task_group() as task_group:
+               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/contextlib.py", line 235, in __aexit__
+    await self.gen.athrow(value)
+  File "/app/.venv/lib/python3.13/site-packages/starlette/_utils.py", line 93, in create_collapsing_task_group
+    raise exc from exc.__cause__ or context
+  File "/app/.venv/lib/python3.13/site-packages/starlette/responses.py", line 276, in wrap
+    await func()
+  File "/app/.venv/lib/python3.13/site-packages/starlette/responses.py", line 250, in stream_response
+    async for chunk in self.body_iterator:
+    ...<2 lines>...
+        await send({"type": "http.response.body", "body": chunk, "more_body": True})
+  File "/lab/proxy/mock_sse.py", line 52, in gen
+    raise RuntimeError("midstream failure")
+RuntimeError: midstream failure
+
+  probe: async_log_success_event {'model_id': 'sg-1', 'litellm_call_id': '7408bcf0-0ee3-47be-b558-c9e16ba17139'}
+
+=== 1d everything down -> error
+status: 503 | mock counts: {'mock-ch-1': 1, 'mock-ch-2': 1, 'mock-sg-1': 2}
+model: None | content: None | error: ("litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-ch-1 down. Received Model Group=apertus-ch\nAvailable Model Group Fallbacks=['sealion-sg']\nError doing the fallback: litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - mock-sg-1 downNo fallback m", None, '503')
+headers: {
+ "x-commune-final-deployment": "sg-1",
+ "x-commune-final-jurisdiction": "SG",
+ "x-commune-policy": "CH-only",
+ "x-litellm-call-id": "111ed96c-c5b8-4405-9600-a2e099de90b7",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-response-cost": "0",
+ "x-litellm-timeout": "3"
+}
+ALL error header names: ['content-length', 'content-security-policy', 'content-type', 'date', 'server', 'x-commune-final-deployment', 'x-commune-final-jurisdiction', 'x-commune-policy', 'x-content-type-options', 'x-frame-options', 'x-litellm-call-id', 'x-litellm-key-spend', 'x-litellm-response-cost', 'x-litellm-timeout']
+
+=== 1e streaming success
+status: 200 | mock counts: {'mock-ch-1': 1}
+stream chunks: 5 | first: data: {"id":"chatcmpl-mock-ch-1-1","object":"chat.completion.chunk","created":1790271484,"model":"apertus-ch","choices":[{"index":0,"delta":{"role":"assistant",
+last: ['data: {"id":"chatcmpl-mock-ch-1-1","object":"chat.completion.chunk","created":1790271484,"model":"apertus-ch","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}', 'data: [DONE]']
+headers: {
+ "llm_provider-content-type": "text/event-stream; charset=utf-8",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:04 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-transfer-encoding": "chunked",
+ "llm_provider-x-mock-name": "mock-ch-1",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "ch-1",
+ "x-commune-final-jurisdiction": "CH",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "0",
+ "x-litellm-attempted-retries": "0",
+ "x-litellm-call-id": "9d31002e-aaa3-45aa-80d2-c5c58ef9c61f",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-model-api-base": "http://127.0.0.1:9101/v1",
+ "x-litellm-model-group": "apertus-ch",
+ "x-litellm-model-id": "ch-1",
+ "x-litellm-overhead-duration-ms": "1.093",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "21.149",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}
+
+=== 1f streaming, both CH down before first byte -> fallback
+status: 200 | mock counts: {'mock-ch-2': 2, 'mock-sg-1': 1}
+stream chunks: 5 | first: data: {"id":"chatcmpl-mock-sg-1-1","object":"chat.completion.chunk","created":1790271484,"model":"sealion-sg","choices":[{"index":0,"delta":{"role":"assistant",
+last: ['data: {"id":"chatcmpl-mock-sg-1-1","object":"chat.completion.chunk","created":1790271484,"model":"sealion-sg","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}', 'data: [DONE]']
+headers: {
+ "llm_provider-content-type": "text/event-stream; charset=utf-8",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:04 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-transfer-encoding": "chunked",
+ "llm_provider-x-mock-name": "mock-sg-1",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "sg-1",
+ "x-commune-final-jurisdiction": "SG",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "1",
+ "x-litellm-attempted-retries": "0",
+ "x-litellm-call-id": "f259e0bc-6b24-42a8-9a41-e2810eeaaa87",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-model-api-base": "http://127.0.0.1:9103/v1",
+ "x-litellm-model-group": "sealion-sg",
+ "x-litellm-model-id": "sg-1",
+ "x-litellm-overhead-duration-ms": "0.877",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "1.955",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}
+
+=== 1g streaming, CH breaks MID-STREAM
+status: 200 | mock counts: {'mock-ch-2': 1}
+stream chunks: 4 | first: data: {"id":"chatcmpl-mock-ch-2-1","object":"chat.completion.chunk","created":1790271485,"model":"apertus-ch","choices":[{"index":0,"delta":{"role":"assistant",
+last: ['data: {"id":"chatcmpl-mock-ch-2-1","object":"chat.completion.chunk","created":1790271485,"model":"apertus-ch","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}', 'data: [DONE]']
+headers: {
+ "llm_provider-content-type": "text/event-stream; charset=utf-8",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:04 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-transfer-encoding": "chunked",
+ "llm_provider-x-mock-name": "mock-ch-2",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "ch-2",
+ "x-commune-final-jurisdiction": "CH",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "0",
+ "x-litellm-attempted-retries": "0",
+ "x-litellm-call-id": "43615fde-c051-4a6e-b4b4-adedbb58f306",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-model-api-base": "http://127.0.0.1:9102/v1",
+ "x-litellm-model-group": "apertus-ch",
+ "x-litellm-model-id": "ch-2",
+ "x-litellm-overhead-duration-ms": "1.667",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "3.7880000000000003",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}
+  sg requests: []
+
+=== 1h both CH time out AFTER receiving data (request_timeout=3) -> fallback
+status: 200 | mock counts: {'mock-ch-1': 2, 'mock-sg-1': 1}
+model: sealion-sg-upstream@mock-sg-1 | content: hello from mock-sg-1 | error: None
+headers: {
+ "llm_provider-content-length": "295",
+ "llm_provider-content-type": "application/json",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:10 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-x-mock-name": "mock-sg-1",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "sg-1",
+ "x-commune-final-jurisdiction": "SG",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "1",
+ "x-litellm-attempted-retries": "0",
+ "x-litellm-call-id": "8caefed5-f5f1-4120-822e-34070c0aa958",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-model-api-base": "http://127.0.0.1:9103/v1",
+ "x-litellm-model-group": "sealion-sg",
+ "x-litellm-model-id": "sg-1",
+ "x-litellm-overhead-duration-ms": "2.45",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "6.131",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}
+  ch-1 received: 2 ch-2 received: 0
+  probe failure: ch-1 litellm.Timeout: APITimeoutError - Request timed out. Error_str: Request timed out. - timeout value=3.0, time taken=3.0 seconds
+
+=== 1i include_fallback_errors=true, all up
+status: 200 | mock counts: {'mock-ch-1': 1}
+model: apertus-ch | content: hello from mock-ch-1 | error: None
+headers: {
+ "llm_provider-content-length": "295",
+ "llm_provider-content-type": "application/json",
+ "llm_provider-date": "Thu, 24 Sep 2026 17:38:11 GMT",
+ "llm_provider-server": "uvicorn",
+ "llm_provider-x-mock-name": "mock-ch-1",
+ "llm_provider-x-ratelimit-remaining-requests": "99",
+ "x-commune-final-deployment": "ch-1",
+ "x-commune-final-jurisdiction": "CH",
+ "x-commune-policy": "CH-only",
+ "x-litellm-attempted-fallbacks": "0",
+ "x-litellm-attempted-retries": "0",
+ "x-litellm-call-id": "82838a0c-d695-42b5-ad27-8c8483fb96c9",
+ "x-litellm-callback-duration-ms": "0.0",
+ "x-litellm-key-spend": "0.0",
+ "x-litellm-model-api-base": "http://127.0.0.1:9101/v1",
+ "x-litellm-model-group": "apertus-ch",
+ "x-litellm-model-id": "ch-1",
+ "x-litellm-overhead-duration-ms": "1.887",
+ "x-litellm-response-cost-discount-amount": "0.0",
+ "x-litellm-response-cost-margin-amount": "0.0",
+ "x-litellm-response-cost-margin-percent": "0.0",
+ "x-litellm-response-cost-original": "0.0",
+ "x-litellm-response-duration-ms": "5.486000000000001",
+ "x-litellm-version": "1.92.0",
+ "x-ratelimit-remaining-requests": "99"
+}

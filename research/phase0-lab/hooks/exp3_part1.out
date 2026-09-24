@@ -1,0 +1,82 @@
+
+===== P1 commune key, model A, a2(CH) down; policy CH-only -> expect a2 retries, then B/b1; a1(US) zero =====
+   13.756 async_pre_call_hook(proxy)       {"call_type": "acompletion", "model": "A", "key_alias": "commune-x", "team_id": "commune-x", "key_md": {"routing_policy": "CH-only"}, "team_md": {"routing_policy": "CH-only"}, "body_fallbacks": null, "body_keys": ["litellm_call_id", "litellm_logging_obj", "metadata", "model"], "md": {"user_api_key_a
+   13.756 async_filter_deployments         {"model": "A", "policy": "CH-only", "in_ids": ["a1", "a2"], "out_ids": ["a2"], "in_api_bases": ["http://127.0.0.1:9201/v1", "http://127.0.0.1:9202/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_ke
+   13.757 async_pre_call_check             {"id": "a2"}
+   13.757 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-a2", "api_base": "http://127.0.0.1:9202/v1", "model_info_id": "a2", "original_model_id": null, "jurisdiction": "CH", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   13.764 log_pre_api_call(sync)           {"model": "x-a2", "api_base": "http://127.0.0.1:9202/v1/", "model_info_id": "a2"}
+   13.965 SEND->a2                         {"path": "/v1/chat/completions", "mode": "down", "auth": "Bearer sk-admin-a2"}
+   13.979 async_log_failure_event          {"model_info_id": "a2", "exc": "ServiceUnavailableError", "status": 503}
+   13.980 async_filter_deployments         {"model": "A", "policy": "CH-only", "in_ids": ["a1", "a2"], "out_ids": ["a2"], "in_api_bases": ["http://127.0.0.1:9201/v1", "http://127.0.0.1:9202/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_ke
+   13.980 async_pre_call_check             {"id": "a2"}
+   13.980 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-a2", "api_base": "http://127.0.0.1:9202/v1", "model_info_id": "a2", "original_model_id": null, "jurisdiction": "CH", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   13.981 log_pre_api_call(sync)           {"model": "x-a2", "api_base": "http://127.0.0.1:9202/v1/", "model_info_id": "a2"}
+   13.983 SEND->a2                         {"path": "/v1/chat/completions", "mode": "down", "auth": "Bearer sk-admin-a2"}
+   13.986 async_filter_deployments         {"model": "A", "policy": "CH-only", "in_ids": ["a1", "a2"], "out_ids": ["a2"], "in_api_bases": ["http://127.0.0.1:9201/v1", "http://127.0.0.1:9202/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_ke
+   13.987 async_pre_call_check             {"id": "a2"}
+   13.987 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-a2", "api_base": "http://127.0.0.1:9202/v1", "model_info_id": "a2", "original_model_id": null, "jurisdiction": "CH", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   13.988 SEND->a2                         {"path": "/v1/chat/completions", "mode": "down", "auth": "Bearer sk-admin-a2"}
+   13.988 log_pre_api_call(sync)           {"model": "x-a2", "api_base": "http://127.0.0.1:9202/v1/", "model_info_id": "a2"}
+   13.996 async_filter_deployments         {"model": "B", "policy": "CH-only", "in_ids": ["b1"], "out_ids": ["b1"], "in_api_bases": ["http://127.0.0.1:9203/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_key_team_metadata": {"routing_policy
+   13.997 async_pre_call_check             {"id": "b1"}
+   13.997 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-b1", "api_base": "http://127.0.0.1:9203/v1", "model_info_id": "b1", "original_model_id": null, "jurisdiction": "CH", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   13.998 log_pre_api_call(sync)           {"model": "x-b1", "api_base": "http://127.0.0.1:9203/v1/", "model_info_id": "b1"}
+   14.000 SEND->b1                         {"path": "/v1/chat/completions", "mode": "up", "auth": "Bearer sk-admin-b1"}
+   14.007 log_success_fallback_event       {"original_model_group": "A", "now": "B"}
+  filter_calls= 4  deployment_hook_calls= 4  proxy_pre_call_hook_calls= 1
+  HTTP: 200 content='hello from b1' model=x-b1@b1 hdr={'x-litellm-model-id': 'b1', 'x-litellm-model-api-base': 'http://127.0.0.1:9203/v1', 'x-litellm-attempted-retries': '0', 'x-litellm-attempted-fallbacks': '1'} (0.37s)
+  COUNTS: {'a2': 3, 'b1': 1}
+
+===== P1b all CH down (a2,b1); fallback chain A->B->U (U is US) -> expect error, a1/u1 zero =====
+   14.618 async_pre_call_hook(proxy)       {"call_type": "acompletion", "model": "A", "key_alias": "commune-x", "team_id": "commune-x", "key_md": {"routing_policy": "CH-only"}, "team_md": {"routing_policy": "CH-only"}, "body_fallbacks": null, "body_keys": ["litellm_call_id", "litellm_logging_obj", "metadata", "model"], "md": {"user_api_key_a
+   14.619 async_filter_deployments         {"model": "A", "policy": "CH-only", "in_ids": ["a1", "a2"], "out_ids": ["a2"], "in_api_bases": ["http://127.0.0.1:9201/v1", "http://127.0.0.1:9202/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_ke
+   14.619 async_pre_call_check             {"id": "a2"}
+   14.619 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-a2", "api_base": "http://127.0.0.1:9202/v1", "model_info_id": "a2", "original_model_id": null, "jurisdiction": "CH", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   14.621 log_pre_api_call(sync)           {"model": "x-a2", "api_base": "http://127.0.0.1:9202/v1/", "model_info_id": "a2"}
+   14.622 SEND->a2                         {"path": "/v1/chat/completions", "mode": "down", "auth": "Bearer sk-admin-a2"}
+   14.631 async_log_failure_event          {"model_info_id": "a2", "exc": "ServiceUnavailableError", "status": 503}
+   14.632 async_filter_deployments         {"model": "A", "policy": "CH-only", "in_ids": ["a1"], "out_ids": [], "in_api_bases": ["http://127.0.0.1:9201/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_key_team_metadata": {"routing_policy": "
+   14.635 async_filter_deployments         {"model": "A", "policy": "CH-only", "in_ids": ["a1"], "out_ids": [], "in_api_bases": ["http://127.0.0.1:9201/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_key_team_metadata": {"routing_policy": "
+   14.642 async_filter_deployments         {"model": "B", "policy": "CH-only", "in_ids": ["b1"], "out_ids": ["b1"], "in_api_bases": ["http://127.0.0.1:9203/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_key_team_metadata": {"routing_policy
+   14.642 async_pre_call_check             {"id": "b1"}
+   14.642 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-b1", "api_base": "http://127.0.0.1:9203/v1", "model_info_id": "b1", "original_model_id": null, "jurisdiction": "CH", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   14.643 log_pre_api_call(sync)           {"model": "x-b1", "api_base": "http://127.0.0.1:9203/v1/", "model_info_id": "b1"}
+   14.644 SEND->b1                         {"path": "/v1/chat/completions", "mode": "down", "auth": "Bearer sk-admin-b1"}
+   15.572 async_filter_deployments         {"model": "B", "policy": "CH-only", "in_ids": ["b1"], "out_ids": ["b1"], "in_api_bases": ["http://127.0.0.1:9203/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_key_team_metadata": {"routing_policy
+   15.573 async_pre_call_check             {"id": "b1"}
+   15.573 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-b1", "api_base": "http://127.0.0.1:9203/v1", "model_info_id": "b1", "original_model_id": null, "jurisdiction": "CH", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   15.576 log_pre_api_call(sync)           {"model": "x-b1", "api_base": "http://127.0.0.1:9203/v1/", "model_info_id": "b1"}
+   15.578 SEND->b1                         {"path": "/v1/chat/completions", "mode": "down", "auth": "Bearer sk-admin-b1"}
+   16.805 async_filter_deployments         {"model": "B", "policy": "CH-only", "in_ids": ["b1"], "out_ids": ["b1"], "in_api_bases": ["http://127.0.0.1:9203/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_key_team_metadata": {"routing_policy
+   16.806 async_pre_call_check             {"id": "b1"}
+   16.806 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-b1", "api_base": "http://127.0.0.1:9203/v1", "model_info_id": "b1", "original_model_id": null, "jurisdiction": "CH", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   16.808 log_pre_api_call(sync)           {"model": "x-b1", "api_base": "http://127.0.0.1:9203/v1/", "model_info_id": "b1"}
+   16.809 SEND->b1                         {"path": "/v1/chat/completions", "mode": "down", "auth": "Bearer sk-admin-b1"}
+   18.923 async_filter_deployments         {"model": "U", "policy": "CH-only", "in_ids": ["u1"], "out_ids": [], "in_api_bases": ["http://127.0.0.1:9204/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_key_team_metadata": {"routing_policy": "
+   19.800 async_filter_deployments         {"model": "U", "policy": "CH-only", "in_ids": ["u1"], "out_ids": [], "in_api_bases": ["http://127.0.0.1:9204/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_key_team_metadata": {"routing_policy": "
+   21.338 async_filter_deployments         {"model": "U", "policy": "CH-only", "in_ids": ["u1"], "out_ids": [], "in_api_bases": ["http://127.0.0.1:9204/v1"], "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": {"routing_policy": "CH-only"}, "user_api_key_team_metadata": {"routing_policy": "
+   23.856 log_failure_fallback_event       {"original_model_group": "B", "now": "U"}
+   23.874 log_failure_fallback_event       {"original_model_group": "A", "now": "B"}
+  filter_calls= 9  deployment_hook_calls= 4  proxy_pre_call_hook_calls= 1
+  HTTP: 429 {"error": {"message": "No deployments available for selected model, Try again in 30 seconds. Passed model=A. pre-call-checks=False, cooldown_list=['a2']", "type": "None", "param": "None", "code": "429"}} hdr={} (9.30s)
+  COUNTS: {'a2': 1, 'b1': 3}
+
+===== P2 commune key, model='a1' (US deployment id) =====
+   24.541 async_pre_call_hook(proxy)       {"call_type": "acompletion", "model": "a1", "key_alias": "commune-x", "team_id": "commune-x", "key_md": {"routing_policy": "CH-only"}, "team_md": {"routing_policy": "CH-only"}, "body_fallbacks": null, "body_keys": ["litellm_call_id", "litellm_logging_obj", "metadata", "model"], "md": {"user_api_key_
+   24.544 async_pre_call_check             {"id": "a1"}
+   24.544 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-a1", "api_base": "http://127.0.0.1:9201/v1", "model_info_id": "a1", "original_model_id": null, "jurisdiction": "US", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   24.548 log_pre_api_call(sync)           {"model": "x-a1", "api_base": "http://127.0.0.1:9201/v1/", "model_info_id": "a1"}
+   24.554 SEND->a1                         {"path": "/v1/chat/completions", "mode": "up", "auth": "Bearer sk-admin-a1"}
+  filter_calls= 0  deployment_hook_calls= 1  proxy_pre_call_hook_calls= 1
+  HTTP: 200 content='hello from a1' model=a1 hdr={'x-litellm-model-id': 'a1', 'x-litellm-model-api-base': 'http://127.0.0.1:9201/v1', 'x-litellm-attempted-retries': '0', 'x-litellm-attempted-fallbacks': '0'} (0.06s)
+  COUNTS: {'a1': 1}
+
+===== P2d same as P2 with defense-in-depth deployment hook =====
+   25.191 async_pre_call_hook(proxy)       {"call_type": "acompletion", "model": "a1", "key_alias": "commune-x", "team_id": "commune-x", "key_md": {"routing_policy": "CH-only"}, "team_md": {"routing_policy": "CH-only"}, "body_fallbacks": null, "body_keys": ["litellm_call_id", "litellm_logging_obj", "metadata", "model"], "md": {"user_api_key_
+   25.192 async_pre_call_check             {"id": "a1"}
+   25.192 async_pre_call_deployment_hook   {"call_type": "CallTypes.acompletion", "policy": "CH-only", "model": "openai/x-a1", "api_base": "http://127.0.0.1:9201/v1", "model_info_id": "a1", "original_model_id": null, "jurisdiction": "US", "md": {"user_api_key_alias": "commune-x", "user_api_key_team_id": "commune-x", "user_api_key_metadata": 
+   25.192   deployment_hook.VETO           {"model_info_id": "a1", "api_base": "http://127.0.0.1:9201/v1"}
+   25.197 async_log_failure_event          {"model_info_id": null, "exc": "Exception", "status": null}
+  filter_calls= 0  deployment_hook_calls= 1  proxy_pre_call_hook_calls= 1
+  HTTP: 500 {"error": {"message": "CH-only policy: send to http://127.0.0.1:9201/v1 (deployment a1) blocked before send", "type": "None", "param": "None", "code": "500"}} hdr={} (0.03s)
+  COUNTS: {}

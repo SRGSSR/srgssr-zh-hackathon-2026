@@ -1,0 +1,42 @@
+[
+ {
+  "ua": "AsyncOpenAI/Python 2.33.0",
+  "status": 401,
+  "zuplo_rid": "2dcc4dc8-5d75-4324-b4db-83e6f3049468",
+  "content_type": "application/problem+json",
+  "cf_ray": "a40398b70ed3be64-ZRH",
+  "body_prefix": "{\n  \"type\": \"https://httpproblems.com/http-status/401\",\n  \"title\": \"Unauthorized\",\n  \"status\": 401,\n  \"detail\": \"No Authorization Header\",\n  \"instance\": \"/v1/models\",\n  \"trace\": {\n    \"timestamp\": \"20"
+ },
+ {
+  "ua": "OpenAI/Python 2.33.0",
+  "status": 401,
+  "zuplo_rid": "f0e8c71c-9668-4684-a7d9-b698359f189b",
+  "content_type": "application/problem+json",
+  "cf_ray": "a40398c12b023d3b-MXP",
+  "body_prefix": "{\n  \"type\": \"https://httpproblems.com/http-status/401\",\n  \"title\": \"Unauthorized\",\n  \"status\": 401,\n  \"detail\": \"No Authorization Header\",\n  \"instance\": \"/v1/models\",\n  \"trace\": {\n    \"timestamp\": \"20"
+ },
+ {
+  "ua": "python-httpx/0.28.1",
+  "status": 401,
+  "zuplo_rid": "5f3a35ce-c9e2-4a97-9c8c-a897f9b2a005",
+  "content_type": "application/problem+json",
+  "cf_ray": "a40398d0fae90d25-ZRH",
+  "body_prefix": "{\n  \"type\": \"https://httpproblems.com/http-status/401\",\n  \"title\": \"Unauthorized\",\n  \"status\": 401,\n  \"detail\": \"No Authorization Header\",\n  \"instance\": \"/v1/models\",\n  \"trace\": {\n    \"timestamp\": \"20"
+ },
+ {
+  "ua": "litellm/1.92.0",
+  "status": 401,
+  "zuplo_rid": "eaa2e76f-5bbb-44b3-aa81-55c751275281",
+  "content_type": "application/problem+json",
+  "cf_ray": "a40398d4ae8ec4a5-ZRH",
+  "body_prefix": "{\n  \"type\": \"https://httpproblems.com/http-status/401\",\n  \"title\": \"Unauthorized\",\n  \"status\": 401,\n  \"detail\": \"No Authorization Header\",\n  \"instance\": \"/v1/models\",\n  \"trace\": {\n    \"timestamp\": \"20"
+ },
+ {
+  "ua": null,
+  "status": 401,
+  "zuplo_rid": "511db9cb-50f6-44f6-aaac-d326b13d8f7a",
+  "content_type": "application/problem+json",
+  "cf_ray": "a40398da1b70ef5b-ZRH",
+  "body_prefix": "{\n  \"type\": \"https://httpproblems.com/http-status/401\",\n  \"title\": \"Unauthorized\",\n  \"status\": 401,\n  \"detail\": \"No Authorization Header\",\n  \"instance\": \"/v1/models\",\n  \"trace\": {\n    \"timestamp\": \"20"
+ }
+]

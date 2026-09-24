@@ -1,4 +1,4 @@
-<div id="job-panel" class="job-panel" hx-get="/jobs/{{ job.id }}/panel" hx-trigger="{{ 'every 5s' if job.status in ('done','failed','cancelled') else 'every 1s' }}" hx-swap="outerHTML">
+<div id="job-panel" class="job-panel" hx-get="/jobs/{{ job.id }}/panel" hx-trigger="{{ 'every 5s' if job.status in ('done','failed','cancelled','expired') else 'every 1s' }}" hx-swap="outerHTML">
   <div class="card">
     <div class="status-line">
       <h1>Your letter</h1>
@@ -12,7 +12,7 @@
         <form method="post" action="/jobs/{{ job.id }}/wake" class="inline"><button type="submit">Try again now</button></form>
         <form method="post" action="/jobs/{{ job.id }}/cancel" class="inline"><button type="submit" class="ghost">Cancel</button></form>
       </div>
-    {% elif job.status == 'failed' %}
+    {% elif job.status in ('failed', 'expired') %}
       <div class="notice bad"><b>This did not work.</b> {{ job.status_reason }} <span class="small muted">{{ job.error }}</span></div>
     {% endif %}
     {% if job.result %}

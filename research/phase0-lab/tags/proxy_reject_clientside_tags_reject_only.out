@@ -1,0 +1,38 @@
+proxy up, variant=reject_only
+
+### T0 control: no client tags, model D, n=20
+  counts={'d-ch': 20}
+  responses={'200:d-ch': 20}
+
+### T1 body metadata.tags=['us'] n=20
+  counts={'d-ch': 7, 'd-us': 13}
+  responses={'200:d-us': 13, '200:d-ch': 7}
+
+### T2 body root tags=['us'] n=20
+  counts={'d-ch': 12, 'd-us': 8}
+  responses={'200:d-ch': 12, '200:d-us': 8}
+
+### T3 header x-litellm-tags: us n=20
+  counts={'d-ch': 10, 'd-us': 10}
+  responses={'200:d-us': 10, '200:d-ch': 10}
+
+### T4 body litellm_metadata.tags=['us'] n=20
+  counts={'d-us': 20}
+  responses={'200:d-us': 20}
+
+### T5 body litellm_metadata={} (empty) n=20
+  counts={'d-ch': 9, 'd-us': 11}
+  responses={'200:d-us': 11, '200:d-ch': 9}
+
+### T6 model A (a-ch down), client fallbacks=[{'model':'B','metadata':{'tags':['us']}}]
+  counts={'a-ch': 1, 'b-us': 1}
+  responses={'200:b-us': 1}
+
+### T7 model A (a-ch down), client fallbacks=[{'model':'B','metadata':{}}]
+  counts={'a-ch': 1, 'b-us': 1}
+  responses={'200:b-us': 1}
+
+### T8 model A (a-ch down), router fallback A->B only
+  counts={'a-ch': 1}
+  responses={'401:None': 1}
+  last_error={"error":{"message":"litellm.ServiceUnavailableError: ServiceUnavailableError: OpenAIException - a-ch down. Received Model Group=A\nAvailable Model Group Fallbacks=['B']\nError doing the fallback: Not allowed to access m
