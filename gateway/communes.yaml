@@ -1,0 +1,26 @@
+# Which API key belongs to which commune, and the routing rule bound to it.
+# Key VALUES are read from the environment variable named in key_env (see .env.example).
+# Nothing in a request can change these rules.
+
+communes:
+  - key_env: MUSTERSTADT_API_KEY
+    key_alias: gemeinde-musterstadt
+    team_id: gemeinde-musterstadt
+    team_alias: Gemeinde Musterstadt
+    models: ["swiss-ai/apertus-v1.5-70b"]
+    allowed_routes: ["/chat/completions", "/v1/chat/completions"]
+    routing_policy:
+      id: CH-only
+      description: >-
+        Citizens' data may only be sent to endpoints whose declared jurisdiction is CH.
+        Endpoints with missing metadata are excluded. Applies to every attempt,
+        including retries and fallbacks.
+      allowed_jurisdictions: ["CH"]
+
+  # Test-only key without a routing policy: every request must be rejected (fail closed).
+  - key_env: NOPOLICY_API_KEY
+    key_alias: test-no-policy
+    team_id: test-no-policy
+    team_alias: Test key without policy
+    models: ["swiss-ai/apertus-v1.5-70b"]
+    allowed_routes: ["/chat/completions", "/v1/chat/completions"]

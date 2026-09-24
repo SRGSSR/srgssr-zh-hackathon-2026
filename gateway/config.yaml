@@ -1,0 +1,136 @@
+# LiteLLM proxy config (image ghcr.io/forpublicai/litellm-database:v1.92.0, the one the
+# Public AI Utility runs). Model group names and the fallback edge mirror the Utility's
+# charts/platform/charts/litellm/models/ (Apertus v1.5 70B falls back to SEA-LION there too).
+#
+# Every deployment carries jurisdiction metadata in model_info. The routing policy
+# (gateway/policy.py) reads it before every attempt. Missing metadata = excluded.
+#
+# model_info fields used by the policy and the UI:
+#   provider, country, jurisdiction   required (fail closed if any is missing)
+#   endpoint_kind                     "real" or "simulated", shown in the UI
+#   priority                          lower = preferred (1.92.0 has no deployment order)
+#   control_url                       fault-injection control API (demo panel, tests)
+#   label, note                       human-readable text for the UI
+
+model_list:
+  # --- Apertus v1.5 70B -------------------------------------------------------------
+  - model_name: swiss-ai/apertus-v1.5-70b
+    litellm_params:
+      model: openai/swiss-ai/apertus-v1.5-70b
+      api_base: http://ep-publicai:8000/v1
+      api_key: unused-relay-holds-the-key
+      timeout: 120
+    model_info:
+      id: publicai-apertus
+      label: Public AI API (real Apertus 1.5)
+      provider: Public AI (api.publicai.co)
+      country: CH
+      jurisdiction: CH
+      jurisdiction_basis: >-
+        Approved by the commune (simulated). Public AI routes internally to its
+        inference partners; we cannot observe or control that from outside.
+      endpoint_kind: real
+      priority: 1
+      control_url: http://ep-publicai:8000
+
+  - model_name: swiss-ai/apertus-v1.5-70b
+    litellm_params:
+      model: openai/apertus-sim
+      api_base: http://ep-ch-1:8000/v1
+      api_key: sk-mock-ch-1
+      timeout: 6
+    model_info:
+      id: mock-ch-1
+      label: Swiss host 1 (simulated)
+      provider: Mock provider CH-1
+      country: CH
+      jurisdiction: CH
+      endpoint_kind: simulated
+      priority: 2
+      control_url: http://ep-ch-1:8000
+
+  - model_name: swiss-ai/apertus-v1.5-70b
+    litellm_params:
+      model: openai/apertus-sim
+      api_base: http://ep-ch-2:8000/v1
+      api_key: sk-mock-ch-2
+      timeout: 6
+    model_info:
+      id: mock-ch-2
+      label: Swiss host 2 (simulated)
+      provider: Mock provider CH-2
+      country: CH
+      jurisdiction: CH
+      endpoint_kind: simulated
+      priority: 3
+      control_url: http://ep-ch-2:8000
+
+  # Cheapest / fastest in the pool, but outside the allowed jurisdiction.
+  - model_name: swiss-ai/apertus-v1.5-70b
+    litellm_params:
+      model: openai/apertus-sim
+      api_base: http://ep-us-1:8000/v1
+      api_key: sk-mock-us-1
+      timeout: 6
+    model_info:
+      id: mock-us-1
+      label: US host (simulated)
+      provider: Mock provider US-1
+      country: US
+      jurisdiction: US
+      endpoint_kind: simulated
+      priority: 0
+      control_url: http://ep-us-1:8000
+
+  # A deployment someone added without jurisdiction metadata: must be excluded (fail closed).
+  - model_name: swiss-ai/apertus-v1.5-70b
+    litellm_params:
+      model: openai/apertus-sim
+      api_base: http://ep-nometa:8000/v1
+      api_key: sk-mock-nometa
+      timeout: 6
+    model_info:
+      id: mock-nometa
+      label: Host without metadata (simulated)
+      provider: Mock provider without metadata
+      endpoint_kind: simulated
+      priority: 0
+      control_url: http://ep-nometa:8000
+
+  # --- Cross-model fallback target, as in the Utility's apertus-v1.5-70b.yaml ------------
+  - model_name: aisingapore/Qwen-SEA-LION-v4-32B-IT
+    litellm_params:
+      model: openai/sealion-sim
+      api_base: http://ep-sg-1:8000/v1
+      api_key: sk-mock-sg-1
+      timeout: 6
+    model_info:
+      id: mock-sg-1
+      label: Singapore host, other model (simulated)
+      provider: Mock provider SG-1
+      country: SG
+      jurisdiction: SG
+      endpoint_kind: simulated
+      priority: 1
+      control_url: http://ep-sg-1:8000
+
+router_settings:
+  routing_strategy: simple-shuffle
+  num_retries: 4
+  retry_after: 0
+  # Cooldowns would hide failed endpoints from the timeline and make recovery slow in the demo.
+  # The policy hook skips deployments that already failed within the same request instead.
+  disable_cooldowns: true
+  enable_tag_filtering: false
+  fallbacks:
+    - swiss-ai/apertus-v1.5-70b: ["aisingapore/Qwen-SEA-LION-v4-32B-IT"]
+
+litellm_settings:
+  callbacks: ["policy.policy_hook"]
+  drop_params: true
+  request_timeout: 160
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  custom_auth: custom_auth.user_api_key_auth
+  background_health_checks: false

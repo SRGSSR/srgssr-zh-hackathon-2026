@@ -1,0 +1,99 @@
+name: commune-letter
+
+x-endpoint: &endpoint
+  build: ./endpoints
+  restart: unless-stopped
+  environment: &endpoint-env
+    KIND: simulated
+
+services:
+  # --- Endpoints (fault-injecting; the demo panel and pytest control them) -------------------
+  ep-publicai:
+    <<: *endpoint
+    environment:
+      NAME: publicai-apertus
+      KIND: relay
+      UPSTREAM_BASE: https://api.publicai.co/v1
+      UPSTREAM_MODEL: swiss-ai/apertus-v1.5-70b
+      UPSTREAM_KEY: ${PUBLICAI_API_KEY:-}
+      SIMULATE_WITHOUT_KEY: ${SIMULATE_WITHOUT_KEY:-1}
+    ports: ["9100:8000"]
+  ep-ch-1:
+    <<: *endpoint
+    environment: { <<: *endpoint-env, NAME: mock-ch-1 }
+    ports: ["9101:8000"]
+  ep-ch-2:
+    <<: *endpoint
+    environment: { <<: *endpoint-env, NAME: mock-ch-2 }
+    ports: ["9102:8000"]
+  ep-us-1:
+    <<: *endpoint
+    environment: { <<: *endpoint-env, NAME: mock-us-1 }
+    ports: ["9103:8000"]
+  ep-nometa:
+    <<: *endpoint
+    environment: { <<: *endpoint-env, NAME: mock-nometa }
+    ports: ["9104:8000"]
+  ep-sg-1:
+    <<: *endpoint
+    environment: { <<: *endpoint-env, NAME: mock-sg-1 }
+    ports: ["9105:8000"]
+
+  # --- Policy-enforcing gateway (LiteLLM v1.92.0, same image as the Utility) --------------------
+  gateway:
+    build: ./gateway
+    restart: unless-stopped
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-master-local-only}
+      MUSTERSTADT_API_KEY: ${MUSTERSTADT_API_KEY:-sk-musterstadt-demo}
+      NOPOLICY_API_KEY: ${NOPOLICY_API_KEY:-sk-nopolicy-test}
+      EVENT_SINK_URL: http://app:8080/internal/events
+      EVENT_SINK_TOKEN: ${INTERNAL_TOKEN:-local-internal-token}
+      LITELLM_LOG: ERROR
+    ports: ["4000:4000"]
+    depends_on: [ep-publicai, ep-ch-1, ep-ch-2, ep-us-1, ep-nometa, ep-sg-1]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4000/health/liveliness')"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+
+  # --- Citizen app (authorized local environment: jobs live in SQLite here) --------------------
+  app:
+    build: ./app
+    restart: unless-stopped
+    environment:
+      GATEWAY_URL: http://gateway:4000
+      GATEWAY_API_KEY: ${MUSTERSTADT_API_KEY:-sk-musterstadt-demo}
+      GATEWAY_MODEL: swiss-ai/apertus-v1.5-70b
+      GATEWAY_CONFIG: /config/gateway.yaml
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-local-internal-token}
+      DB_PATH: /data/app.db
+      RETRY_MAX_SECONDS: ${RETRY_MAX_SECONDS:-20}
+    volumes:
+      - ./gateway/config.yaml:/config/gateway.yaml:ro
+      - ./samples:/samples:ro
+      - app-data:/data
+    ports: ["8080:8080"]
+    depends_on:
+      gateway: { condition: service_healthy }
+
+  # --- Test bench: `docker compose --profile test run --rm tests` ------------------------------
+  tests:
+    profiles: ["test"]
+    build: ./app
+    command: ["python", "-m", "pytest", "-q", "/tests"]
+    environment:
+      GATEWAY_URL: http://gateway:4000
+      APP_URL: http://app:8080
+      MUSTERSTADT_API_KEY: ${MUSTERSTADT_API_KEY:-sk-musterstadt-demo}
+      NOPOLICY_API_KEY: ${NOPOLICY_API_KEY:-sk-nopolicy-test}
+      GATEWAY_CONFIG: /config/gateway.yaml
+    volumes:
+      - ./tests:/tests:ro
+      - ./gateway/config.yaml:/config/gateway.yaml:ro
+    depends_on:
+      app: { condition: service_started }
+
+volumes:
+  app-data:

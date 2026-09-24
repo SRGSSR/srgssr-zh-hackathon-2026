@@ -1,0 +1,22 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+data/
+*.db
+.DS_Store
+
+# Planning notes from an earlier, abandoned concept (not part of this project)
+BATTLE-PLAN.md
+CRITIC-GAPS.md
+
+# Phase 0 raw logs
+research/phase0-lab/**/*.log
+research/phase0-lab/**/out/
+
+# Security-sensitive repros: keep private until responsibly disclosed to LiteLLM
+research/phase0-lab/tags/proxy_fallback_injection*
+research/phase0-lab/tags/proxy_fallback_api_base_persistence*
+research/phase0-lab/hooks/exp2_router_bypasses.py
+research/phase0-lab/hooks/exp2_B13*
+research/phase0-lab/hooks/exp2_part*
