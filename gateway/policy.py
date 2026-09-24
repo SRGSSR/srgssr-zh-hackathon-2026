@@ -1,8 +1,9 @@
 """Commune routing policy for the LiteLLM proxy (v1.92.0).
 
-The policy is bound to the commune's API key (see custom_auth.py) and is read ONLY from
-the server-side key metadata that the proxy attaches to every request
-(metadata["user_api_key_metadata"]["routing_policy"]). Nothing the client sends can change it.
+The policy is bound to the commune's API key or team (see custom_auth.py) and is read ONLY
+from the server-side key/team metadata that the proxy attaches to every request
+(metadata["user_api_key_team_metadata" | "user_api_key_metadata"]["routing_policy"]; the team
+wins). Nothing the client sends can change it.
 
 Three layers, all in this one CustomLogger (registered via litellm_settings.callbacks):
 
@@ -124,12 +125,16 @@ def _md(kwargs: Optional[dict]) -> dict:
     return md or {}
 
 
+def _pick_policy(key_md: dict, team_md: dict) -> Optional[dict]:
+    """The team's policy (the institution) wins over a key's own policy, so a key cannot relax it."""
+    for policy in ((team_md or {}).get("routing_policy"), (key_md or {}).get("routing_policy")):
+        if isinstance(policy, dict) and policy.get("allowed_jurisdictions"):
+            return policy
+    return None
+
+
 def _policy_from_md(md: dict) -> Optional[dict]:
-    key_md = md.get("user_api_key_metadata") or {}
-    policy = key_md.get("routing_policy")
-    if not isinstance(policy, dict) or not policy.get("allowed_jurisdictions"):
-        return None
-    return policy
+    return _pick_policy(md.get("user_api_key_metadata") or {}, md.get("user_api_key_team_metadata") or {})
 
 
 def _job_id(md: dict) -> Optional[str]:
@@ -218,15 +223,14 @@ class CommunePolicy(CustomLogger):
 
     # ------------------------------------------------- layer 1: request shape
     async def async_pre_call_hook(self, user_api_key_dict, cache, data: dict, call_type):
-        key_md = getattr(user_api_key_dict, "metadata", None) or {}
-        policy = key_md.get("routing_policy")
+        policy = _pick_policy(getattr(user_api_key_dict, "metadata", None) or {}, getattr(user_api_key_dict, "team_metadata", None) or {})
         psr = data.get("proxy_server_request") or {}
         body = psr.get("body") or {}
         headers = {k.lower(): v for k, v in (psr.get("headers") or {}).items()}
         client_md = body.get("metadata") or {}
         job_id = client_md.get("job_id") if isinstance(client_md, dict) else None
 
-        has_policy = isinstance(policy, dict) and bool(policy.get("allowed_jurisdictions"))
+        has_policy = policy is not None
         if not has_policy and not POLICY_REQUIRED:
             return data  # opt-in mode: this key is not under a routing policy
 
@@ -383,7 +387,7 @@ class CommunePolicy(CustomLogger):
         """Tell the client which deployment served it and under which rule. Unlike a random
         sponsor attribution, this comes from the deployment that actually answered."""
         mi = (litellm_call_info or {}).get("model_info") or {}
-        policy = ((getattr(user_api_key_dict, "metadata", None) or {}).get("routing_policy") or {})
+        policy = _pick_policy(getattr(user_api_key_dict, "metadata", None) or {}, getattr(user_api_key_dict, "team_metadata", None) or {}) or {}
         headers = {}
         if policy.get("id"):
             headers["x-routing-policy"] = str(policy["id"])

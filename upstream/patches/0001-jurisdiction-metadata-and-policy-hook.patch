@@ -1,0 +1,722 @@
+diff --git a/charts/platform/charts/litellm/jurisdiction_policy.py b/charts/platform/charts/litellm/jurisdiction_policy.py
+new file mode 100644
+index 0000000..04361ab
+--- /dev/null
++++ b/charts/platform/charts/litellm/jurisdiction_policy.py
+@@ -0,0 +1,473 @@
++"""Commune routing policy for the LiteLLM proxy (v1.92.0).
++
++The policy is bound to the commune's API key or team (see custom_auth.py) and is read ONLY
++from the server-side key/team metadata that the proxy attaches to every request
++(metadata["user_api_key_team_metadata" | "user_api_key_metadata"]["routing_policy"]; the team
++wins). Nothing the client sends can change it.
++
++Three layers, all in this one CustomLogger (registered via litellm_settings.callbacks):
++
++1. async_pre_call_hook (proxy, once per request)
++   Rejects requests that try to steer routing: client-side fallbacks, api_base/base_url/api_key,
++   tags (any location), litellm_metadata, mock_* params, deployment ids as model, unknown
++   metadata keys, x-litellm-tags header. Phase 0 showed several of these bypass tag routing,
++   and client "fallbacks" with an api_base can send data (and the upstream key) to any host.
++
++2. async_filter_deployments (router, before EVERY attempt: first try, retries, fallbacks)
++   Keeps only deployments whose model_info carries complete metadata (fail closed) and whose
++   jurisdiction is allowed. Among those it returns the single highest-priority one that has
++   not already failed within this request, so the order is deterministic
++   (LiteLLM 1.92.0 has no deployment "order"). Returning [] makes the router raise
++   "No deployments available", which the app treats as "wait and retry later".
++
++3. async_pre_call_deployment_hook (right before each send)
++   Last check on the concrete request: the deployment must still pass the policy and the
++   api_base about to be used must equal the api_base configured for that deployment id.
++   Anything else raises before a single byte leaves the gateway.
++
++Every decision and every attempt outcome is emitted as an event to the citizen app
++(EVENT_SINK_URL) and to stdout, which builds the per-job timeline.
++"""
++
++import asyncio
++import json
++import os
++import time
++from typing import Any, Dict, List, Optional
++from urllib.parse import urlsplit
++
++import httpx
++from fastapi import HTTPException
++
++from litellm.integrations.custom_logger import CustomLogger
++
++REQUIRED_METADATA = ("provider", "country", "jurisdiction")
++
++# Request body keys that can influence routing or credentials. Rejected outright.
++FORBIDDEN_BODY_KEYS = {
++    "fallbacks",
++    "context_window_fallbacks",
++    "content_policy_fallbacks",
++    "api_base",
++    "base_url",
++    "api_key",
++    "api_version",
++    "custom_llm_provider",
++    "user_config",
++    "litellm_metadata",
++    "tags",
++    "model_list",
++    "router_settings",
++    "deployment_id",
++    "specific_deployment",
++    "mock_response",
++    "mock_testing_fallbacks",
++    "mock_testing_context_fallbacks",
++    "mock_testing_content_policy_fallbacks",
++    "extra_headers",
++    "extra_body",
++}
++# The proxy adds its own keys into body["metadata"] before our hook runs, so client metadata
++# cannot be allow-listed here. Instead, block the keys that steer routing or impersonate
++# server-side fields (the proxy overwrites user_api_key_* itself).
++FORBIDDEN_METADATA_KEYS = {
++    "tags",
++    "model_info",
++    "deployment",
++    "api_base",
++    "fallbacks",
++    "model_group",
++    "routing_policy",
++    "_policy_tried",
++    "disable_fallbacks",
++}
++FORBIDDEN_HEADERS = {"x-litellm-tags"}
++
++# 1 (default, commune gateway): a key without a routing policy is rejected (fail closed).
++# 0 (shared gateway such as the Public AI Utility): keys without a policy keep today's behaviour;
++#   the policy applies only to keys whose metadata carries a routing_policy.
++POLICY_REQUIRED = os.environ.get("POLICY_REQUIRED", "1") == "1"
++
++EVENT_SINK_URL = os.environ.get("EVENT_SINK_URL", "")
++EVENT_SINK_TOKEN = os.environ.get("EVENT_SINK_TOKEN", "")
++
++
++class PolicyViolation(Exception):
++    """Raised when a send would violate the commune's routing policy."""
++
++
++def _now() -> float:
++    return time.time()
++
++
++def _router():
++    try:
++        from litellm.proxy.proxy_server import llm_router
++
++        return llm_router
++    except Exception:
++        return None
++
++
++def _norm_base(url: Optional[str]) -> str:
++    if not url:
++        return ""
++    p = urlsplit(str(url))
++    return f"{p.scheme}://{p.netloc}{p.path.rstrip('/')}".lower()
++
++
++def _md(kwargs: Optional[dict]) -> dict:
++    if not kwargs:
++        return {}
++    md = kwargs.get("metadata")
++    if not md:
++        md = (kwargs.get("litellm_params") or {}).get("metadata")
++    return md or {}
++
++
++def _pick_policy(key_md: dict, team_md: dict) -> Optional[dict]:
++    """The team's policy (the institution) wins over a key's own policy, so a key cannot relax it."""
++    for policy in ((team_md or {}).get("routing_policy"), (key_md or {}).get("routing_policy")):
++        if isinstance(policy, dict) and policy.get("allowed_jurisdictions"):
++            return policy
++    return None
++
++
++def _policy_from_md(md: dict) -> Optional[dict]:
++    return _pick_policy(md.get("user_api_key_metadata") or {}, md.get("user_api_key_team_metadata") or {})
++
++
++def _job_id(md: dict) -> Optional[str]:
++    return md.get("job_id") or (md.get("requester_metadata") or {}).get("job_id")
++
++
++def _raw_model(kwargs: dict) -> Optional[str]:
++    """Model name as reported by the endpoint itself (LiteLLM rewrites response.model)."""
++    raw = kwargs.get("original_response")
++    try:
++        data = json.loads(raw) if isinstance(raw, str) else raw
++        return (data or {}).get("model")
++    except Exception:
++        return None
++
++
++def _mi(deployment: dict) -> dict:
++    return deployment.get("model_info") or {}
++
++
++def evaluate(deployment: dict, policy: dict) -> Dict[str, Any]:
++    """Pure policy decision for one deployment. Fail closed on missing metadata."""
++    mi = _mi(deployment)
++    info = {
++        "deployment_id": mi.get("id"),
++        "provider": mi.get("provider"),
++        "country": mi.get("country"),
++        "jurisdiction": mi.get("jurisdiction"),
++        "endpoint_kind": mi.get("endpoint_kind"),
++        "priority": mi.get("priority", 100),
++    }
++    missing = [f for f in REQUIRED_METADATA if not mi.get(f)]
++    if missing:
++        return {**info, "allowed": False, "reason": f"missing metadata: {', '.join(missing)} (fail closed)"}
++    allowed = policy.get("allowed_jurisdictions") or []
++    if mi["jurisdiction"] not in allowed:
++        return {**info, "allowed": False, "reason": f"jurisdiction {mi['jurisdiction']} not in {allowed}"}
++    return {**info, "allowed": True, "reason": f"jurisdiction {mi['jurisdiction']} allowed"}
++
++
++def classify(exc_type: str, status: Optional[int], text: str = "", deployment_id: Optional[str] = None):
++    """Map an attempt failure to what it means for the citizen's data."""
++    if exc_type == "HTTPException":
++        return "rejected", "request rejected by the routing policy, nothing was sent"
++    if exc_type == "PolicyViolation" or "blocked before send" in text:
++        return "blocked", "blocked by policy before send, nothing was sent"
++    if exc_type == "Timeout" or status == 408:
++        return "timeout", "data sent, no response in time: the provider may have received the data"
++    if exc_type == "APIConnectionError":
++        return "connection_failed", "connection failed: the provider most likely did not receive the data"
++    if not deployment_id:
++        return "no_deployment", "no approved deployment available"
++    return "error", "provider received the request and answered with an error"
++
++
++def _status_from_text(text: str) -> Optional[int]:
++    for code in (408, 429, 500, 502, 503, 504):
++        if f" {code}" in text or f"{code}:" in text:
++            return code
++    return None
++
++
++class CommunePolicy(CustomLogger):
++    def __init__(self):
++        super().__init__()
++        self._client: Optional[httpx.AsyncClient] = None
++
++    # ---------------------------------------------------------------- events
++    def _emit(self, event: dict) -> None:
++        event.setdefault("ts", _now())
++        print("POLICY_EVENT " + json.dumps(event, default=str), flush=True)
++        if not EVENT_SINK_URL:
++            return
++        try:
++            asyncio.get_running_loop().create_task(self._post(event))
++        except RuntimeError:
++            pass
++
++    async def _post(self, event: dict) -> None:
++        try:
++            if self._client is None:
++                self._client = httpx.AsyncClient(timeout=3)
++            await self._client.post(EVENT_SINK_URL, json=event, headers={"x-internal-token": EVENT_SINK_TOKEN})
++        except Exception as e:  # the timeline must never break the request path
++            print(f"POLICY_EVENT_SINK_ERROR {type(e).__name__}: {e}", flush=True)
++
++    # ------------------------------------------------- layer 1: request shape
++    async def async_pre_call_hook(self, user_api_key_dict, cache, data: dict, call_type):
++        policy = _pick_policy(getattr(user_api_key_dict, "metadata", None) or {}, getattr(user_api_key_dict, "team_metadata", None) or {})
++        psr = data.get("proxy_server_request") or {}
++        body = psr.get("body") or {}
++        headers = {k.lower(): v for k, v in (psr.get("headers") or {}).items()}
++        client_md = body.get("metadata") or {}
++        job_id = client_md.get("job_id") if isinstance(client_md, dict) else None
++
++        has_policy = policy is not None
++        if not has_policy and not POLICY_REQUIRED:
++            return data  # opt-in mode: this key is not under a routing policy
++
++        problems: List[str] = []
++        if not has_policy:
++            problems.append("no routing policy bound to this API key")
++        problems += [f"body parameter '{k}' is not allowed" for k in sorted(FORBIDDEN_BODY_KEYS & set(body))]
++        if isinstance(client_md, dict):
++            problems += [f"metadata key '{k}' is not allowed" for k in sorted(FORBIDDEN_METADATA_KEYS & set(client_md))]
++        elif client_md:
++            problems.append("metadata must be an object")
++        problems += [f"header '{h}' is not allowed" for h in sorted(FORBIDDEN_HEADERS & set(headers))]
++        allowed_models = list(getattr(user_api_key_dict, "models", None) or [])
++        if allowed_models and body.get("model") not in allowed_models:
++            problems.append(f"model '{body.get('model')}' is not allowed for this key (allowed: {allowed_models})")
++
++        if problems:
++            self._emit(
++                {
++                    "type": "request_rejected",
++                    "job_id": job_id,
++                    "key_alias": getattr(user_api_key_dict, "key_alias", None),
++                    "reasons": problems,
++                }
++            )
++            raise HTTPException(status_code=400, detail={"error": "rejected by routing policy", "reasons": problems})
++
++        self._emit(
++            {
++                "type": "request_accepted",
++                "job_id": job_id,
++                "key_alias": getattr(user_api_key_dict, "key_alias", None),
++                "policy_id": policy.get("id"),
++                "rule": policy.get("description"),
++                "model_group": body.get("model"),
++            }
++        )
++        return data
++
++    # ------------------------------- layer 2: before every attempt (router)
++    async def async_filter_deployments(
++        self,
++        model: str,
++        healthy_deployments: List[dict],
++        messages=None,
++        request_kwargs: Optional[dict] = None,
++        parent_otel_span=None,
++    ) -> List[dict]:
++        md = _md(request_kwargs)
++        policy = _policy_from_md(md)
++        if policy is None and not POLICY_REQUIRED:
++            return healthy_deployments
++        job_id = _job_id(md)
++
++        # Deployment tried by the previous attempt of this request (the router writes it into the
++        # shared request metadata). If we are here again, that attempt failed.
++        tried: List[str] = md.setdefault("_policy_tried", [])
++        last = (md.get("model_info") or {}).get("id")
++        if last and last not in tried:
++            tried.append(last)
++            self._report_previous_attempt(md, last)
++
++        router = _router()
++        group = router.get_model_list(model_name=model) if router else None
++        group = group or healthy_deployments
++        healthy_ids = {_mi(d).get("id") for d in healthy_deployments}
++
++        evaluated, candidates = [], []
++        for d in group:
++            if policy is None:
++                e = {"deployment_id": _mi(d).get("id"), "provider": _mi(d).get("provider"), "jurisdiction": _mi(d).get("jurisdiction"),
++                     "endpoint_kind": _mi(d).get("endpoint_kind"), "allowed": False, "reason": "no routing policy on key (fail closed)"}
++            else:
++                e = evaluate(d, policy)
++            if e["allowed"] and e["deployment_id"] in tried:
++                e = {**e, "allowed": False, "reason": "already failed in this request"}
++            elif e["allowed"] and e["deployment_id"] not in healthy_ids:
++                e = {**e, "allowed": False, "reason": "skipped by router (cooldown)"}
++            evaluated.append(e)
++            if e["allowed"]:
++                candidates.append((e.get("priority", 100), e["deployment_id"], d))
++
++        candidates.sort(key=lambda c: (c[0], str(c[1])))
++        chosen = candidates[0][2] if candidates else None
++        chosen_id = _mi(chosen).get("id") if chosen else None
++        for e in evaluated:
++            if e["deployment_id"] == chosen_id:
++                e["decision"] = "selected"
++            elif e["allowed"]:
++                e["decision"] = "standby"
++            else:
++                e["decision"] = "blocked_before_send"
++        self._emit(
++            {
++                "type": "routing_decision",
++                "job_id": job_id,
++                "model_group": model,
++                "attempt": len(tried) + 1,
++                "selected": chosen_id,
++                "evaluated": evaluated,
++            }
++        )
++        return [chosen] if chosen else []
++
++    # --------------------------- layer 3: last check right before the send
++    async def async_pre_call_deployment_hook(self, kwargs: Dict[str, Any], call_type) -> Optional[dict]:
++        md = _md(kwargs)
++        policy = _policy_from_md(md)
++        if policy is None and not POLICY_REQUIRED:
++            return None
++        mi = kwargs.get("model_info") or (kwargs.get("litellm_params") or {}).get("model_info") or {}
++        dep_id = mi.get("id")
++        api_base = kwargs.get("api_base") or (kwargs.get("litellm_params") or {}).get("api_base")
++        router = _router()
++        configured = router.get_deployment(model_id=dep_id) if (router and dep_id) else None
++        configured_dict = configured.model_dump() if hasattr(configured, "model_dump") else (configured or {})
++        configured_base = (configured_dict.get("litellm_params") or {}).get("api_base")
++
++        reason = None
++        if policy is None:
++            reason = "no routing policy on key (fail closed)"
++        elif not configured_dict:
++            reason = f"deployment '{dep_id}' is not in the gateway config"
++        else:
++            verdict = evaluate(configured_dict, policy)
++            if not verdict["allowed"]:
++                reason = verdict["reason"]
++            elif _norm_base(api_base) != _norm_base(configured_base):
++                reason = f"api_base '{api_base}' differs from the configured one for '{dep_id}'"
++
++        event = {
++            "type": "dispatch" if reason is None else "send_vetoed",
++            "job_id": _job_id(md),
++            "call_id": kwargs.get("litellm_call_id"),
++            "deployment_id": dep_id,
++            "provider": mi.get("provider"),
++            "country": mi.get("country"),
++            "jurisdiction": mi.get("jurisdiction"),
++            "endpoint_kind": mi.get("endpoint_kind"),
++            "api_base": api_base,
++            "attempt": len(md.get("_policy_tried") or []) + 1,
++        }
++        if reason:
++            event["reason"] = reason
++            self._emit(event)
++            raise PolicyViolation(f"blocked before send: {reason}")
++        self._emit(event)
++        return None
++
++    # ------------------------------------------- attribution headers (issue #33)
++    async def async_post_call_response_headers_hook(
++        self, data, user_api_key_dict, response, request_headers=None, litellm_call_info=None
++    ) -> Optional[Dict[str, str]]:
++        """Tell the client which deployment served it and under which rule. Unlike a random
++        sponsor attribution, this comes from the deployment that actually answered."""
++        mi = (litellm_call_info or {}).get("model_info") or {}
++        policy = _pick_policy(getattr(user_api_key_dict, "metadata", None) or {}, getattr(user_api_key_dict, "team_metadata", None) or {}) or {}
++        headers = {}
++        if policy.get("id"):
++            headers["x-routing-policy"] = str(policy["id"])
++        if response is not None and mi.get("id"):
++            headers["x-served-by-deployment"] = str(mi.get("id"))
++            for k in ("provider", "jurisdiction"):
++                if mi.get(k):
++                    headers[f"x-served-by-{k}"] = str(mi[k])
++        return headers or None
++
++    # --------------------------------------------------------- outcomes
++    async def async_log_success_event(self, kwargs, response_obj, start_time, end_time):
++        lp = kwargs.get("litellm_params") or {}
++        mi = lp.get("model_info") or {}
++        self._emit(
++            {
++                "type": "attempt_result",
++                "outcome": "success",
++                "job_id": _job_id(_md(kwargs)),
++                "call_id": kwargs.get("litellm_call_id"),
++                "deployment_id": mi.get("id"),
++                "model_returned": _raw_model(kwargs) or getattr(response_obj, "model", None),
++                "latency_s": (end_time - start_time).total_seconds() if start_time and end_time else None,
++            }
++        )
++
++    def _report_failure(self, md: dict, dep_id: Optional[str], exc_type: str, status: Optional[int], text: str, source: str):
++        """Emit one attempt_result per failed attempt. LiteLLM's own failure callback fires only
++        once per proxy request (same litellm_call_id for all retries), so attempts are also
++        reconstructed from the router's retry log; md['_policy_reported'] de-duplicates."""
++        reported: List[str] = md.setdefault("_policy_reported", [])
++        tried = md.get("_policy_tried") or []
++        attempt = tried.index(dep_id) + 1 if dep_id in tried else len(tried) + 1
++        key = f"{attempt}:{dep_id}"
++        if key in reported:
++            return
++        reported.append(key)
++        outcome, meaning = classify(exc_type, status, text, dep_id)
++        self._emit(
++            {
++                "type": "attempt_result",
++                "outcome": outcome,
++                "meaning": meaning,
++                "job_id": _job_id(md),
++                "deployment_id": dep_id,
++                "attempt": attempt,
++                "error_type": exc_type,
++                "status_code": status,
++                "error": text[:300],
++                "source": source,
++            }
++        )
++
++    def _report_previous_attempt(self, md: dict, dep_id: str) -> None:
++        for prev in reversed(md.get("previous_models") or []):
++            pmd = prev.get("metadata") or prev.get("litellm_metadata") or {}
++            if (pmd.get("model_info") or {}).get("id") == dep_id and _job_id(pmd) == _job_id(md):
++                text = str(prev.get("exception_string", ""))
++                self._report_failure(md, dep_id, prev.get("exception_type", "Error"), _status_from_text(text), text, "router retry log")
++                return
++        self._report_failure(md, dep_id, "Error", None, "attempt failed (details not available)", "router retry log")
++
++    async def async_log_failure_event(self, kwargs, response_obj, start_time, end_time):
++        lp = kwargs.get("litellm_params") or {}
++        mi = lp.get("model_info") or {}
++        exc = kwargs.get("exception")
++        self._report_failure(
++            _md(kwargs), mi.get("id"), type(exc).__name__ if exc else "Error", getattr(exc, "status_code", None),
++            str(exc) if exc else "", "failure callback",
++        )
++
++    async def async_post_call_failure_hook(self, request_data, original_exception, user_api_key_dict, traceback_str=None):
++        """Once per request, at the very end: make sure the last attempt is on the timeline."""
++        md = _md(request_data)
++        last = (md.get("model_info") or {}).get("id")
++        if last and last not in (md.get("_policy_tried") or []):
++            md.setdefault("_policy_tried", []).append(last)
++        if last:
++            e = original_exception
++            self._report_failure(md, last, type(e).__name__, getattr(e, "status_code", None), str(e), "final error")
++
++
++policy_hook = CommunePolicy()
+diff --git a/charts/platform/charts/litellm/models/swiss-ai/apertus-70b-instruct.yaml b/charts/platform/charts/litellm/models/swiss-ai/apertus-70b-instruct.yaml
+index 9099c76..b435314 100644
+--- a/charts/platform/charts/litellm/models/swiss-ai/apertus-70b-instruct.yaml
++++ b/charts/platform/charts/litellm/models/swiss-ai/apertus-70b-instruct.yaml
+@@ -13,6 +13,12 @@ models:
+     top_p: 0.9
+     max_tokens: 8192
+   model_info:
++    id: swiss-ai/apertus-70b-instruct@infomaniak
++    # --- jurisdiction metadata (read by jurisdiction_policy.py; missing = excluded) ---
++    provider: Infomaniak
++    country: CH
++    jurisdiction: CH
++    jurisdiction_basis: "TODO(Public AI): link the contract/DPA that states processing in Switzerland"
+     input_cost_per_token: 0.00000082
+     output_cost_per_token: 0.00000292
+ #- model_name: swiss-ai/apertus-v1.5-70b
+diff --git a/charts/platform/charts/litellm/models/swiss-ai/apertus-8b-instruct.yaml b/charts/platform/charts/litellm/models/swiss-ai/apertus-8b-instruct.yaml
+index 413e79c..b23fccf 100644
+--- a/charts/platform/charts/litellm/models/swiss-ai/apertus-8b-instruct.yaml
++++ b/charts/platform/charts/litellm/models/swiss-ai/apertus-8b-instruct.yaml
+@@ -14,6 +14,12 @@ models:
+     top_p: 0.9
+     max_tokens: 16384
+   model_info:
++    id: swiss-ai/apertus-8b-instruct@featherless
++    # --- jurisdiction metadata (read by jurisdiction_policy.py; missing = excluded) ---
++    provider: Featherless
++    country: unknown
++    jurisdiction: unknown
++    jurisdiction_basis: "Not assessed. Policies that require a jurisdiction exclude this deployment."
+     input_cost_per_token: 0.00000010
+     output_cost_per_token: 0.0000002
+ fallbacks:
+diff --git a/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-70b-thinking.yaml b/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-70b-thinking.yaml
+index c50e5fe..26b8dd3 100644
+--- a/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-70b-thinking.yaml
++++ b/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-70b-thinking.yaml
+@@ -13,6 +13,12 @@ models:
+     top_p: 0.9
+     max_tokens: 8192
+   model_info:
++    id: swiss-ai/apertus-v1.5-70b-thinking@infomaniak
++    # --- jurisdiction metadata (read by jurisdiction_policy.py; missing = excluded) ---
++    provider: Infomaniak
++    country: CH
++    jurisdiction: CH
++    jurisdiction_basis: "TODO(Public AI): link the contract/DPA that states processing in Switzerland"
+     input_cost_per_token: 0.00000082
+     output_cost_per_token: 0.00000292
+ - model_name: swiss-ai/apertus-v1.5-70b-thinking
+@@ -26,6 +32,12 @@ models:
+     top_p: 0.9
+     max_tokens: 8192
+   model_info:
++    id: swiss-ai/apertus-v1.5-70b-thinking@featherless
++    # --- jurisdiction metadata (read by jurisdiction_policy.py; missing = excluded) ---
++    provider: Featherless
++    country: unknown
++    jurisdiction: unknown
++    jurisdiction_basis: "Not assessed. Policies that require a jurisdiction exclude this deployment."
+     input_cost_per_token: 0.00000082
+     output_cost_per_token: 0.00000292
+ #- model_name: swiss-ai/apertus-v1.5-70b
+diff --git a/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-70b.yaml b/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-70b.yaml
+index 13d85ad..15366cd 100644
+--- a/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-70b.yaml
++++ b/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-70b.yaml
+@@ -13,6 +13,12 @@ models:
+     top_p: 0.9
+     max_tokens: 8192
+   model_info:
++    id: swiss-ai/apertus-v1.5-70b@infomaniak
++    # --- jurisdiction metadata (read by jurisdiction_policy.py; missing = excluded) ---
++    provider: Infomaniak
++    country: CH
++    jurisdiction: CH
++    jurisdiction_basis: "TODO(Public AI): link the contract/DPA that states processing in Switzerland"
+     input_cost_per_token: 0.00000082
+     output_cost_per_token: 0.00000292
+ - model_name: swiss-ai/apertus-v1.5-70b
+@@ -26,6 +32,12 @@ models:
+     top_p: 0.9
+     max_tokens: 8192
+   model_info:
++    id: swiss-ai/apertus-v1.5-70b@featherless
++    # --- jurisdiction metadata (read by jurisdiction_policy.py; missing = excluded) ---
++    provider: Featherless
++    country: unknown
++    jurisdiction: unknown
++    jurisdiction_basis: "Not assessed. Policies that require a jurisdiction exclude this deployment."
+     input_cost_per_token: 0.00000082
+     output_cost_per_token: 0.00000292
+ #- model_name: swiss-ai/apertus-v1.5-70b
+@@ -57,4 +69,4 @@ models:
+ #    output_cost_per_token: 0.00000292
+ fallbacks:
+ - aisingapore/Qwen-SEA-LION-v4-32B-IT
+-- speakleash/Bielik-11B-v3.0-Instruct
+\ No newline at end of file
++- speakleash/Bielik-11B-v3.0-Instruct
+diff --git a/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-8b-thinking.yaml b/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-8b-thinking.yaml
+index 63c401c..213eab3 100644
+--- a/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-8b-thinking.yaml
++++ b/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-8b-thinking.yaml
+@@ -14,6 +14,12 @@ models:
+     top_p: 0.9
+     max_tokens: 16384
+   model_info:
++    id: swiss-ai/apertus-v1.5-8b-thinking@featherless
++    # --- jurisdiction metadata (read by jurisdiction_policy.py; missing = excluded) ---
++    provider: Featherless
++    country: unknown
++    jurisdiction: unknown
++    jurisdiction_basis: "Not assessed. Policies that require a jurisdiction exclude this deployment."
+     input_cost_per_token: 0.00000010
+     output_cost_per_token: 0.0000002
+ fallbacks:
+diff --git a/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-8b.yaml b/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-8b.yaml
+index 3906262..5575ab5 100644
+--- a/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-8b.yaml
++++ b/charts/platform/charts/litellm/models/swiss-ai/apertus-v1.5-8b.yaml
+@@ -14,6 +14,12 @@ models:
+     top_p: 0.9
+     max_tokens: 16384
+   model_info:
++    id: swiss-ai/apertus-v1.5-8b@featherless
++    # --- jurisdiction metadata (read by jurisdiction_policy.py; missing = excluded) ---
++    provider: Featherless
++    country: unknown
++    jurisdiction: unknown
++    jurisdiction_basis: "Not assessed. Policies that require a jurisdiction exclude this deployment."
+     input_cost_per_token: 0.00000010
+     output_cost_per_token: 0.0000002
+ fallbacks:
+diff --git a/charts/platform/charts/litellm/templates/configmap.yaml b/charts/platform/charts/litellm/templates/configmap.yaml
+index c465932..c3fd58c 100644
+--- a/charts/platform/charts/litellm/templates/configmap.yaml
++++ b/charts/platform/charts/litellm/templates/configmap.yaml
+@@ -101,11 +101,14 @@ data:
+       {{- else }}
+       require_auth_for_metrics_endpoint: false
+       {{- end }}
+-      {{- if or .Values.lago.enabled .Values.prometheus.enabled }}
++      {{- if or .Values.lago.enabled .Values.prometheus.enabled .Values.jurisdictionPolicy.enabled }}
+       callbacks:
+         {{- if .Values.lago.enabled }}
+         - "custom_lago_callback.lago_callback"
+         {{- end }}
++        {{- if .Values.jurisdictionPolicy.enabled }}
++        - "jurisdiction_policy.policy_hook"
++        {{- end }}
+         {{- if .Values.prometheus.enabled }}
+         - "prometheus"
+         {{- end }}
+@@ -180,6 +183,13 @@ data:
+         {{- if .model_info.output_cost_per_token }}
+         output_cost_per_token: {{ .model_info.output_cost_per_token }}
+         {{- end }}
++        {{- /* Pass every other model_info key through unchanged (id, jurisdiction metadata, ...).
++               Costs keep their explicit lines above so their YAML type does not change. */}}
++        {{- range $k, $v := .model_info }}
++        {{- if not (has $k (list "input_cost_per_token" "output_cost_per_token")) }}
++        {{ $k }}: {{ $v | toJson }}
++        {{- end }}
++        {{- end }}
+       {{- end }}
+     {{- end }}
+     {{- end }}
+diff --git a/charts/platform/charts/litellm/templates/deployment.yaml b/charts/platform/charts/litellm/templates/deployment.yaml
+index 4e7fabd..0d321a2 100644
+--- a/charts/platform/charts/litellm/templates/deployment.yaml
++++ b/charts/platform/charts/litellm/templates/deployment.yaml
+@@ -115,6 +115,11 @@ spec:
+             - name: LAGO_API_CHARGE_BY
+               value: "{{ .Values.lago.chargeBy }}"
+             {{- end }}
++            {{- if .Values.jurisdictionPolicy.enabled }}
++            # Keys without metadata.routing_policy keep today's routing (opt-in per key/team).
++            - name: POLICY_REQUIRED
++              value: "0"
++            {{- end }}
+             - name: INFOMANIAK_API_KEY
+               valueFrom:
+                 secretKeyRef:
+@@ -179,6 +184,12 @@ spec:
+               mountPath: /app/custom_lago_callback.py
+               subPath: custom_lago_callback.py
+               readOnly: true
++            {{- if .Values.jurisdictionPolicy.enabled }}
++            - name: jurisdiction-policy-volume
++              mountPath: /app/jurisdiction_policy.py
++              subPath: jurisdiction_policy.py
++              readOnly: true
++            {{- end }}
+           ports:
+             - containerPort: {{ .Values.app.port }}
+           lifecycle:
+@@ -226,4 +237,9 @@ spec:
+             name: {{ .Values.app.name }}-custom-auth
+         - name: custom-lago-callback-volume
+           configMap:
+-            name: {{ .Values.app.name }}-custom-lago-callback
+\ No newline at end of file
++            name: {{ .Values.app.name }}-custom-lago-callback
++        {{- if .Values.jurisdictionPolicy.enabled }}
++        - name: jurisdiction-policy-volume
++          configMap:
++            name: {{ .Values.app.name }}-jurisdiction-policy
++        {{- end }}
+\ No newline at end of file
+diff --git a/charts/platform/charts/litellm/templates/jurisdiction-policy-configmap.yaml b/charts/platform/charts/litellm/templates/jurisdiction-policy-configmap.yaml
+new file mode 100644
+index 0000000..651014a
+--- /dev/null
++++ b/charts/platform/charts/litellm/templates/jurisdiction-policy-configmap.yaml
+@@ -0,0 +1,10 @@
++{{- if .Values.jurisdictionPolicy.enabled }}
++apiVersion: v1
++kind: ConfigMap
++metadata:
++  name: {{ .Values.app.name }}-jurisdiction-policy
++  namespace: {{ .Values.global.namespace | default "web-services" }}
++data:
++  jurisdiction_policy.py: |
++{{ .Files.Get "jurisdiction_policy.py" | indent 4 }}
++{{- end }}
+diff --git a/charts/platform/charts/litellm/values.yaml b/charts/platform/charts/litellm/values.yaml
+index 89b6116..4319dfe 100644
+--- a/charts/platform/charts/litellm/values.yaml
++++ b/charts/platform/charts/litellm/values.yaml
+@@ -128,6 +128,11 @@ lago:
+   apiBase: https://lago-api.publicai.co
+ prometheus:
+   enabled: false
++# Per-key routing policy by jurisdiction (see jurisdiction_policy.py). Off by default.
++# When on, only API keys/teams whose metadata carries a routing_policy are restricted, e.g.
++#   {"routing_policy": {"id": "CH-only", "allowed_jurisdictions": ["CH"]}}
++jurisdictionPolicy:
++  enabled: false
+ podDisruptionBudget:
+   enabled: true
+   minAvailable: 1
