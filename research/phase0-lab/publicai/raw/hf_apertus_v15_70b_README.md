@@ -1,1 +1,0 @@
-Access to model swiss-ai/Apertus-v1.5-70B is restricted. You must have access to it and be authenticated to access it. Please log in.

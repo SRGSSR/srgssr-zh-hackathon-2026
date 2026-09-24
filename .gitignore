@@ -21,3 +21,10 @@ research/phase0-lab/hooks/exp2_router_bypasses.py
 research/phase0-lab/hooks/exp2_B13*
 research/phase0-lab/hooks/exp2_part*
 upstream/test/.work/
+
+# Third-party material kept only locally as Phase 0 evidence (not ours to redistribute)
+research/phase0-lab/publicai/raw/
+research/phase0-lab/utility/chart-copy/
+# Configs of the injection experiments (see above)
+research/phase0-lab/tags/proxy/config_injection_*
+research/phase0-lab/tags/proxy/config_api_base_persistence*
