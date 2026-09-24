@@ -147,6 +147,7 @@ topics:
     # official wording used by ch.ch per language (added to the search when this topic is detected)
     search_terms: {de: Führerausweis umtauschen, fr: permis de conduire échange, it: licenza di condurre estera,
                    rm: permiss da manischar, en: driving licence exchange}
+    portal_section: "(fuhrerausweis|permis-de-conduire|licenza-di-condurre|permiss-da-manischar|driving-licence)"
   residence_registration:
     level: municipal
     needs_place: true
@@ -200,10 +201,23 @@ topics:
                habitants, population, combien de personnes, part d etrangers, abitanti, popolazione, quante persone,
                quota di stranieri, inhabitants, how many people, abitants, populaziun]
     sources: [https://www.bfs.admin.ch/bfs/de/home/statistiken/bevoelkerung.html]
+  law:
+    level: federal
+    needs_place: false
+    tool: swiss_law  # used only when the question names an act (SR number, abbreviation); else ch.ch guidance
+    # short, generic words on purpose: the subject ("Kündigungsfrist Wohnung") should win the topic; an explicit
+    # act reference (SR number, OR/CO/ZGB + article) makes it a law question anyway
+    keywords: [gesetz, artikel, verordnung, obligationenrecht, zivilgesetzbuch, strafgesetzbuch, loi, ordonnance,
+               code civil, code penal, legge, ordinanza, codice civile, codice penale, lescha, statute, fedlex]
+    sources: [https://www.fedlex.admin.ch/]
   rent_housing:
     level: federal
     needs_place: false
-    keywords: [mietzins, miete, mietvertrag, kundigung, loyer, bail, resiliation, pigione, affitto, locazione, rent, lease, tenancy]
+    keywords: [mietzins, miete, mietvertrag, kundigung, kundigungsfrist, loyer, bail, resiliation, delai de conge,
+               pigione, affitto, locazione, disdetta, rent, lease, tenancy]
+    search_terms: {de: Miete Kündigung Frist, fr: bail résiliation délai, it: locazione disdetta termine,
+                   en: rent notice period}
+    portal_section: "/(wohnen/miete|logement/location-d-un-logement|abitazioni/locazione|abitar/|housing/rent)"
     sources: [https://www.bwo.admin.ch/de/referenzzinssatz]
   building:
     level: municipal

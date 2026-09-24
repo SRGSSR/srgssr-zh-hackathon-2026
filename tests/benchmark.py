@@ -60,6 +60,8 @@ def check(case: dict, r: dict, chars: int, ms: float, defaults: dict) -> list[st
     if "chain_office" in e and e["chain_office"] not in [c.get("url") for c in r.get("authority_chain", [])
                                                          if c.get("office")]:
         errs.append(f"authority_chain: office {e['chain_office']} missing")
+    for k, v in (e.get("fields") or {}).items():  # arbitrary top-level result fields
+        want(k, r.get(k), v)
     if "chain_level" in e and e["chain_level"] not in [c.get("level") for c in r.get("authority_chain", [])]:
         errs.append(f"authority_chain: no {e['chain_level']} entry")
     if chars > case.get("max_chars", defaults["max_chars"]):

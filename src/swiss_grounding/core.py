@@ -181,6 +181,7 @@ def fetch(
     json_body: Any = None,
     ttl: int = 3600,
     as_json: bool = True,
+    headers: dict | None = None,
 ) -> Any:
     """GET (or POST when json_body is given) with a two-level TTL cache and stale-if-error fallback.
 
@@ -213,7 +214,7 @@ def fetch(
     try:
         if urlparse(url).netloc in CONFIG.fault_hosts:  # fault injection for resilience tests
             raise httpx.ConnectError(f"simulated outage (SGM_FAULT_HOSTS) for {urlparse(url).netloc}")
-        r = client().request(method, url, params=params, json=json_body)
+        r = client().request(method, url, params=params, json=json_body, headers=headers)
         r.raise_for_status()
     except httpx.HTTPError as e:
         # 4xx means the resource is really gone - except 429 (rate limited), which is transient like a 5xx.
@@ -231,7 +232,11 @@ def fetch(
         METRICS.upstream_requests += 1
         METRICS.upstream_ms += (time.perf_counter() - t0) * 1000
 
-    data = r.json() if as_json else r.text
+    try:
+        data = r.json() if as_json else r.text
+    except ValueError as e:  # e.g. an HTML error page instead of JSON: a retrieval failure, not data
+        raise SourceUnavailable(f"{urlparse(url).netloc}: unexpected non-JSON response "
+                                f"({r.headers.get('content-type', '?')})", r.status_code) from e
     _log_fetch(url, now, "live")
     if CONFIG.cache_enabled and ttl > 0:
         _mem[key] = (now + ttl, data, now)

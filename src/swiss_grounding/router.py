@@ -8,13 +8,14 @@ from __future__ import annotations
 
 import re
 
-from . import geo, guidance, registry, sources
+from . import geo, guidance, law, registry, sources
 from .registry import norm
 
 STOPWORDS = {
     "de": "der die das und ich wie wann wird ist bei uns nach mein meine mit fur muss kann welche ein eine zu den dem nicht wo was".split(),
     "fr": "le la les et je comment quand est pour mon ma des une un dans du de puis combien quel quelle ou ai".split(),
-    "it": "il lo gli e come quando qual quale per mio mia una di del della che sono anni ho posso dove".split(),
+    "it": ("il lo gli e come quando qual quale per mio mia una di del della che sono anni ho posso dove cosa dice "
+           "sulla sul dell alla nella degli delle questo quanto").split(),
     "rm": "cura en las da tge co jau vus nus ina dal dals ils cun sco vacanzas scola atun per".split(),
     "en": "the and how when is what my i for do does which can of to in where".split(),
 }
@@ -212,6 +213,24 @@ def _coverage(hit: dict, terms: list[str], heading_only: bool = False) -> float:
     return sum(1 for t in terms if t in text) / max(1, len(terms))
 
 
+def _law_act(q: str) -> str | None:
+    """The act a law question names: an SR number ("SR 220", "832.10") or an act abbreviation (OR, ZGB, CO, LAMal).
+
+    Numbers count only if they are real SR numbers (so "449.90" is not an act); abbreviations need two capitals and
+    must not be a canton code or a common acronym (ZG is both canton Zug and the Customs Act).
+    """
+    srs = law.sr_numbers()
+    for m in re.finditer(r"\b(?:SR\s*)?(\d{3}(?:\.\d+)*)\b", q):
+        if m.group(1) in srs and ("." in m.group(1) or re.search(rf"\bSR\s*{re.escape(m.group(1))}\b", q)):
+            return m.group(1)
+    blocked = set(registry.cantons()) | {"RAV", "AHV", "IV", "CH", "EU", "SR"}
+    shorts = law.abbreviations()
+    for tok in re.findall(r"(?<![\w.])[A-Z][A-Za-z]{1,7}(?![\w])", q):
+        if tok in shorts and tok not in blocked and sum(c.isupper() for c in tok) >= 2:
+            return tok
+    return None
+
+
 def _next_call(topic: str, tool: str, q: str, nq: str, muni: dict | None, lang: str,
                canton: str | None = None) -> dict:
     place = None
@@ -237,6 +256,12 @@ def _next_call(topic: str, tool: str, q: str, nq: str, muni: dict | None, lang: 
         args = {"place": place} if place else {"canton": canton}
     elif tool == "reference_interest_rate":
         args = {"language": lang if lang in ("de", "fr", "it") else "de"}
+    elif tool == "swiss_law":
+        act = _law_act(q)
+        if not act:
+            return None  # no act named: fall back to ch.ch guidance instead of asking the user for a law
+        art = re.search(r"(?i)\b(?:art\.?|artikel|article|articolo)\s*(\d+\s*[a-z]{0,6})\b", q)
+        args = {"act": act, "language": lang, **({"article": art.group(1).replace(" ", "")} if art else {})}
     elif tool == "company_register_search":
         n = re.search(r"[«\"“']([^»\"”']{2,60})[»\"”']", q) or re.search(
             r"\b(?:Firma|Unternehmen|firm|company|entreprise|société|ditta|azienda|società)\s+([A-Z0-9][\w&.'-]*(?:\s+(?:AG|SA|GmbH|Sàrl|[A-Z][\w&.'-]*))*)", q)
@@ -256,7 +281,7 @@ def _multi(base: dict, q: str, nq: str, lang: str, topic: str | None, t: dict, m
         jur, chain = _jurisdiction(m, m["canton"], t)
         entry = {"jurisdiction": jur, "authority_chain": chain}
         if topic and t.get("tool"):
-            entry["next_call"] = _next_call(topic, t["tool"], q, nq, m, lang, m["canton"])
+            entry["next_call"] = _next_call(topic, t["tool"], q, nq, m, lang, m["canton"])  # None for law w/o act
         entries.append(entry)
     out = {**base, "decision": "routed", "support": "strong" if topic and t.get("tool") else "partial",
            "jurisdictions": entries,
@@ -266,7 +291,8 @@ def _multi(base: dict, q: str, nq: str, lang: str, topic: str | None, t: dict, m
                               "Use the shared federal evidence only for what is common, and read each municipality's "
                               "page (authority_chain) with read_official_page for local procedures."))}
     if not (topic and t.get("tool")):
-        ev = guidance.search(_search_query(q, t, lang), lang, 3)
+        ev = guidance.search(_search_query(q, t, lang), lang, 3, prefer=t.get("portal_section"),
+                          votes_topic=topic == "federal_votes")
         out["shared_evidence"], out["sources"] = ev.get("results", []), ev.get("sources", [])
     return out
 
@@ -276,6 +302,9 @@ def ground(question: str, place: str | None = None, language: str | None = None)
     nq = norm(q)
     lang = language or detect_language(q)
     topic, conf = classify(nq)
+    # an explicit act reference ("Art. 266c OR", "SR 832.10") is a law question whatever the other keywords say
+    if _law_act(q) and (re.search(r"(?i)\b(art\.?|artikel|article|articolo)\s*\d", q) or re.search(r"\bSR\s*\d", q)):
+        topic, conf = "law", 1.0
     t = registry.topics().get(topic, {}) if topic else {}
     level = t.get("level")
     base = {"language": lang, "topic": {"id": topic, "level": level, "confidence": round(conf, 2)} if topic else None}
@@ -297,7 +326,8 @@ def ground(question: str, place: str | None = None, language: str | None = None)
 
     canton = muni["canton"] if muni else _canton(nq)
     if topic and level in ("cantonal", "municipal") and any(g in nq for g in GENERALISE):
-        ev = guidance.search(_search_query(q, t, lang), lang, 3)
+        ev = guidance.search(_search_query(q, t, lang), lang, 3, prefer=t.get("portal_section"),
+                          votes_topic=topic == "federal_votes")
         return {**base, "decision": "varies_by_canton", "support": "partial",
                 "reason": f"'{topic}' is regulated at {level} level; there is no single rule for all of Switzerland.",
                 "evidence": ev.get("results", []), "sources": ev.get("sources", []),
@@ -322,14 +352,15 @@ def ground(question: str, place: str | None = None, language: str | None = None)
         return _multi(base, q, nq, lang, topic, t, munis)
     jurisdiction, chain = _jurisdiction(muni, canton, t)
 
-    if topic and t.get("tool"):
-        nc = _next_call(topic, t["tool"], q, nq, muni, lang, canton)
+    nc = _next_call(topic, t["tool"], q, nq, muni, lang, canton) if topic and t.get("tool") else None
+    if nc:
         return {**base, "decision": "routed", "support": "strong" if not nc["missing"] else "partial",
                 "jurisdiction": jurisdiction, "authority_chain": chain, "next_call": nc,
                 "instruction": ("Call next_call and answer from its result, citing its sources."
                                 + (f" First ask the user only for: {', '.join(nc['missing'])}." if nc["missing"] else ""))}
 
-    ev = guidance.search(_search_query(q, t, lang), lang, 3)
+    ev = guidance.search(_search_query(q, t, lang), lang, 3, prefer=t.get("portal_section"),
+                          votes_topic=topic == "federal_votes")
     hits = ev.get("results", [])
     if not topic:  # without a known topic, keep only evidence that covers most of the question's terms
         words = [norm(w) for w in re.findall(r"\w+", q) if len(w) >= 4 and norm(w) not in guidance.STOP | GENERIC]

@@ -84,7 +84,12 @@ def _page_updated(db: sqlite3.Connection, url: str) -> str | None:
     return row[0] if row else None
 
 
-def search(query: str, lang: str | None, limit: int) -> dict:
+VOTE_PAGES = re.compile(r"/(volksabstimmung-vom-|votation-du-|votazione-del-|votaziun-dals-|popular-vote-of-|wahlen20)")
+
+
+def search(query: str, lang: str | None, limit: int, prefer: str | None = None, votes_topic: bool = False) -> dict:
+    """BM25 search. `prefer`: URL regex of the topic's portal section, ranked first; vote explainer pages (which
+    mention every subject) rank last unless the question is about votes."""
     db = _index()
     if db is None:
         return {"status": "unavailable", "message": "ch.ch index missing: run scripts/build_chch_index.py"}
@@ -104,6 +109,10 @@ def search(query: str, lang: str | None, limit: int) -> dict:
         return db.execute(sql + " ORDER BY s LIMIT ?", args + [limit * 4]).fetchall()
 
     rows = run(lang) or run(None)
+    if prefer or not votes_topic:
+        pref = re.compile(prefer) if prefer else None
+        rows = sorted(rows, key=lambda r: (0 if pref and pref.search(r[0]) else 1,
+                                           1 if not votes_topic and VOTE_PAGES.search(r[0]) else 0))  # stable
     seen, hits = set(), []
     for url, lg, title, heading, body, _ in rows:
         key = (title, heading)  # the same ch.ch page is published under several paths

@@ -6,7 +6,7 @@ official municipality (BFS number) and canton through the federal gazetteer. The
 the body responsible for that place, cites it with dates, and says so plainly when a question is outside
 Switzerland, outside its scope, or cannot be verified right now.
 
-Thirteen MCP tools, compact JSON, **no API keys**, runs locally with one command.
+Fourteen MCP tools, compact JSON, **no API keys**, runs locally with one command.
 
 ## The 1-minute pitch
 
@@ -62,7 +62,7 @@ is still missing. Every "evidence" item can be re-run.
   - no authoritative source → `unsupported`;
   - source down → `unavailable`, or a cached copy that is disclosed.
 
-  Evidence: `tests/benchmark.py` (61/61), `tests/fault_test.py` (4/4), and a real-LLM run
+  Evidence: `tests/benchmark.py` (68/68), `tests/fault_test.py` (4/4), and a real-LLM run
   (`tests/llm_client_eval.py`, results under [Tests](#with-a-real-mcp-client-and-llm)).
 - **Gaps:**
   - school holidays come from an aggregator, labelled as such, with a link to the canton;
@@ -73,7 +73,7 @@ is still missing. Every "evidence" item can be re-run.
 
 - **Data tools, all of Switzerland:** health insurance premiums (every municipality and premium region), population
   (every municipality and canton), school holidays, the reference interest rate, federal votes, public transport,
-  and the jurisdiction resolver.
+  federal law (2,630 acts: version in force, article links) and the jurisdiction resolver.
 - **Municipal depth:** the City of Zürich waste calendar by postcode; municipal websites for 11 municipalities (the
   largest cities plus the sample-question towns).
 - **Procedures in 5 languages (DE/FR/IT/RM/EN):** 1,726 ch.ch pages indexed, covering moving, permits, driving
@@ -83,7 +83,9 @@ is still missing. Every "evidence" item can be re-run.
   - covered with data: 1, 4 (Zürich only), 9, 10, 12, 13, 16 (population);
   - covered with guidance: 5, 6, 7, 8, 11, 15;
   - partly covered: 2 (taxes, no calculation) and 14 (Zefix, blocked by default by its robots.txt);
-  - not covered: 3 (Fedlex law texts) and 16 beyond population (weather, other statistics).
+  - partly covered: 3 (federal law: act and article identification, version in force, official link; the article
+    text only when robots.txt is not respected, because Fedlex's filestore disallows bots);
+  - not covered: 16 beyond population (weather, other statistics), and cantonal law.
 
 ### 3. Agent efficiency: tool selection, few calls, compact responses, low latency, no unnecessary live requests
 
@@ -95,7 +97,7 @@ is still missing. Every "evidence" item can be re-run.
 - **Low latency, no unnecessary live requests:** annual data (premiums, population, the ch.ch index) is prebuilt.
   Live sources are cached with per-source lifetimes (60 s for the timetable to 30 days for boundaries). Median
   benchmark latency is 4–13 ms with a warm cache.
-- **Gap:** 13 tools is a sizeable menu for the model. Open-ended procedure questions can still trigger several page
+- **Gap:** 14 tools is a sizeable menu for the model. Open-ended procedure questions can still trigger several page
   reads.
 
 ### 4. Operability and maintainability: reproducible setup, refresh and caching, resilience, source etiquette
@@ -146,11 +148,13 @@ is still missing. Every "evidence" item can be re-run.
 | Public transport connections | Switzerland | Live timetable | opentransportdata.swiss via transport.opendata.ch (FOT mandate) |
 | Federal votes: subjects and results | Switzerland | 2025 to Nov 2026 | Federal Statistical Office OGD feed, Federal Chancellery / Federal Council |
 | Procedures and rights: moving and registration, permits, driving licence, AHV, unemployment, taxes, customs, radio/TV fee, renting, building … | Federal rules plus links to the responsible cantonal and municipal offices | ch.ch index of 2026-09-24; linked pages read live | ch.ch (Federal Chancellery and cantons), then `read_official_page` on the linked authority |
-| Routing and jurisdiction decisions (`swiss_ground`) | All of Switzerland | n/a | Source registry `data/sources.yaml`: 18 topics, 26 cantons, 11 city websites, 58 foreign place names |
+| Federal law: act (SR number, abbreviation in any language, title), article link, version in force and upcoming versions; article text when allowed | 2,630 national acts in force (SR, no treaties) | Live version check; act index of 2026-09-24 | Fedlex linked data (Federal Chancellery). Article text only with `SGM_RESPECT_ROBOTS=false`, because fedlex.data.admin.ch/filestore disallows bots |
+| Routing and jurisdiction decisions (`swiss_ground`) | All of Switzerland | n/a | Source registry `data/sources.yaml`: 19 topics, 26 cantons, 11 city websites, 58 foreign place names |
 | Commercial register lookup | Switzerland | Live | Zefix (Federal Office of Justice). **Blocked by default**, because zefix.ch's robots.txt disallows bots |
 
 **Out of scope (the server says so):** other countries, tax calculations, waste calendars outside the City of
-Zürich, full law texts and legal advice, weather, statistics other than population, personal data. Foreign places are detected in the
+Zürich, legal advice, cantonal and municipal law, federal law texts while robots.txt is respected, weather,
+statistics other than population, personal data. Foreign places are detected in the
 question ("nach Konstanz", "in München", "en France"), or reported as `not_found` by the federal gazetteer. The
 server then tells the assistant not to apply Swiss rules.
 
@@ -167,6 +171,7 @@ server then tells the assistant not to apply Swiss rules.
 | `municipality_population(place? or canton?)` | Permanent resident population on 31 December (latest year), change on the previous year and share of foreign nationals, for the municipality, its canton and Switzerland. For a village it says the figure is for the containing municipality. For places whose status changed after the FSO boundary date (Villnachern, Moutier), it returns the former municipality's own row and says so. |
 | `public_transport_connections(origin, destination, when?, arrive_by?, limit)` | Next connections, with lines and platforms. |
 | `federal_votes(vote_date?, language)` | Next or given federal vote: subjects in DE/FR/IT/RM/EN, and results once counted. |
+| `swiss_law(act, article?, query?, language)` | Federal act by SR number (220), abbreviation (OR, CO, ZGB, KVG, LAMal) or title words: SR number, title, version in force (from/until), upcoming versions, and the official article link (`…/eli/cc/27/317_321_377/de#art_266_c`). The article text, or keyword matches within the act, is returned only when robots.txt is not respected. Otherwise `text_status: blocked_by_robots` and the assistant is told to cite the link and not quote from memory. |
 | `search_swiss_guidance(query, language?, limit)` | BM25 search over ch.ch sections in five languages. Each excerpt is centred on the sentence that best answers the question, with durations favoured for "how long" questions. Returns authority links. |
 | `read_official_page(url, focus?, max_chars)` | Reads Swiss domains only. Returns the sections matching `focus`, links, an authority label and **freshness** (`last_updated`, `stale` if older than 2 years). |
 | `company_register_search(name)` | Zefix lookup, subject to the robots.txt policy. |
@@ -227,13 +232,13 @@ All three suites talk to the server over real MCP stdio, as a client would:
 
 ```sh
 uv run python tests/smoke_test.py     # 11 tool-level checks
-uv run python tests/benchmark.py      # 61 adversarial cases → table + tests/benchmark_report.json
+uv run python tests/benchmark.py      # 68 adversarial cases → table + tests/benchmark_report.json
 uv run python tests/fault_test.py     # simulated outages: stale cache disclosed, or honest "unavailable"
 uv run python tests/llm_client_eval.py  # optional: real MCP client + LLM (Claude Code CLI), ~USD 0.05-0.25/question
 uv run python tests/priminfo_check.py   # premiums vs the official calculator priminfo.admin.ch
 ```
 
-Status on 2026-09-24: smoke **11/11**, benchmark **61/61**, fault test **4/4**. Priminfo cross-check **5/5**: for
+Status on 2026-09-24: smoke **11/11**, benchmark **68/68**, fault test **4/4**. Priminfo cross-check **5/5**: for
 Lugano (with and without accident cover), a child in Zürich, a young adult in Bern and an adult in Scuol, the five
 cheapest offers match the calculator to the centime.
 
@@ -258,7 +263,7 @@ road-traffic office directly.
 
 ## Adversarial benchmark
 
-`tests/benchmark.yaml` has 61 cases in DE/FR/IT/RM/EN, including the five published sample questions. Each case
+`tests/benchmark.yaml` has 68 cases in DE/FR/IT/RM/EN, including the five published sample questions. Each case
 checks the decision, jurisdiction, routing, evidence, response size and latency. For routed cases the runner also
 executes `next_call`, to count the calls an agent needs end to end (1–2).
 
@@ -271,11 +276,12 @@ executes `next_call`, to count the calls an agent needs end to end (1–2).
 | varies_by_canton | "überall in der Schweiz", "dans tous les cantons" |
 | municipal | Zürich waste by postcode or address; Lausanne `not_covered`; Winterthur registration |
 | multi_jurisdiction | "Lausanne? Et à Berne?", premiums in Zürich and Lugano |
+| law | "Art. 266c OR", "article 335c CO", "SR 832.10"; an amount such as 449.90 is not an SR number; robots.txt default |
 | data: population | Scuol; "Combien d'habitants compte Lausanne?" (place without a preposition); canton Wallis; the former municipality Villnachern |
 | freshness / operability | the current reference rate, a stale SEM page from 2011, Zefix robots.txt, non-Swiss URLs |
 | unsupported | off-topic questions (capital of Australia, baking a Zopf, the World Cup) |
 
-Current result: **61/61**, median response 1.3 KB, median latency 13 ms with a warm cache.
+Current result: **68/68**, median response 1.3 KB, median latency 4 ms with a warm cache.
 - **What it measures:** this server's own decisions, not an LLM baseline.
 - **How the cases were written:**
   - 39 cases were written together with the router.
@@ -283,6 +289,7 @@ Current result: **61/61**, median response 1.3 KB, median latency 13 ms with a w
   - 6 come from the organisers' practice cases.
   - 3 check that the sample-question deadline (12 months) appears in the returned excerpt in DE/FR/IT.
   - 6 cover population and place-resolution edge cases.
+  - 2 cover the premium year, and 7 cover federal law and topic ranking.
 - **Caveat:** expect lower accuracy on unseen phrasing (see Known limitations).
 
 ### Organisers' practice cases
@@ -328,7 +335,9 @@ AI agents. We decoded the practice cases as plain data and checked them against 
   - authoritative URLs;
   - optional `canton_office`: which cantonal office handles the topic. The router puts it first in the
     `authority_chain` (driving licence → the canton's road-traffic office);
-  - optional `search_terms`: the portal's official wording per language. Users say "patente", ch.ch says
+  - optional `search_terms`: the portal's official wording per language;
+  - optional `portal_section`: a URL pattern of the topic's ch.ch section, whose hits rank first. Pages explaining
+    past votes rank last unless the question is about votes, because they mention every subject. Users say "patente", ch.ch says
     "licenza di condurre".
 
 Adding a municipality, topic or synonym is a YAML edit, with no code change. More specific domains win: `stadt.sg.ch`
@@ -352,12 +361,14 @@ is the city of St. Gallen (municipal), and `sg.ch` is the canton.
 
 ## Prebuilt indexes and how to rebuild them
 
-All three datasets ship in `data/` (21 MB, 15 MB and 157 KB), and all three build scripts are in this repository:
+All four datasets ship in `data/` (21 MB, 15 MB, 1.2 MB and 157 KB), and all four build scripts are in this
+repository:
 
 ```sh
 uv run --extra build python scripts/build_premiums.py --year 2026   # FOPH premiums → data/premiums_2026.sqlite
 uv run python scripts/build_chch_index.py                           # ch.ch sitemap crawl → data/chch_index.sqlite
 uv run python scripts/build_population.py                           # FSO STATPOP → data/population.json
+uv run python scripts/build_fedlex_acts.py                          # Fedlex SPARQL → data/fedlex_acts.json
 ```
 
 Population is prebuilt rather than queried live: it changes once a year, and the FSO PxWeb API sometimes takes
@@ -388,6 +399,7 @@ src/swiss_grounding/
   premiums.py   FOPH premium index queries
   sources.py    connectors: transport, holidays, votes, Zefix, Zürich waste, reference rate, population
   guidance.py   ch.ch search, official page reader, freshness
+  law.py        Fedlex: act/article identification, version in force, article text when robots.txt allows
   registry.py   loads data/sources.yaml (authority levels, topics, cantons, municipalities)
   core.py       config, cached HTTP, robots.txt, stale-if-error, citations, metrics
 data/           prebuilt indexes + source registry
@@ -415,8 +427,11 @@ tests/          smoke test, adversarial benchmark, fault test
 - **Keyword router:** `swiss_ground` classifies topics by keyword (no LLM), so phrasings it has never seen can be
   missed. For example, "vignetta autostradale" (IT) comes back `unsupported`, while the German "Autobahnvignette" is
   found. The router prefers `unsupported` over weak evidence, and the specialised tools can still be called directly.
-- **Official wording is only mapped for driving licences:** `search_terms` exists only for that topic. The English
-  licence question ranks the international-licence page first.
+- **Official wording is mapped for two topics only:** `search_terms` and `portal_section` exist for driving licences
+  and renting. Other topics rely on plain keyword search.
+- **Federal law:** while robots.txt is respected (the default), `swiss_law` identifies the act, article and version but
+  cannot quote the text; the assistant cites the official link. Keyword search within an act (`query`, texts
+  allowed) is a simple match over thousands of articles and can miss or misrank. Cantonal law is not covered.
 - **Multi-place procedures:** questions naming several places are split by municipality. For procedure topics, the
   evidence is the shared ch.ch federal page plus one link per municipality; municipal forms are not fetched
   automatically.

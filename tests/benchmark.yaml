@@ -308,3 +308,37 @@ cases:
     question: Günstigste Grundversicherung in Lugano für 30-Jährige mit Franchise 2000?
     expect: {decision: routed, next_tool: health_insurance_premiums, next_args: {deductible: 2000, premium_year: null}}
     follow: true
+
+  # --- federal law (Fedlex) and topic ranking -----------------------------------------------------------------------
+  - id: law_article_or_de
+    category: law
+    question: Was sagt Art. 266c OR?
+    expect: {decision: routed, topic: law, next_tool: swiss_law, next_args: {act: OR, article: 266c}}
+    follow: true
+  - id: law_article_co_fr
+    category: law
+    question: Que dit l'article 335c CO sur le délai de congé?
+    expect: {decision: routed, next_tool: swiss_law, next_args: {act: CO, article: 335c, language: fr}}
+    follow: true
+  - id: law_sr_number
+    category: law
+    question: Was regelt SR 832.10?
+    expect: {decision: routed, next_tool: swiss_law, next_args: {act: "832.10"}}
+    follow: true
+  - id: law_amount_is_not_an_sr_number
+    category: law
+    question: Die Prämie kostet 449.90 CHF in Lugano für 30-Jährige mit Franchise 2500, was sagt das Gesetz?
+    expect: {next_tool: health_insurance_premiums}
+  - id: law_tool_robots_default
+    category: operability
+    tool: swiss_law
+    args: {act: OR, article: 266c, language: de}
+    expect: {status: ok, fields: {sr: "220", text_status: blocked_by_robots}}
+  - id: rent_notice_it_ranking
+    category: federal
+    question: Cosa dice la legge sulla disdetta dell'appartamento?
+    expect: {decision: routed, language: it, topic: rent_housing, evidence_url_contains: /abitazioni/locazione/}
+  - id: licence_en_ranking
+    category: federal
+    question: How long can I drive with a foreign driving licence?
+    expect: {decision: routed, topic: driving_licence, evidence_url_contains: driving-licence/exchang}

@@ -16,7 +16,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.types import ToolAnnotations
 from pydantic import Field
 
-from . import geo, guidance, premiums, registry, router, sources
+from . import geo, guidance, law, premiums, registry, router, sources
 from .core import CONFIG, FETCH_LOG, METRICS, SourceBlocked, SourceUnavailable
 
 log = logging.getLogger("swiss_grounding")
@@ -270,6 +270,21 @@ def municipality_population(
 
 
 @tool
+def swiss_law(
+    act: Annotated[str, Field(description="Federal act: SR number (220), abbreviation in any language (OR, CO, ZGB, "
+                                          "KVG, LAMal) or title words (Obligationenrecht)")],
+    article: Annotated[str | None, Field(description="Article number, e.g. 266c")] = None,
+    query: Annotated[str | None, Field(description="Keywords to find matching articles (only when texts are readable)")] = None,
+    language: Lang = "de",
+) -> dict:
+    """Swiss federal law (Fedlex, Classified Compilation SR): identifies the act and article, the version in force
+    and upcoming versions, with the official link to the article. Article text is returned only when the
+    robots.txt policy allows reading fedlex.data.admin.ch/filestore (SGM_RESPECT_ROBOTS=false); otherwise cite the
+    link. Federal law only, not cantonal law."""
+    return law.law(act, article, query, language)
+
+
+@tool
 def search_swiss_guidance(
     query: Annotated[str, Field(description="Keywords in the user's language, e.g. 'ausländischer Führerausweis umtauschen'")],
     language: Annotated[Lang | None, Field(description="Preferred page language")] = None,
@@ -320,6 +335,8 @@ def server_coverage() -> dict:
                 "federal_votes": "subjects and results of federal votes 2025-2026 (FSO / Federal Chancellery)",
                 "procedures": "ch.ch citizen portal, ~350 topics x 5 languages, plus linked cantonal pages",
                 "population": "permanent resident population per municipality/canton, 31.12 of latest year (FSO STATPOP, prebuilt)",
+                "federal_law": (f"Fedlex: {law._acts()['meta']['acts']} national acts (SR), version in force, "
+                                "article links; article text only when robots.txt policy is off"),
                 "reference_rate": "current mortgage reference interest rate for rents (FOH/BWO, live)",
                 "waste_collection": "City of Zürich official collection calendar by postcode (ERZ open data)",
                 "router": f"swiss_ground: {len(registry.topics())} topics, 26 cantons, "
@@ -328,7 +345,7 @@ def server_coverage() -> dict:
             },
             "not_covered": [
                 "Countries other than Switzerland", "tax calculations", "waste calendars outside the City of Zürich",
-                "legal advice / full law texts (Fedlex articles only via read_official_page)",
+                "legal advice; cantonal and municipal law; federal law texts while robots.txt is respected",
                 "weather and statistics other than municipal population",
                 "non-public or personal data",
             ],
