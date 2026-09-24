@@ -331,7 +331,13 @@ def server_coverage() -> dict:
             ],
         },
         "config": {"respect_robots": CONFIG.respect_robots, "cache": CONFIG.cache_enabled, "ipv4_only": CONFIG.ipv4_only},
-        "data": {"premium_index": meta, "chch_index": (guidance._index() is not None)},
+        "data": {
+            "premium_index": meta,
+            "chch_index": (dict(guidance._index().execute("SELECT key, value FROM meta"))
+                           if guidance._index() is not None else None),
+            "population": {k: v for k, v in sources._population_snapshot()["meta"].items()
+                           if k in ("years", "built", "reference_date", "database_state", "boundaries_as_of")},
+        },
         "health": METRICS.snapshot(),
     }
 
