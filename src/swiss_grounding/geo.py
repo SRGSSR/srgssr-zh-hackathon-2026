@@ -16,6 +16,8 @@ IDENTIFY = "https://api3.geo.admin.ch/rest/services/api/MapServer/identify"
 BOUNDARY_LAYER = "ch.swisstopo.swissboundaries3d-gemeinde-flaeche.fill"
 
 
+LOCALITY_KINDS = {"Ort", "Populated Place", "Localité", "Località"}
+
 SOURCE = cite(
     "swissBOUNDARIES3D municipal boundaries via geo.admin.ch API",
     "https://api3.geo.admin.ch/services/sdiservices.html",
@@ -66,7 +68,8 @@ def _muni(name: str, canton: str, bfs: int) -> dict:
 
 
 def _search(text: str, origins: str | None = None, limit: int = 8) -> list[dict]:
-    params = {"searchText": text, "type": "locations", "limit": str(limit), "sr": "4326"}
+    # lang pins the label language (it otherwise follows Accept-Language, e.g. "Populated Place" instead of "Ort")
+    params = {"searchText": text, "type": "locations", "limit": str(limit), "sr": "4326", "lang": "de"}
     if origins:
         params["origins"] = origins
     return [r["attrs"] for r in fetch(SEARCH, params=params, ttl=7 * 86400).get("results", [])]
@@ -128,7 +131,7 @@ def locate(query: str) -> dict:
     for a in _search(q, "gazetteer"):
         kind = re.search(r"<i>(.*?)</i>", a["label"])
         name = re.search(r"<b>(.*?)</b>", a["label"], re.S)
-        if kind and kind.group(1) == "Ort" and name and _norm(name.group(1)) == nq:
+        if kind and kind.group(1) in LOCALITY_KINDS and name and _norm(name.group(1)) == nq:
             m = municipality_at(a["lat"], a["lon"])
             if m:
                 return {"status": "resolved", "match_type": "locality", "locality": q, **m,

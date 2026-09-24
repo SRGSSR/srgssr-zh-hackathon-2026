@@ -266,3 +266,34 @@ cases:
     category: cantonal
     question: Come posso convertire la mia patente straniera in Ticino ed entro quanto tempo?
     expect: {decision: routed, canton: TI, excerpt_contains_any: [dodici mesi]}
+
+  # --- population (FSO STATPOP, briefing topic 16) and place resolution edge cases -------------------------------
+  - id: population_scuol_de
+    category: data
+    question: Wie viele Menschen leben in Scuol?
+    expect: {decision: routed, next_tool: municipality_population, bfs_nr: 3762}
+    follow: true
+  - id: population_bare_place_fr
+    category: data
+    question: Combien d'habitants compte Lausanne?
+    expect: {decision: routed, next_tool: municipality_population, bfs_nr: 5586}
+    follow: true
+  - id: population_canton_de
+    category: data
+    question: Wie viele Einwohner hat der Kanton Wallis?
+    expect: {decision: routed, next_tool: municipality_population, next_args: {canton: VS}}
+    follow: true
+  - id: population_needs_municipality
+    category: needs_jurisdiction
+    question: Wie viele Einwohner hat meine Gemeinde?
+    expect: {decision: needs_jurisdiction, topic: population}
+  - id: locality_wengen
+    category: ambiguous
+    tool: resolve_swiss_location
+    args: {place: Wengen}
+    expect: {status: resolved, bfs_nr: 584}
+  - id: former_municipality_villnachern
+    category: data
+    tool: municipality_population
+    args: {place: Villnachern}
+    expect: {status: ok}

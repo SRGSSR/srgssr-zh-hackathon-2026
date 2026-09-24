@@ -40,6 +40,7 @@ QUESTIONS = {
 GENERIC = set("""viel hoch kostet kosten gibt muss kann welche welcher wann where much cost costs combien coute cout quel
     quelle quanto costa quale quando what which does have need brauche braucht aktuell actuel attuale current""".split())
 CHILD = r"\b(kind|kinder|kindes|enfant|enfants|bambino|bambina|bambini|figlio|figlia|child|children|uffant)\b"
+PLACE_TOOLS = {"health_insurance_premiums", "school_holidays", "waste_collection", "municipality_population"}
 DEDUCTIBLES = {0, 100, 200, 300, 400, 500, 600, 1000, 1500, 2000, 2500}
 
 
@@ -95,10 +96,25 @@ def _place_candidates(q: str) -> list[list[str]]:
     return groups
 
 
-def _resolve_places(q: str, place: str | None) -> tuple[list[dict], dict | None]:
+def _bare_candidates(q: str) -> list[list[str]]:
+    """Capitalised words not introduced by a preposition ("combien d'habitants compte Lausanne").
+
+    Used only when nothing else was found and the topic depends on the place; geo.locate accepts exact names only,
+    so ordinary capitalised nouns do not resolve.
+    """
+    words = re.findall(rf"(?<![\w'’]){PLACE_TOKEN}", q)
+    first = re.match(r"\s*([\wÀ-ÿ'’-]+)", q)
+    skip = {first.group(1)} if first else set()
+    return [[w.rstrip("?.,!")] for w in dict.fromkeys(words) if w not in skip and len(w) > 2]
+
+
+def _resolve_places(q: str, place: str | None, bare: bool = False) -> tuple[list[dict], dict | None]:
     """All distinct Swiss municipalities mentioned (in order), or the first ambiguous mention."""
     found: dict[int, dict] = {}
-    for variants in ([[place]] if place else _place_candidates(q)):
+    groups = [[place]] if place else _place_candidates(q)
+    if not groups and bare:
+        groups = _bare_candidates(q)
+    for variants in groups:
         for cand in variants:
             r = geo.locate(cand)
             if r["status"] == "resolved":
@@ -189,10 +205,13 @@ def _coverage(hit: dict, terms: list[str], heading_only: bool = False) -> float:
     return sum(1 for t in terms if t in text) / max(1, len(terms))
 
 
-def _next_call(topic: str, tool: str, q: str, nq: str, muni: dict | None, lang: str) -> dict:
+def _next_call(topic: str, tool: str, q: str, nq: str, muni: dict | None, lang: str,
+               canton: str | None = None) -> dict:
     place = None
     if muni:
-        place = muni.get("postcode") or f"{muni['municipality']} {muni['canton']}"
+        # keep a locality ("Wengen") so the data tool can say its figures are for the containing municipality
+        place = muni.get("postcode") or (muni.get("locality") if muni.get("match_type") == "locality"
+                                         else f"{muni['municipality']} {muni['canton']}")
     args: dict = {}
     missing: list[str] = []
     if tool == "health_insurance_premiums":
@@ -207,6 +226,8 @@ def _next_call(topic: str, tool: str, q: str, nq: str, muni: dict | None, lang: 
         args, missing = _transport_args(q)
     elif tool == "federal_votes":
         args = {"language": lang, **({"vote_date": d} if (d := _date(q)) else {})}
+    elif tool == "municipality_population":
+        args = {"place": place} if place else {"canton": canton}
     elif tool == "reference_interest_rate":
         args = {"language": lang if lang in ("de", "fr", "it") else "de"}
     elif tool == "company_register_search":
@@ -216,6 +237,8 @@ def _next_call(topic: str, tool: str, q: str, nq: str, muni: dict | None, lang: 
             args = {"name": n.group(1)}
         else:
             missing = ["name"]
+    if tool in PLACE_TOOLS and not args.get("place") and not args.get("canton") and "place" not in missing:
+        missing.append("place")
     return {"tool": tool, "args": {k: v for k, v in args.items() if v is not None}, "missing": missing}
 
 
@@ -226,7 +249,7 @@ def _multi(base: dict, q: str, nq: str, lang: str, topic: str | None, t: dict, m
         jur, chain = _jurisdiction(m, m["canton"], t)
         entry = {"jurisdiction": jur, "authority_chain": chain}
         if topic and t.get("tool"):
-            entry["next_call"] = _next_call(topic, t["tool"], q, nq, m, lang)
+            entry["next_call"] = _next_call(topic, t["tool"], q, nq, m, lang, m["canton"])
         entries.append(entry)
     out = {**base, "decision": "routed", "support": "strong" if topic and t.get("tool") else "partial",
            "jurisdictions": entries,
@@ -250,7 +273,7 @@ def ground(question: str, place: str | None = None, language: str | None = None)
     level = t.get("level")
     base = {"language": lang, "topic": {"id": topic, "level": level, "confidence": round(conf, 2)} if topic else None}
 
-    munis, ambiguous = _resolve_places(q, place)
+    munis, ambiguous = _resolve_places(q, place, bare=bool(t.get("needs_place")))
     muni = munis[0] if munis else None
     foreign = None if (muni or place) else _foreign(nq)
     if foreign:
@@ -274,8 +297,11 @@ def ground(question: str, place: str | None = None, language: str | None = None)
                                "the evidence, and offer to check a specific place. Do not present one canton's rule "
                                "as the Swiss rule."}
 
-    needs_muni = t.get("needs_place") and level == "municipal" or topic == "health_premiums"
-    needs_canton = t.get("needs_place") and level == "cantonal"
+    # needs_place: municipal- and federal-level topics need the municipality (premium region, population, calendar);
+    # canton-level topics are satisfied by the canton alone.
+    needs_muni = (bool(t.get("needs_place")) and level in ("municipal", "federal")
+                  and not (t.get("canton_ok") and canton))  # e.g. population: a canton figure answers it
+    needs_canton = bool(t.get("needs_place")) and level == "cantonal"
     if topic and ((needs_muni and not muni) or (needs_canton and not muni and not canton)):
         kind = "municipal" if needs_muni else "cantonal"
         return {**base, "decision": "needs_jurisdiction", "support": "none",
@@ -289,7 +315,7 @@ def ground(question: str, place: str | None = None, language: str | None = None)
     jurisdiction, chain = _jurisdiction(muni, canton, t)
 
     if topic and t.get("tool"):
-        nc = _next_call(topic, t["tool"], q, nq, muni, lang)
+        nc = _next_call(topic, t["tool"], q, nq, muni, lang, canton)
         return {**base, "decision": "routed", "support": "strong" if not nc["missing"] else "partial",
                 "jurisdiction": jurisdiction, "authority_chain": chain, "next_call": nc,
                 "instruction": ("Call next_call and answer from its result, citing its sources."

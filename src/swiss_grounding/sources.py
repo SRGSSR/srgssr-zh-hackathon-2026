@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import html
+import json
 import re
 import unicodedata
 from datetime import date, datetime
+from functools import lru_cache
 
 from . import registry
-from .core import SourceUnavailable, cite, fetch
+from .core import CONFIG, SourceUnavailable, cite, fetch
 
 # --------------------------------------------------------------------------- public transport
 
@@ -336,5 +338,70 @@ def reference_rate(lang: str) -> dict:
         "evidence": m.group(0).strip(),
         "notes": ["Applies to rents of residential and business premises in all of Switzerland; a change of "
                   "0.25 percentage points can justify a rent adjustment (Art. 13 VMWG)."],
+        "sources": src,
+    }
+
+
+# --------------------------------------------------------------------------- population (FSO STATPOP)
+
+
+@lru_cache(maxsize=1)
+def _population_snapshot() -> dict:
+    """Prebuilt by scripts/build_population.py (annual data, so no live queries)."""
+    return json.loads((CONFIG.data_dir / "population.json").read_text(encoding="utf-8"))
+
+
+def canton_population(canton: str) -> dict:
+    """Permanent resident population of a canton and of Switzerland."""
+    muni = {"bfs_nr": None, "canton": canton, "municipality": None}
+    return population(muni, canton_only=True)
+
+
+def population(muni: dict, canton_only: bool = False) -> dict:
+    """Permanent resident population of a municipality (latest two years), its canton and Switzerland."""
+    snap = _population_snapshot()
+    meta, rows = snap["meta"], snap["rows"]
+    y0, y1 = meta["years"][0], meta["years"][-1]
+    src = [cite(f"FSO STATPOP: permanent resident population by municipality (table {meta['table']})", meta["page"],
+                "Federal Statistical Office FSO/BFS", "federal", f"31.12.{y1}")]
+    code = None if canton_only else f"{muni['bfs_nr']:04d}"
+    notes = []
+    boundaries = meta.get("boundaries_as_of", "its last update")
+    # The table uses older boundaries: a place that was its own municipality then (Villnachern, merged into Brugg;
+    # Moutier, moved from BE to JU) keeps its own row. Prefer that row over the current municipality's.
+    name = muni.get("locality") if muni.get("match_type") == "locality" else muni.get("municipality")
+    former = next((k for k, v in rows.items() if len(k) == 4 and k != "8100" and name
+                   and registry.norm(v["name"]) == registry.norm(name) and k != code), None)
+    if code and former and (code not in rows or muni.get("match_type") == "locality"):
+        notes.append(f"Figures for {rows[former]['name']} as a municipality under the boundaries of {boundaries} "
+                     f"(FSO BFS no. {int(former)}). It has since merged or changed canton (now part of "
+                     f"{muni['municipality']} {muni['canton']}, BFS {muni['bfs_nr']}); canton totals are omitted.")
+        code, muni = former, {**muni, "bfs_nr": int(former), "match_type": "former_municipality"}
+    if code and code not in rows:
+        return {"status": "not_found", "municipality": muni["municipality"], "bfs_nr": muni["bfs_nr"],
+                "message": ("This municipality is not in the FSO table, which uses municipal boundaries as of "
+                            f"{meta.get('boundaries_as_of', 'its last update')}. It was created or renumbered later "
+                            "(merger or change of canton). Do not add up former municipalities without saying so."),
+                "sources": src}
+
+    def block(key: str, label: str) -> dict:
+        (now, foreign), (before, _) = rows[key]["values"][y1], rows[key]["values"][y0]
+        return {"area": label, "population": now, "date": f"{y1}-12-31", f"population_{y0}": before,
+                "change_percent": round((now - before) / before * 100, 2) if before else None,
+                "foreign_nationals_percent": round(foreign / now * 100, 1) if now else None}
+
+    if muni.get("match_type") == "locality":
+        notes.append(f"'{muni.get('locality')}' is not a municipality: the figures are for the whole municipality of "
+                     f"{muni['municipality']}, which contains it. FSO publishes no separate figure for the locality.")
+    return {
+        "status": "ok",
+        "municipality": block(code, f"{rows[code]['name']} (BFS {muni['bfs_nr']})") if code else None,
+        "canton": (block(muni["canton"], f"Canton {muni['canton']}")
+                   if muni["canton"] in rows and muni.get("match_type") != "former_municipality" else None),
+        "switzerland": block("8100", "Switzerland"),
+        "notes": notes + [f"Permanent resident population on 31 December {y1} (vs {y0}), FSO STATPOP"
+                  + (f", database state {meta['database_state']}" if meta.get("database_state") else "")
+                  + (f", municipal boundaries as of {meta['boundaries_as_of']}" if meta.get("boundaries_as_of") else "")
+                  + "."],
         "sources": src,
     }

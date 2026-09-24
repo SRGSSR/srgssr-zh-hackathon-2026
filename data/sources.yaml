@@ -186,6 +186,15 @@ topics:
                taux d interet de reference, tasso di riferimento, tasso ipotecario, reference interest rate,
                reference rate, mortgage reference]
     sources: [https://www.bwo.admin.ch/de/referenzzinssatz]
+  population:
+    level: federal
+    needs_place: true
+    tool: municipality_population
+    canton_ok: true  # a canton-level figure answers "how many people live in canton X"
+    keywords: [einwohnerzahl, einwohner, bevolkerung, bevolkerungszahl, wie viele menschen, wie viele leute, auslanderanteil,
+               habitants, population, combien de personnes, part d etrangers, abitanti, popolazione, quante persone,
+               quota di stranieri, inhabitants, how many people, abitants, populaziun]
+    sources: [https://www.bfs.admin.ch/bfs/de/home/statistiken/bevoelkerung.html]
   rent_housing:
     level: federal
     needs_place: false

@@ -247,6 +247,25 @@ def reference_interest_rate(language: Lang = "de") -> dict:
 
 
 @tool
+def municipality_population(
+    place: Annotated[str | None, Field(description="Municipality, postcode or address (or BFS number)")] = None,
+    canton: Annotated[str | None, Field(description="Two-letter canton code (e.g. VS) for canton-level figures only")] = None,
+) -> dict:
+    """Permanent resident population of a Swiss municipality on 31 December of the latest year (FSO STATPOP), with
+    the previous year, change, share of foreign nationals, and the same figures for its canton and Switzerland.
+    Pass `canton` instead of `place` for a canton's figures."""
+    if not place:
+        code = (canton or "").strip().upper()
+        if code not in registry.cantons():
+            return {"status": "invalid_input", "message": "Give a municipality (place) or a two-letter canton code."}
+        return sources.canton_population(code)
+    muni, early = _resolve(place)
+    if early:
+        return early
+    return sources.population(muni)
+
+
+@tool
 def search_swiss_guidance(
     query: Annotated[str, Field(description="Keywords in the user's language, e.g. 'ausländischer Führerausweis umtauschen'")],
     language: Annotated[Lang | None, Field(description="Preferred page language")] = None,
@@ -295,6 +314,7 @@ def server_coverage() -> dict:
                 "public_transport": "Swiss timetable connections (opentransportdata.swiss)",
                 "federal_votes": "subjects and results of federal votes 2025-2026 (FSO / Federal Chancellery)",
                 "procedures": "ch.ch citizen portal, ~350 topics x 5 languages, plus linked cantonal pages",
+                "population": "permanent resident population per municipality/canton, 31.12 of latest year (FSO STATPOP, prebuilt)",
                 "reference_rate": "current mortgage reference interest rate for rents (FOH/BWO, live)",
                 "waste_collection": "City of Zürich official collection calendar by postcode (ERZ open data)",
                 "router": f"swiss_ground: {len(registry.topics())} topics, 26 cantons, "
@@ -304,6 +324,7 @@ def server_coverage() -> dict:
             "not_covered": [
                 "Countries other than Switzerland", "tax calculations", "waste calendars outside the City of Zürich",
                 "legal advice / full law texts (Fedlex articles only via read_official_page)",
+                "weather and statistics other than municipal population",
                 "non-public or personal data",
             ],
         },

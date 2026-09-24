@@ -6,7 +6,7 @@ official municipality (BFS number) and canton through the federal gazetteer. The
 the body responsible for that place, cites it with dates, and says so plainly when a question is outside
 Switzerland, outside its scope, or cannot be verified right now.
 
-Twelve MCP tools, compact JSON, **no API keys**, runs locally with one command.
+Thirteen MCP tools, compact JSON, **no API keys**, runs locally with one command.
 
 ## The 1-minute pitch
 
@@ -23,7 +23,7 @@ Twelve MCP tools, compact JSON, **no API keys**, runs locally with one command.
 >    really depends on it. The 12-month deadline to exchange a foreign driving licence is federal, so it never
 >    asks for a canton there.
 > 2. **Answer from the owner of the data.** FOPH premium tables for every municipality, the housing office's
->    reference rate, Federal Statistical Office vote results, the official timetable, Zürich's collection calendar,
+>    reference rate, FSO population figures and vote results, the official timetable, Zürich's collection calendar,
 >    and ch.ch (the Confederation's portal, indexed in DE/FR/IT/**RM**/EN), which links onward to the right
 >    cantonal and municipal offices.
 > 3. **Cite, date and label authority.** Each answer carries the source URL, publisher, level (federal, cantonal,
@@ -45,14 +45,15 @@ Twelve MCP tools, compact JSON, **no API keys**, runs locally with one command.
 | School holidays | All cantons, at municipality level where published | Any year in the dataset | OpenHolidays (**aggregator**, labelled as such), plus a link to the cantonal education department |
 | Waste collection dates (cardboard, paper, household waste, organic waste, hazardous-waste mobile) | **City of Zürich**, per postcode. Other municipalities return `not_covered` plus their website | 2026 calendar (live) | Stadt Zürich open data, ERZ Entsorgung + Recycling (municipal) |
 | Mortgage reference interest rate for rents: rate, valid since, next publication, exact supporting sentence | Switzerland | Live, published quarterly | Federal Office for Housing FOH/BWO (federal) |
+| Permanent resident population: municipality, canton and Switzerland, change on previous year, share of foreign nationals | All municipalities (boundaries as of 06.04.2025) and cantons | 31.12.2025 (prebuilt; FSO database of June 2026) | FSO STATPOP, PxWeb table px-x-0102010000_101 (federal) |
 | Public transport connections | Switzerland | Live timetable | opentransportdata.swiss via transport.opendata.ch (FOT mandate) |
 | Federal votes: subjects and results | Switzerland | 2025 to Nov 2026 | Federal Statistical Office OGD feed, Federal Chancellery / Federal Council |
 | Procedures and rights: moving and registration, permits, driving licence, AHV, unemployment, taxes, customs, radio/TV fee, renting, building … | Federal rules plus links to the responsible cantonal and municipal offices | ch.ch index of 2026-09-24; linked pages read live | ch.ch (Federal Chancellery and cantons), then `read_official_page` on the linked authority |
-| Routing and jurisdiction decisions (`swiss_ground`) | All of Switzerland | n/a | Source registry `data/sources.yaml`: 17 topics, 26 cantons, 11 city websites, 58 foreign place names |
+| Routing and jurisdiction decisions (`swiss_ground`) | All of Switzerland | n/a | Source registry `data/sources.yaml`: 18 topics, 26 cantons, 11 city websites, 58 foreign place names |
 | Commercial register lookup | Switzerland | Live | Zefix (Federal Office of Justice). **Blocked by default**, because zefix.ch's robots.txt disallows bots |
 
 **Out of scope (the server says so):** other countries, tax calculations, waste calendars outside the City of
-Zürich, full law texts and legal advice, statistics and weather, personal data. Foreign places are detected in the
+Zürich, full law texts and legal advice, weather, statistics other than population, personal data. Foreign places are detected in the
 question ("nach Konstanz", "in München", "en France"), or reported as `not_found` by the federal gazetteer. The
 server then tells the assistant not to apply Swiss rules.
 
@@ -61,11 +62,12 @@ server then tells the assistant not to apply Swiss rules.
 | Tool | Purpose |
 |---|---|
 | `swiss_ground(question, place?, language?)` | **Start here.** Returns a `decision`: `out_of_scope`, `ambiguous`, `needs_jurisdiction` (with `question_for_user` in the user's language), `varies_by_canton`, `unsupported` or `routed`. A routed result includes an `authority_chain`, a prefilled `next_call` and/or ch.ch `evidence`. Questions naming several places return one entry per municipality in `jurisdictions[]`. |
-| `resolve_swiss_location(place)` | Resolves a place to a municipality, BFS number and canton. Handles exonyms (Berne, Genf, Coire) and bilingual names (Biel/Bienne). Returns `ambiguous` with a question for the user, or `not_found` (not Swiss). |
+| `resolve_swiss_location(place)` | Resolves a place to a municipality, BFS number and canton. Handles exonyms (Berne, Genf, Coire), bilingual names (Biel/Bienne) and villages inside a municipality (Wengen → Lauterbrunnen). Returns `ambiguous` with a question for the user, or `not_found` (not Swiss). |
 | `health_insurance_premiums(place, age, deductible, accident_cover?, model?, limit)` | Official monthly premiums for the person's premium region. Resolves the place itself, so it takes one call. Respects insurer catchment areas. |
 | `school_holidays(place, year?, language)` | Holiday periods for the municipality's subdivision. |
 | `waste_collection(place, material?, from_date?)` | Next collection dates for the City of Zürich by postcode. Asks only for the postcode if it is missing. Other places return `not_covered`. |
 | `reference_interest_rate(language)` | Current reference rate, effective date, last confirmation, next publication date, and the exact sentence from bwo.admin.ch. |
+| `municipality_population(place? or canton?)` | Permanent resident population on 31 December (latest year), change on the previous year and share of foreign nationals, for the municipality, its canton and Switzerland. For a village it says the figure is for the containing municipality. For places whose status changed after the FSO boundary date (Villnachern, Moutier), it returns the former municipality's own row and says so. |
 | `public_transport_connections(origin, destination, when?, arrive_by?, limit)` | Next connections, with lines and platforms. |
 | `federal_votes(vote_date?, language)` | Next or given federal vote: subjects in DE/FR/IT/RM/EN, and results once counted. |
 | `search_swiss_guidance(query, language?, limit)` | BM25 search over ch.ch sections in five languages. Each excerpt is centred on the sentence that best answers the question, with durations favoured for "how long" questions. Returns authority links. |
@@ -120,15 +122,15 @@ All three suites talk to the server over real MCP stdio, as a client would:
 
 ```sh
 uv run python tests/smoke_test.py     # 11 tool-level checks
-uv run python tests/benchmark.py      # 53 adversarial cases → table + tests/benchmark_report.json
+uv run python tests/benchmark.py      # 59 adversarial cases → table + tests/benchmark_report.json
 uv run python tests/fault_test.py     # simulated outages: stale cache disclosed, or honest "unavailable"
 ```
 
-Status on 2026-09-24: smoke **11/11**, benchmark **53/53**, fault test **3/3**.
+Status on 2026-09-24: smoke **11/11**, benchmark **59/59**, fault test **3/3**.
 
 ## Adversarial benchmark
 
-`tests/benchmark.yaml` has 53 cases in DE/FR/IT/RM/EN, including the five published sample questions. Each case
+`tests/benchmark.yaml` has 59 cases in DE/FR/IT/RM/EN, including the five published sample questions. Each case
 checks the decision, jurisdiction, routing, evidence, response size and latency. For routed cases the runner also
 executes `next_call`, to count the calls an agent needs end to end (1–2).
 
@@ -141,16 +143,18 @@ executes `next_call`, to count the calls an agent needs end to end (1–2).
 | varies_by_canton | "überall in der Schweiz", "dans tous les cantons" |
 | municipal | Zürich waste by postcode or address; Lausanne `not_covered`; Winterthur registration |
 | multi_jurisdiction | "Lausanne? Et à Berne?", premiums in Zürich and Lugano |
+| data: population | Scuol; "Combien d'habitants compte Lausanne?" (place without a preposition); canton Wallis; the former municipality Villnachern |
 | freshness / operability | the current reference rate, a stale SEM page from 2011, Zefix robots.txt, non-Swiss URLs |
 | unsupported | off-topic questions (capital of Australia, baking a Zopf, the World Cup) |
 
-Current result: **53/53**, median response 1.3 KB, median latency 6 ms with a warm cache.
+Current result: **59/59**, median response 1.3 KB, median latency 13 ms with a warm cache.
 - **What it measures:** this server's own decisions, not an LLM baseline.
 - **How the cases were written:**
   - 39 cases were written together with the router.
   - 5 come from a held-out check.
   - 6 come from the organisers' practice cases.
   - 3 check that the sample-question deadline (12 months) appears in the returned excerpt in DE/FR/IT.
+  - 6 cover population and place-resolution edge cases.
 - **Caveat:** expect lower accuracy on unseen phrasing (see Known limitations).
 
 ### Organisers' practice cases
@@ -216,12 +220,17 @@ Adding a municipality, topic or synonym is a YAML edit, with no code change.
 
 ## Prebuilt indexes and how to rebuild them
 
-Both indexes ship in `data/` (21 MB and 15 MB), and both build scripts are in this repository:
+All three datasets ship in `data/` (21 MB, 15 MB and 157 KB), and all three build scripts are in this repository:
 
 ```sh
 uv run --extra build python scripts/build_premiums.py --year 2026   # FOPH premiums → data/premiums_2026.sqlite
 uv run python scripts/build_chch_index.py                           # ch.ch sitemap crawl → data/chch_index.sqlite
+uv run python scripts/build_population.py                           # FSO STATPOP → data/population.json
 ```
+
+Population is prebuilt rather than queried live: it changes once a year, and the FSO PxWeb API sometimes takes
+more than 30 s to answer. The script reads the table's reference date, database state and boundary date, and the
+tool reports them.
 
 The ch.ch crawler respects robots.txt and rate-limits itself; it indexes 1,726 pages, with each page's modification
 date. When the FOPH publishes the **2027 premiums** (end of September 2026), run the premium script with
@@ -235,7 +244,7 @@ src/swiss_grounding/
   router.py     swiss_ground: language, topic, place, foreign detection → decision
   geo.py        federal gazetteer: place / postcode / address → municipality, canton
   premiums.py   FOPH premium index queries
-  sources.py    live connectors: transport, holidays, votes, Zefix, Zürich waste, reference rate
+  sources.py    connectors: transport, holidays, votes, Zefix, Zürich waste, reference rate, population
   guidance.py   ch.ch search, official page reader, freshness
   registry.py   loads data/sources.yaml (authority levels, topics, cantons, municipalities)
   core.py       config, cached HTTP, robots.txt, stale-if-error, citations, metrics
@@ -271,6 +280,9 @@ tests/          smoke test, adversarial benchmark, fault test
   automatically.
 - **School holidays:** the data comes from an aggregator, not from each canton. The result says so and links to the
   canton's education department.
+- **Population:** figures use the FSO's municipal boundaries as of 06.04.2025. Municipalities created or changed
+  since then are reported through their former rows, with a caveat. Villages get their containing municipality's
+  figure.
 - **Premiums:** the premium tool covers people resident in Switzerland only (the EU/EFTA table is not loaded). It
   does not include premium reductions or subsidies.
 - **Federal vote dates:** the list is limited to dates verified on 2026-09-24. Later dates need an update to
