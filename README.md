@@ -133,9 +133,12 @@ uv run python tests/smoke_test.py     # 11 tool-level checks
 uv run python tests/benchmark.py      # 59 adversarial cases → table + tests/benchmark_report.json
 uv run python tests/fault_test.py     # simulated outages: stale cache disclosed, or honest "unavailable"
 uv run python tests/llm_client_eval.py  # optional: real MCP client + LLM (Claude Code CLI), ~USD 0.05-0.25/question
+uv run python tests/priminfo_check.py   # premiums vs the official calculator priminfo.admin.ch
 ```
 
-Status on 2026-09-24: smoke **11/11**, benchmark **59/59**, fault test **4/4**.
+Status on 2026-09-24: smoke **11/11**, benchmark **59/59**, fault test **4/4**. Priminfo cross-check **5/5**: for
+Lugano (with and without accident cover), a child in Zürich, a young adult in Bern and an adult in Scuol, the five
+cheapest offers match the calculator to the centime.
 
 ### With a real MCP client and LLM
 
@@ -315,7 +318,9 @@ tests/          smoke test, adversarial benchmark, fault test
 - **Population:** figures use the FSO's municipal boundaries as of 06.04.2025. Municipalities created or changed
   since then are reported through their former rows, with a caveat. Villages get their containing municipality's
   figure.
-- **Premiums:** the premium tool covers people resident in Switzerland only (the EU/EFTA table is not loaded). It
+- **Premiums:** figures are gross premiums, identical to Priminfo's "Prämie" column. Priminfo also deducts a
+  yearly refund ("Vergütung": environmental levy, and for some insurers a reserve reduction; CHF 5.15/month in the
+  Lugano check). The tool says this but does not compute the net amount. It covers people resident in Switzerland only (the EU/EFTA table is not loaded). It
   does not include premium reductions or subsidies.
 - **Federal vote dates:** the list is limited to dates verified on 2026-09-24. Later dates need an update to
   `FEDERAL_VOTE_DATES` in `sources.py`.

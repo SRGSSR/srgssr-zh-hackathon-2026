@@ -93,7 +93,10 @@ def premiums(bfs_nr: int, age: int, franchise: int, accident: bool | None, model
         "deductible_chf": franchise,
         "results": [query(a) for a in variants],
         "notes": [
-            "Monthly premiums in CHF for mandatory basic insurance (KVG/LAMal), as approved by the FOPH.",
+            "Monthly gross premiums in CHF for mandatory basic insurance (KVG/LAMal), as approved by the FOPH; they "
+            "match the 'Prämie' column of the official calculator priminfo.admin.ch.",
+            "Priminfo also shows a yearly refund ('Vergütung': environmental levy, for some insurers also a reserve "
+            "reduction) that lowers the net amount paid; it is not included here. See priminfo.admin.ch for the net total.",
             "Employees working >= 8 h/week for one employer are covered for accidents by UVG and can exclude accident cover.",
             f"Premiums for {int(year) + 1} are published by the FOPH at the end of September {year}; "
             "a notice to switch insurer must reach the current insurer by 30 November (KVG Art. 7).",
