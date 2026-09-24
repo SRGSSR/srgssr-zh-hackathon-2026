@@ -1,4 +1,5 @@
 import asyncio
+import hmac
 import os
 from pathlib import Path
 
@@ -12,6 +13,8 @@ from . import db, endpoints, timeline, worker
 from .llm import LANGUAGES
 
 INTERNAL_TOKEN = os.environ.get("INTERNAL_TOKEN", "")
+# Endpoints that list jobs across citizens exist only for the test bench.
+TEST_API = os.environ.get("ENABLE_TEST_API", "0") == "1"
 SAMPLES_DIR = Path(os.environ.get("SAMPLES_DIR", "/samples"))
 HERE = Path(__file__).parent
 
@@ -152,6 +155,8 @@ async def api_cancel(job_id: str):
 
 @app.get("/api/pending")
 async def api_pending():
+    if not TEST_API:
+        raise HTTPException(404)
     return db.pending_job_ids()
 
 
@@ -161,11 +166,6 @@ async def cancel_form(job_id: str):
     return RedirectResponse(f"/jobs/{job_id}", status_code=303)
 
 
-@app.get("/api/events")
-async def api_events(since_id: int = 0):
-    return db.events(None, since_id=since_id, limit=2000)
-
-
 @app.get("/api/endpoints")
 async def api_endpoints():
     return await endpoints.status()
@@ -173,7 +173,8 @@ async def api_endpoints():
 
 @app.post("/internal/events")
 async def internal_events(request: Request):
-    if request.headers.get("x-internal-token") != INTERNAL_TOKEN:
+    token = request.headers.get("x-internal-token", "")
+    if not INTERNAL_TOKEN or not hmac.compare_digest(token.encode(), INTERNAL_TOKEN.encode()):
         raise HTTPException(403)
     e = await request.json()
     db.add_event(e.get("job_id"), "gateway", e)

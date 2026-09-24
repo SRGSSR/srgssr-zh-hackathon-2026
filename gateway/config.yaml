@@ -1,4 +1,4 @@
-# LiteLLM proxy config (image ghcr.io/forpublicai/litellm-database:v1.92.0, the one the
+# LiteLLM proxy config (image ghcr.io/forpublicai/litellm-database:v1.98.0, the one the
 # Public AI Utility runs). Model group names and the fallback edge mirror the Utility's
 # charts/platform/charts/litellm/models/ (Apertus v1.5 70B falls back to SEA-LION there too).
 #

@@ -82,6 +82,11 @@ FORBIDDEN_METADATA_KEYS = {
 }
 FORBIDDEN_HEADERS = {"x-litellm-tags"}
 
+# 1 (default, commune gateway): a key without a routing policy is rejected (fail closed).
+# 0 (shared gateway such as the Public AI Utility): keys without a policy keep today's behaviour;
+#   the policy applies only to keys whose metadata carries a routing_policy.
+POLICY_REQUIRED = os.environ.get("POLICY_REQUIRED", "1") == "1"
+
 EVENT_SINK_URL = os.environ.get("EVENT_SINK_URL", "")
 EVENT_SINK_TOKEN = os.environ.get("EVENT_SINK_TOKEN", "")
 
@@ -221,8 +226,12 @@ class CommunePolicy(CustomLogger):
         client_md = body.get("metadata") or {}
         job_id = client_md.get("job_id") if isinstance(client_md, dict) else None
 
+        has_policy = isinstance(policy, dict) and bool(policy.get("allowed_jurisdictions"))
+        if not has_policy and not POLICY_REQUIRED:
+            return data  # opt-in mode: this key is not under a routing policy
+
         problems: List[str] = []
-        if not isinstance(policy, dict) or not policy.get("allowed_jurisdictions"):
+        if not has_policy:
             problems.append("no routing policy bound to this API key")
         problems += [f"body parameter '{k}' is not allowed" for k in sorted(FORBIDDEN_BODY_KEYS & set(body))]
         if isinstance(client_md, dict):
@@ -268,6 +277,8 @@ class CommunePolicy(CustomLogger):
     ) -> List[dict]:
         md = _md(request_kwargs)
         policy = _policy_from_md(md)
+        if policy is None and not POLICY_REQUIRED:
+            return healthy_deployments
         job_id = _job_id(md)
 
         # Deployment tried by the previous attempt of this request (the router writes it into the
@@ -324,6 +335,8 @@ class CommunePolicy(CustomLogger):
     async def async_pre_call_deployment_hook(self, kwargs: Dict[str, Any], call_type) -> Optional[dict]:
         md = _md(kwargs)
         policy = _policy_from_md(md)
+        if policy is None and not POLICY_REQUIRED:
+            return None
         mi = kwargs.get("model_info") or (kwargs.get("litellm_params") or {}).get("model_info") or {}
         dep_id = mi.get("id")
         api_base = kwargs.get("api_base") or (kwargs.get("litellm_params") or {}).get("api_base")
@@ -362,6 +375,24 @@ class CommunePolicy(CustomLogger):
             raise PolicyViolation(f"blocked before send: {reason}")
         self._emit(event)
         return None
+
+    # ------------------------------------------- attribution headers (issue #33)
+    async def async_post_call_response_headers_hook(
+        self, data, user_api_key_dict, response, request_headers=None, litellm_call_info=None
+    ) -> Optional[Dict[str, str]]:
+        """Tell the client which deployment served it and under which rule. Unlike a random
+        sponsor attribution, this comes from the deployment that actually answered."""
+        mi = (litellm_call_info or {}).get("model_info") or {}
+        policy = ((getattr(user_api_key_dict, "metadata", None) or {}).get("routing_policy") or {})
+        headers = {}
+        if policy.get("id"):
+            headers["x-routing-policy"] = str(policy["id"])
+        if response is not None and mi.get("id"):
+            headers["x-served-by-deployment"] = str(mi.get("id"))
+            for k in ("provider", "jurisdiction"):
+                if mi.get(k):
+                    headers[f"x-served-by-{k}"] = str(mi[k])
+        return headers or None
 
     # --------------------------------------------------------- outcomes
     async def async_log_success_event(self, kwargs, response_obj, start_time, end_time):
