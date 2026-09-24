@@ -1,9 +1,9 @@
 diff --git a/charts/platform/charts/litellm/jurisdiction_policy.py b/charts/platform/charts/litellm/jurisdiction_policy.py
 new file mode 100644
-index 0000000..04361ab
+index 0000000..54f3cbd
 --- /dev/null
 +++ b/charts/platform/charts/litellm/jurisdiction_policy.py
-@@ -0,0 +1,473 @@
+@@ -0,0 +1,475 @@
 +"""Commune routing policy for the LiteLLM proxy (v1.92.0).
 +
 +The policy is bound to the commune's API key or team (see custom_auth.py) and is read ONLY
@@ -312,9 +312,9 @@ index 0000000..04361ab
 +            else:
 +                e = evaluate(d, policy)
 +            if e["allowed"] and e["deployment_id"] in tried:
-+                e = {**e, "allowed": False, "reason": "already failed in this request"}
++                e = {**e, "allowed": False, "skip": "already_failed", "reason": "allowed, but already failed in this request"}
 +            elif e["allowed"] and e["deployment_id"] not in healthy_ids:
-+                e = {**e, "allowed": False, "reason": "skipped by router (cooldown)"}
++                e = {**e, "allowed": False, "skip": "cooldown", "reason": "allowed, but in router cooldown"}
 +            evaluated.append(e)
 +            if e["allowed"]:
 +                candidates.append((e.get("priority", 100), e["deployment_id"], d))
@@ -327,8 +327,10 @@ index 0000000..04361ab
 +                e["decision"] = "selected"
 +            elif e["allowed"]:
 +                e["decision"] = "standby"
++            elif e.get("skip"):
++                e["decision"] = "skipped"  # allowed by the rule, not usable right now
 +            else:
-+                e["decision"] = "blocked_before_send"
++                e["decision"] = "blocked_before_send"  # excluded by the rule
 +        self._emit(
 +            {
 +                "type": "routing_decision",

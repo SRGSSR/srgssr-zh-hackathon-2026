@@ -306,9 +306,9 @@ class CommunePolicy(CustomLogger):
             else:
                 e = evaluate(d, policy)
             if e["allowed"] and e["deployment_id"] in tried:
-                e = {**e, "allowed": False, "reason": "already failed in this request"}
+                e = {**e, "allowed": False, "skip": "already_failed", "reason": "allowed, but already failed in this request"}
             elif e["allowed"] and e["deployment_id"] not in healthy_ids:
-                e = {**e, "allowed": False, "reason": "skipped by router (cooldown)"}
+                e = {**e, "allowed": False, "skip": "cooldown", "reason": "allowed, but in router cooldown"}
             evaluated.append(e)
             if e["allowed"]:
                 candidates.append((e.get("priority", 100), e["deployment_id"], d))
@@ -321,8 +321,10 @@ class CommunePolicy(CustomLogger):
                 e["decision"] = "selected"
             elif e["allowed"]:
                 e["decision"] = "standby"
+            elif e.get("skip"):
+                e["decision"] = "skipped"  # allowed by the rule, not usable right now
             else:
-                e["decision"] = "blocked_before_send"
+                e["decision"] = "blocked_before_send"  # excluded by the rule
         self._emit(
             {
                 "type": "routing_decision",

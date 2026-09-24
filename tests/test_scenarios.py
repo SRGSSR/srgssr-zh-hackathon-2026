@@ -47,6 +47,8 @@ def test_2_primary_down_uses_second_approved_endpoint(bench):
         blocked = {x["deployment_id"] for x in d["evaluated"] if x["decision"] == "blocked_before_send"}
         assert {"mock-us-1", "mock-nometa"} <= blocked
     assert [e for e in ev if e["type"] == "job_done"][0]["deployment_id"] == "mock-ch-1"
+    # the failed primary is "skipped" on the retry, not reported as excluded by the rule
+    assert bench.job(job)["summary"]["blocked"] == ["mock-nometa", "mock-us-1"]
 
 
 # 3 -------------------------------------------------------------------------------------------

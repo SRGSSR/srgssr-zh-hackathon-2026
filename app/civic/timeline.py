@@ -50,12 +50,12 @@ def rows(events: List[Dict], eps: Dict) -> List[Dict]:
             )
             for ev in e.get("evaluated") or []:
                 dec = ev.get("decision")
-                label = {"selected": "selected", "standby": "standby", "blocked_before_send": "blocked before send"}.get(dec, dec)
+                label = {"selected": "selected", "standby": "standby", "skipped": "skipped", "blocked_before_send": "blocked by rule, nothing sent"}.get(dec, dec)
                 row["entries"].append(
                     {
                         "text": f"{ev.get('deployment_id')} ({KIND_LABEL.get(ev.get('endpoint_kind'), '?')}, jurisdiction {ev.get('jurisdiction') or '—'})",
                         "tag": label,
-                        "tone": {"selected": "good", "standby": "muted", "blocked_before_send": "bad"}.get(dec, "muted"),
+                        "tone": {"selected": "good", "standby": "muted", "skipped": "muted", "blocked_before_send": "bad"}.get(dec, "muted"),
                         "reason": ev.get("reason"),
                     }
                 )
