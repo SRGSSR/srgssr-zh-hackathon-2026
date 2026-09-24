@@ -1,0 +1,25 @@
+<div id="endpoints" hx-get="/demo/panel" hx-trigger="every 2s" hx-swap="outerHTML">
+  <div class="bulk">
+    <button hx-post="/demo/break-approved" hx-target="#endpoints" hx-swap="outerHTML" class="danger">Break all approved</button>
+    <button hx-post="/demo/restore-all" hx-target="#endpoints" hx-swap="outerHTML">Restore all</button>
+    <button hx-post="/demo/reset" hx-target="#endpoints" hx-swap="outerHTML" class="ghost">Reset counters</button>
+  </div>
+  <table class="eps">
+    <tr><th>Endpoint</th><th>Rule</th><th>Mode</th><th title="requests this endpoint received">Received</th><th></th></tr>
+    {% for e in endpoints %}
+    <tr class="{{ 'approved' if e.approved else 'excluded' }}">
+      <td><span class="kind {{ e.kind }}">{{ 'REAL' if e.kind == 'real' else 'SIMULATED' }}</span> <b>{{ e.id }}</b>
+        <div class="muted small">{{ e.provider }} · {{ e.jurisdiction or 'no jurisdiction' }}{% if e.fallback_of %} · fallback model{% endif %}</div></td>
+      <td><span class="tag {{ 'good' if e.approved else 'bad' }}">{{ e.rule }}</span></td>
+      <td><span class="mode {{ e.state.mode }}">{{ e.state.mode }}</span></td>
+      <td class="num">{{ e.state.received if e.state.received is not none else '?' }}</td>
+      <td class="nowrap">
+        {% if e.state.mode != 'up' %}<button class="small" hx-post="/demo/endpoint/{{ e.id }}/up" hx-target="#endpoints" hx-swap="outerHTML">Restore</button>
+        {% else %}<button class="small danger" hx-post="/demo/endpoint/{{ e.id }}/down" hx-target="#endpoints" hx-swap="outerHTML">Break</button>
+        <button class="small ghost" hx-post="/demo/endpoint/{{ e.id }}/timeout" hx-target="#endpoints" hx-swap="outerHTML" title="receives the data, never answers">Hang</button>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="muted small">"Received" counts requests that actually reached the endpoint. Excluded endpoints must stay at 0.</p>
+</div>

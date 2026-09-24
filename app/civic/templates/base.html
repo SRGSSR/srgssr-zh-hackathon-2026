@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Commune letter helper{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/htmx.min.js"></script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="/">Commune letter helper <span class="sub">Gemeinde Musterstadt · prototype</span></a>
+    <nav><a href="/">New letter</a><a href="/demo">Demo control panel</a></nav>
+  </header>
+  <div class="banner">Fictional commune and fictional data only. The explanation is not legal advice; check every draft yourself before sending it.</div>
+  <main>{% block content %}{% endblock %}</main>
+  <footer>Runs on Apertus via the Public AI API, through a gateway that enforces the commune's rule "CH-only" on every attempt. Open source, Apache 2.0.</footer>
+</body>
+</html>

@@ -131,6 +131,16 @@ def _job_id(md: dict) -> Optional[str]:
     return md.get("job_id") or (md.get("requester_metadata") or {}).get("job_id")
 
 
+def _raw_model(kwargs: dict) -> Optional[str]:
+    """Model name as reported by the endpoint itself (LiteLLM rewrites response.model)."""
+    raw = kwargs.get("original_response")
+    try:
+        data = json.loads(raw) if isinstance(raw, str) else raw
+        return (data or {}).get("model")
+    except Exception:
+        return None
+
+
 def _mi(deployment: dict) -> dict:
     return deployment.get("model_info") or {}
 
@@ -153,6 +163,28 @@ def evaluate(deployment: dict, policy: dict) -> Dict[str, Any]:
     if mi["jurisdiction"] not in allowed:
         return {**info, "allowed": False, "reason": f"jurisdiction {mi['jurisdiction']} not in {allowed}"}
     return {**info, "allowed": True, "reason": f"jurisdiction {mi['jurisdiction']} allowed"}
+
+
+def classify(exc_type: str, status: Optional[int], text: str = "", deployment_id: Optional[str] = None):
+    """Map an attempt failure to what it means for the citizen's data."""
+    if exc_type == "HTTPException":
+        return "rejected", "request rejected by the routing policy, nothing was sent"
+    if exc_type == "PolicyViolation" or "blocked before send" in text:
+        return "blocked", "blocked by policy before send, nothing was sent"
+    if exc_type == "Timeout" or status == 408:
+        return "timeout", "data sent, no response in time: the provider may have received the data"
+    if exc_type == "APIConnectionError":
+        return "connection_failed", "connection failed: the provider most likely did not receive the data"
+    if not deployment_id:
+        return "no_deployment", "no approved deployment available"
+    return "error", "provider received the request and answered with an error"
+
+
+def _status_from_text(text: str) -> Optional[int]:
+    for code in (408, 429, 500, 502, 503, 504):
+        if f" {code}" in text or f"{code}:" in text:
+            return code
+    return None
 
 
 class CommunePolicy(CustomLogger):
@@ -244,6 +276,7 @@ class CommunePolicy(CustomLogger):
         last = (md.get("model_info") or {}).get("id")
         if last and last not in tried:
             tried.append(last)
+            self._report_previous_attempt(md, last)
 
         router = _router()
         group = router.get_model_list(model_name=model) if router else None
@@ -341,40 +374,65 @@ class CommunePolicy(CustomLogger):
                 "job_id": _job_id(_md(kwargs)),
                 "call_id": kwargs.get("litellm_call_id"),
                 "deployment_id": mi.get("id"),
-                "model_returned": getattr(response_obj, "model", None),
+                "model_returned": _raw_model(kwargs) or getattr(response_obj, "model", None),
                 "latency_s": (end_time - start_time).total_seconds() if start_time and end_time else None,
             }
         )
 
-    async def async_log_failure_event(self, kwargs, response_obj, start_time, end_time):
-        lp = kwargs.get("litellm_params") or {}
-        mi = lp.get("model_info") or {}
-        exc = kwargs.get("exception")
-        name = type(exc).__name__ if exc else "UnknownError"
-        status = getattr(exc, "status_code", None)
-        if isinstance(exc, PolicyViolation) or "blocked before send" in str(exc):
-            outcome, meaning = "blocked", "blocked by policy before send, nothing was sent"
-        elif name == "Timeout" or status == 408:
-            outcome, meaning = "timeout", "data sent, no response in time: the provider may have received the data"
-        elif name == "APIConnectionError":
-            outcome, meaning = "connection_failed", "connection failed: the provider most likely did not receive the data"
-        elif not mi.get("id"):
-            outcome, meaning = "no_deployment", "no approved deployment available"
-        else:
-            outcome, meaning = "error", "provider received the request and answered with an error"
+    def _report_failure(self, md: dict, dep_id: Optional[str], exc_type: str, status: Optional[int], text: str, source: str):
+        """Emit one attempt_result per failed attempt. LiteLLM's own failure callback fires only
+        once per proxy request (same litellm_call_id for all retries), so attempts are also
+        reconstructed from the router's retry log; md['_policy_reported'] de-duplicates."""
+        reported: List[str] = md.setdefault("_policy_reported", [])
+        tried = md.get("_policy_tried") or []
+        attempt = tried.index(dep_id) + 1 if dep_id in tried else len(tried) + 1
+        key = f"{attempt}:{dep_id}"
+        if key in reported:
+            return
+        reported.append(key)
+        outcome, meaning = classify(exc_type, status, text, dep_id)
         self._emit(
             {
                 "type": "attempt_result",
                 "outcome": outcome,
                 "meaning": meaning,
-                "job_id": _job_id(_md(kwargs)),
-                "call_id": kwargs.get("litellm_call_id"),
-                "deployment_id": mi.get("id"),
-                "error_type": name,
+                "job_id": _job_id(md),
+                "deployment_id": dep_id,
+                "attempt": attempt,
+                "error_type": exc_type,
                 "status_code": status,
-                "error": str(exc)[:300] if exc else None,
+                "error": text[:300],
+                "source": source,
             }
         )
+
+    def _report_previous_attempt(self, md: dict, dep_id: str) -> None:
+        for prev in reversed(md.get("previous_models") or []):
+            pmd = prev.get("metadata") or prev.get("litellm_metadata") or {}
+            if (pmd.get("model_info") or {}).get("id") == dep_id and _job_id(pmd) == _job_id(md):
+                text = str(prev.get("exception_string", ""))
+                self._report_failure(md, dep_id, prev.get("exception_type", "Error"), _status_from_text(text), text, "router retry log")
+                return
+        self._report_failure(md, dep_id, "Error", None, "attempt failed (details not available)", "router retry log")
+
+    async def async_log_failure_event(self, kwargs, response_obj, start_time, end_time):
+        lp = kwargs.get("litellm_params") or {}
+        mi = lp.get("model_info") or {}
+        exc = kwargs.get("exception")
+        self._report_failure(
+            _md(kwargs), mi.get("id"), type(exc).__name__ if exc else "Error", getattr(exc, "status_code", None),
+            str(exc) if exc else "", "failure callback",
+        )
+
+    async def async_post_call_failure_hook(self, request_data, original_exception, user_api_key_dict, traceback_str=None):
+        """Once per request, at the very end: make sure the last attempt is on the timeline."""
+        md = _md(request_data)
+        last = (md.get("model_info") or {}).get("id")
+        if last and last not in (md.get("_policy_tried") or []):
+            md.setdefault("_policy_tried", []).append(last)
+        if last:
+            e = original_exception
+            self._report_failure(md, last, type(e).__name__, getattr(e, "status_code", None), str(e), "final error")
 
 
 policy_hook = CommunePolicy()

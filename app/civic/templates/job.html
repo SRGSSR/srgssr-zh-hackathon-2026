@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ job.id }} · Commune letter helper{% endblock %}
+{% block content %}
+<section class="grid-job">
+  {% include "_job_panel.html" %}
+  <aside class="card">
+    <h2>Demo control panel</h2>
+    <p class="muted small">Break or restore endpoints while the job runs. REAL = the Public AI API (through a local relay that can simulate failures). SIMULATED = local mock endpoints.</p>
+    {% include "_endpoints.html" %}
+  </aside>
+</section>
+{% endblock %}

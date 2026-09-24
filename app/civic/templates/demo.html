@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+  <h1>Demo control panel</h1>
+  <p class="muted">Break providers on purpose and watch the rule hold. Open a job in another tab to see its timeline.</p>
+  {% include "_endpoints.html" %}
+  {% if jobs %}<h3>Recent jobs</h3><ul class="jobs">{% for j in jobs %}<li><a href="/jobs/{{ j.id }}">{{ j.id }}</a> <span class="pill {{ j.status }}">{{ j.status }}</span></li>{% endfor %}</ul>{% endif %}
+</section>
+{% endblock %}

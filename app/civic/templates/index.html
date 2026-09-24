@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="grid2">
+  <div class="card">
+    <h1>Understand a letter from your commune</h1>
+    <p class="muted">Paste an official letter (for example a tax assessment or a payment reminder). You get a plain-language explanation in your language, the actions and deadlines, and a draft reply in German.</p>
+    <form method="post" action="/jobs">
+      {% if samples %}
+      <label>Try a sample letter
+        <select id="sample" onchange="if(this.value){fetch('/samples/'+this.value).then(r=>r.text()).then(t=>document.getElementById('letter').value=t)}">
+          <option value="">choose…</option>
+          {% for s in samples %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+        </select>
+      </label>
+      {% endif %}
+      <label>Letter
+        <textarea id="letter" name="letter" rows="16" required placeholder="Gemeinde Musterstadt, Steueramt …"></textarea>
+      </label>
+      <label>Explain it to me in
+        <select name="language">
+          {% for code, name in languages.items() %}<option value="{{ code }}" {% if code == 'it' %}selected{% endif %}>{{ name }}</option>{% endfor %}
+        </select>
+      </label>
+      <button class="primary" type="submit">Explain this letter</button>
+    </form>
+  </div>
+  <div class="card">
+    <h2>What happens to your letter</h2>
+    <ol class="steps">
+      <li>It is stored in this service's local database. It stays here if no approved endpoint is available.</li>
+      <li>The commune's rule is <b>CH-only</b>: only endpoints declared in Swiss jurisdiction may receive it. The rule is bound to the commune's key and checked before <b>every</b> attempt, including retries and fallbacks.</li>
+      <li>The timeline shows every endpoint that was contacted, every endpoint that was excluded before any data was sent, and what happened.</li>
+    </ol>
+    <p class="muted small">We can show which endpoints our gateway contacted. We cannot prove where a provider physically processes data. The real endpoint (Public AI API) routes internally to its partners, which we cannot observe.</p>
+    {% if jobs %}
+    <h3>Recent jobs</h3>
+    <ul class="jobs">{% for j in jobs %}<li><a href="/jobs/{{ j.id }}">{{ j.id }}</a> <span class="pill {{ j.status }}">{{ j.status }}</span></li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

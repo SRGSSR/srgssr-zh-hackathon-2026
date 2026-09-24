@@ -82,7 +82,7 @@ services:
   tests:
     profiles: ["test"]
     build: ./app
-    command: ["python", "-m", "pytest", "-q", "/tests"]
+    command: ["python", "-m", "pytest", "-q", "-p", "no:cacheprovider", "/tests"]
     environment:
       GATEWAY_URL: http://gateway:4000
       APP_URL: http://app:8080
