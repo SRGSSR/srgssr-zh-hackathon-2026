@@ -1,0 +1,268 @@
+# Adversarial benchmark for the grounding decisions of this server.
+# Each case calls a tool (default: swiss_ground) and checks the decision, jurisdiction and routing.
+# follow: true -> the runner also executes next_call and expects status ok (measures end-to-end calls).
+# This measures OUR server's decisions; it is not a comparison against an LLM baseline.
+
+defaults: {max_chars: 6000, max_ms: 8000}
+
+cases:
+  # --- the five published sample questions ---------------------------------------------------------------------
+  - id: sample1_karton_bei_uns
+    category: needs_jurisdiction
+    question: Wann wird bei uns das nächste Mal Karton abgeholt?
+    expect: {decision: needs_jurisdiction, topic: waste, missing: municipality}
+  - id: sample2_vd_licence
+    category: cantonal
+    question: Comment puis-je échanger mon permis de conduire étranger contre un permis suisse dans le canton de Vaud, et combien de temps ai-je pour le faire?
+    expect: {decision: routed, topic: driving_licence, canton: VD, evidence_url_contains: permis-de-conduire,
+             excerpt_contains_any: [douze mois]}
+  - id: sample3_lugano_premium
+    category: data
+    question: Qual è il premio mensile più basso dell'assicurazione di base per un adulto di 30 anni domiciliato a Lugano con franchigia di 2500 franchi?
+    expect: {decision: routed, support: strong, bfs_nr: 5192, next_tool: health_insurance_premiums, next_args: {age: 30, deductible: 2500}}
+    follow: true
+  - id: sample4_scuol_rm
+    category: data
+    question: Cura èn las vacanzas d'atun 2026 per la scola da Scuol?
+    expect: {decision: routed, language: rm, bfs_nr: 3762, next_tool: school_holidays, next_args: {year: 2026}}
+    follow: true
+  - id: sample5_konstanz
+    category: foreign
+    question: Wie hoch ist der Rundfunkbeitrag, den ich nach meinem Umzug nach Konstanz zahlen muss?
+    expect: {decision: out_of_scope}
+
+  # --- foreign places ---------------------------------------------------------------------------------------------
+  - id: foreign_munich_parking
+    category: foreign
+    question: Welche Parkregeln gelten am Sonntag in München?
+    expect: {decision: out_of_scope}
+  - id: foreign_france_tax
+    category: foreign
+    question: Combien d'impôts je paie en France sur mon salaire?
+    expect: {decision: out_of_scope}
+  - id: foreign_milano_waste
+    category: foreign
+    question: Quando passa la raccolta della carta a Milano?
+    expect: {decision: out_of_scope}
+  - id: foreign_origin_is_ok
+    category: foreign
+    question: Ich ziehe von Deutschland nach Zürich. Wie melde ich mich in Zürich an?
+    expect: {decision: routed, bfs_nr: 261, topic: residence_registration}
+
+  # --- ambiguity ----------------------------------------------------------------------------------------------------
+  - id: ambiguous_wil
+    category: ambiguous
+    question: Wie hoch ist die günstigste Krankenkassenprämie in Wil für 40-Jährige mit Franchise 300?
+    expect: {decision: ambiguous}
+  - id: disambiguated_wil_sg
+    category: data
+    question: Wie hoch ist die günstigste Krankenkassenprämie für 40-Jährige mit Franchise 300?
+    place: Wil SG
+    expect: {decision: routed, bfs_nr: 3427, next_tool: health_insurance_premiums, next_args: {age: 40, deductible: 300}}
+    follow: true
+
+  # --- missing jurisdiction / missing context ---------------------------------------------------------------------
+  - id: needs_muni_holidays_fr
+    category: needs_jurisdiction
+    question: Quand sont les vacances scolaires d'automne chez nous?
+    expect: {decision: needs_jurisdiction, topic: school_holidays, language: fr}
+  - id: needs_muni_premium_it
+    category: needs_jurisdiction
+    question: Quanto costa la cassa malati più economica per me con franchigia 2500?
+    expect: {decision: needs_jurisdiction, topic: health_premiums}
+  - id: needs_canton_tax_en
+    category: needs_jurisdiction
+    question: How much tax do I pay on an income of 100000 francs?
+    expect: {decision: needs_jurisdiction, topic: taxes, missing: canton}
+  - id: premium_missing_age
+    category: missing_context
+    question: Was kostet die günstigste Grundversicherung in Bern mit Franchise 2500?
+    expect: {decision: routed, support: partial, bfs_nr: 351, next_missing: [age]}
+
+  # --- generalisation ---------------------------------------------------------------------------------------------
+  - id: general_heat_pump
+    category: varies_by_canton
+    question: Brauche ich überall in der Schweiz eine Baubewilligung für eine Wärmepumpe?
+    expect: {decision: varies_by_canton}
+  - id: general_licence_fr
+    category: varies_by_canton
+    question: Est-ce que l'échange du permis de conduire étranger se fait de la même manière dans tous les cantons?
+    expect: {decision: varies_by_canton}
+
+  # --- federal topics (no place needed; asking back would be wrong) ------------------------------------------------
+  - id: federal_votes_next_fr
+    category: federal
+    question: Sur quoi vote-t-on lors de la prochaine votation fédérale?
+    expect: {decision: routed, next_tool: federal_votes, next_missing: []}
+    follow: true
+  - id: federal_votes_date_de
+    category: federal
+    question: Über was stimmen wir am 29. November ab?
+    expect: {decision: routed, next_tool: federal_votes, next_args: {vote_date: "2026-11-29"}}
+    follow: true
+  - id: federal_ahv
+    category: federal
+    question: Wie wird meine AHV-Rente berechnet?
+    expect: {decision: routed, topic: ahv_pension, evidence_url_contains: rente}
+  - id: federal_unemployment_it
+    category: federal
+    question: Come mi iscrivo alla disoccupazione?
+    expect: {decision: routed, topic: unemployment, evidence_url_contains: disoccupazione}
+  - id: federal_customs_en
+    category: federal
+    question: What do I pay in customs when I import a parcel from abroad?
+    expect: {decision: routed, topic: customs}
+  - id: federal_permit_en
+    category: federal
+    question: Which residence permit do I need to work in Switzerland as an EU citizen?
+    expect: {decision: routed, topic: migration_permits}
+  - id: federal_radio_fee
+    category: federal
+    question: Wie hoch ist die Radio- und Fernsehabgabe für Privathaushalte?
+    expect: {decision: routed, topic: radio_tv_fee}
+  - id: rm_driving_licence
+    category: cantonal
+    question: Co pos jau barattar mes permiss da manischar ester en il chantun Grischun?
+    expect: {decision: routed, topic: driving_licence, canton: GR, language: rm}
+
+  # --- municipal depth: City of Zürich ---------------------------------------------------------------------------
+  - id: zh_karton_postcode
+    category: municipal
+    question: Wann wird in 8004 Zürich Karton abgeholt?
+    expect: {decision: routed, bfs_nr: 261, next_tool: waste_collection, next_args: {place: "8004", material: karton}}
+    follow: true
+  - id: zh_address_paper
+    category: municipal
+    question: Wann ist die nächste Papiersammlung an der Langstrasse 100, 8004 Zürich?
+    place: Langstrasse 100, 8004 Zürich
+    expect: {decision: routed, bfs_nr: 261, next_tool: waste_collection}
+    follow: true
+  - id: zh_city_needs_postcode
+    category: municipal
+    tool: waste_collection
+    args: {place: Zürich, material: Karton}
+    expect: {status: needs_postcode}
+  - id: lausanne_waste_not_covered
+    category: municipal
+    tool: waste_collection
+    args: {place: Lausanne, material: carton}
+    expect: {status: not_covered}
+  - id: winterthur_registration
+    category: municipal
+    question: Wie melde ich mich in Winterthur an nach dem Umzug?
+    expect: {decision: routed, bfs_nr: 230, topic: residence_registration, chain_level: municipal}
+
+  # --- transport ------------------------------------------------------------------------------------------------------
+  - id: transport_bellinzona
+    category: data
+    question: Nächste Verbindung von Zürich HB nach Bellinzona?
+    expect: {decision: routed, next_tool: public_transport_connections, next_args: {origin: Zürich HB, destination: Bellinzona}}
+    follow: true
+  - id: transport_missing_origin
+    category: missing_context
+    question: What is the next connection to Bellinzona?
+    expect: {decision: routed, next_tool: public_transport_connections, next_missing: [origin]}
+
+  # --- unsupported / not about Switzerland ------------------------------------------------------------------------
+  - id: unsupported_australia
+    category: unsupported
+    question: What is the capital of Australia?
+    expect: {decision: unsupported}
+  - id: unsupported_recipe
+    category: unsupported
+    question: Wie backe ich einen Zopf?
+    expect: {decision: unsupported}
+
+  # --- direct tools: honesty edge cases ---------------------------------------------------------------------------
+  - id: tool_konstanz_locate
+    category: foreign
+    tool: resolve_swiss_location
+    args: {place: Konstanz}
+    expect: {status: not_found}
+  - id: tool_invalid_deductible
+    category: data
+    tool: health_insurance_premiums
+    args: {place: Lugano, age: 30, deductible: 400}
+    expect: {status: invalid_input}
+  - id: tool_zefix_robots
+    category: operability
+    tool: company_register_search
+    args: {name: Swisscom}
+    expect: {status_in: [ok, blocked]}
+  - id: tool_stale_page
+    category: freshness
+    tool: read_official_page
+    args: {url: "https://www.sem.admin.ch/sem/de/home/themen/aufenthalt.html", max_chars: 800}
+    expect: {freshness: stale}
+  - id: tool_foreign_url
+    category: operability
+    tool: read_official_page
+    args: {url: "https://www.bundesregierung.de/"}
+    expect: {status: rejected}
+
+  # --- added after a held-out check (not tuned before being written) ----------------------------------------------
+  - id: heldout_vignette_de
+    category: federal
+    question: Wie viel kostet die Autobahnvignette?
+    expect: {decision: routed, evidence_url_contains: fahrzeuge}
+  - id: heldout_dog_tax
+    category: cantonal
+    question: Wie hoch ist die Hundesteuer?
+    expect: {decision: routed, evidence_url_contains: hundesteuer}
+  - id: heldout_worldcup
+    category: unsupported
+    question: Who won the football world cup 2022?
+    expect: {decision: unsupported}
+  - id: heldout_child_premium_zug
+    category: data
+    question: Welche Krankenkasse ist in Zug am billigsten für ein Kind mit Franchise 0?
+    expect: {decision: routed, support: strong, next_tool: health_insurance_premiums, next_args: {age: 10, deductible: 0}}
+    follow: true
+  - id: heldout_kita_winterthur
+    category: unsupported
+    question: Wie hoch sind die Kita-Kosten in Winterthur?
+    expect: {decision: unsupported, chain_level: municipal}
+
+  # --- gaps found with the organisers' practice cases (self-check pack) -------------------------------------------
+  - id: practice_rate_freshness_it
+    category: freshness
+    question: Qual è il tasso ipotecario di riferimento attualmente in vigore per gli affitti in Svizzera?
+    expect: {decision: routed, topic: reference_rate, next_tool: reference_interest_rate, next_args: {language: it}}
+    follow: true
+  - id: tool_reference_rate
+    category: freshness
+    tool: reference_interest_rate
+    args: {language: fr}
+    expect: {status: ok, reference_rate_percent: true, valid_since: true}
+  - id: practice_paired_jurisdiction
+    category: multi_jurisdiction
+    question: Comment annoncer mon arrivée à Lausanne? Et à Berne?
+    expect: {decision: routed, jurisdictions_bfs: [5586, 351]}
+  - id: multi_premium_two_cities
+    category: multi_jurisdiction
+    question: Was kostet die günstigste Grundversicherung für 35-Jährige mit Franchise 2500 in Zürich und in Lugano?
+    expect: {decision: routed, support: strong, jurisdictions_bfs: [261, 5192]}
+  - id: practice_geneva_holidays_no_askback
+    category: data
+    question: Où trouver le calendrier officiel des vacances scolaires 2026 de la ville de Genève?
+    expect: {decision: routed, bfs_nr: 6621, next_tool: school_holidays, next_args: {year: 2026}}
+    follow: true
+  - id: biel_exact_name
+    category: ambiguous
+    tool: resolve_swiss_location
+    args: {place: Biel}
+    expect: {status: resolved, bfs_nr: 371}
+
+  # --- deadline must be visible in the excerpt, and no ask-back: the 12-month rule is federal -------------------
+  - id: licence_deadline_de_no_askback
+    category: federal
+    question: Wie lange darf ich mit meinem ausländischen Führerausweis fahren?
+    expect: {decision: routed, topic: driving_licence, excerpt_contains_any: [zwölf Monaten]}
+  - id: licence_deadline_it_patente
+    category: federal
+    question: Per quanto tempo posso guidare con una patente straniera?
+    expect: {decision: routed, topic: driving_licence, excerpt_contains_any: [dodici mesi]}
+  - id: licence_deadline_it_ticino
+    category: cantonal
+    question: Come posso convertire la mia patente straniera in Ticino ed entro quanto tempo?
+    expect: {decision: routed, canton: TI, excerpt_contains_any: [dodici mesi]}

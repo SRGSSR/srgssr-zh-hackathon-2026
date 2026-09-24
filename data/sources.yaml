@@ -1,0 +1,198 @@
+# Source registry: which Swiss sources the server trusts, and at which level.
+# Edit this file to extend coverage; the server reloads it on restart. All URLs verified 2026-09-24.
+#
+# levels: federal | cantonal | municipal | semi-official (legal mandate) ; anything else is "unverified".
+
+federal:
+  domains: [admin.ch, ch.ch, parlament.ch, bger.ch]
+
+semi_official:
+  ahv-iv.ch: AHV/IV information centre (compensation offices)
+  arbeit.swiss: SECO unemployment insurance portal
+  serafe.ch: SERAFE AG, federal mandate for radio/TV fee collection
+  asa.ch: Association of road traffic offices (asa)
+  opentransportdata.swiss: Open data platform mobility (FOT mandate)
+  zefix.ch: Federal Office of Justice (commercial register index)
+  sbb.ch: Swiss Federal Railways
+  edk.ch: Swiss Conference of Cantonal Ministers of Education
+  educa.ch: Swiss education server (Confederation/cantons)
+  kvg.org: Common Institution KVG
+
+# names: all spellings used to detect the canton in free text (lowercase).
+cantons:
+  ZH: {name: Zürich, domain: zh.ch, languages: [de], names: [kanton zürich, canton de zurich, cantone di zurigo, zurigo]}
+  BE: {name: Bern, domain: be.ch, languages: [de, fr], names: [kanton bern, canton de berne, cantone di berna, berne, berna]}
+  LU: {name: Luzern, domain: lu.ch, languages: [de], names: [kanton luzern, canton de lucerne, lucerne, lucerna]}
+  UR: {name: Uri, domain: ur.ch, languages: [de], names: [kanton uri, canton d'uri]}
+  SZ: {name: Schwyz, domain: sz.ch, languages: [de], names: [kanton schwyz, canton de schwyz, svitto]}
+  OW: {name: Obwalden, domain: ow.ch, languages: [de], names: [obwalden, obwald, obvaldo]}
+  NW: {name: Nidwalden, domain: nw.ch, languages: [de], names: [nidwalden, nidwald, nidvaldo]}
+  GL: {name: Glarus, domain: gl.ch, languages: [de], names: [kanton glarus, glaris, glarona]}
+  ZG: {name: Zug, domain: zg.ch, languages: [de], names: [kanton zug, canton de zoug, zoug, zugo]}
+  FR: {name: Fribourg, domain: fr.ch, languages: [fr, de], names: [kanton freiburg, canton de fribourg, friburgo]}
+  SO: {name: Solothurn, domain: so.ch, languages: [de], names: [kanton solothurn, soleure, soletta]}
+  BS: {name: Basel-Stadt, domain: bs.ch, languages: [de], names: [basel-stadt, bâle-ville, basilea città]}
+  BL: {name: Basel-Landschaft, domain: bl.ch, languages: [de], names: [basel-landschaft, baselland, bâle-campagne, basilea campagna]}
+  SH: {name: Schaffhausen, domain: sh.ch, languages: [de], names: [kanton schaffhausen, schaffhouse, sciaffusa]}
+  AR: {name: Appenzell Ausserrhoden, domain: ar.ch, languages: [de], names: [appenzell ausserrhoden, appenzell rhodes-extérieures]}
+  AI: {name: Appenzell Innerrhoden, domain: ai.ch, languages: [de], names: [appenzell innerrhoden, appenzell rhodes-intérieures]}
+  SG: {name: St. Gallen, domain: sg.ch, languages: [de], names: [kanton st. gallen, saint-gall, san gallo]}
+  GR:
+    name: Graubünden
+    domain: gr.ch
+    languages: [de, rm, it]
+    names: [graubünden, grisons, grigioni, grischun]
+    education: https://www.gr.ch/DE/institutionen/verwaltung/ekud/avs/Seiten/startseite.aspx
+  AG: {name: Aargau, domain: ag.ch, languages: [de], names: [aargau, argovie, argovia]}
+  TG: {name: Thurgau, domain: tg.ch, languages: [de], names: [thurgau, thurgovie, turgovia]}
+  TI:
+    name: Ticino
+    domain: ti.ch
+    languages: [it]
+    names: [ticino, tessin, cantone ticino]
+    education: https://www4.ti.ch/decs/dipartimento
+  VD:
+    name: Vaud
+    domain: vd.ch
+    languages: [fr]
+    names: [vaud, waadt, canton de vaud, cantone di vaud]
+    education: https://www.vd.ch/formation
+  VS: {name: Valais, domain: vs.ch, languages: [fr, de], names: [wallis, valais, vallese]}
+  NE: {name: Neuchâtel, domain: ne.ch, languages: [fr], names: [kanton neuenburg, canton de neuchâtel, neuenburg]}
+  GE:
+    name: Genève
+    domain: ge.ch
+    languages: [fr]
+    names: [canton de genève, kanton genf, cantone di ginevra, genf, ginevra, geneva]
+    education: https://www.ge.ch/vacances-scolaires-jours-feries
+  JU: {name: Jura, domain: jura.ch, languages: [fr], names: [kanton jura, canton du jura, giura]}
+
+# Municipal websites (by BFS number). Extend freely.
+municipalities:
+  261: {name: Zürich, website: https://www.stadt-zuerich.ch, waste: https://www.stadt-zuerich.ch/erz}
+  6621: {name: Genève, website: https://www.geneve.ch}
+  2701: {name: Basel, website: https://www.bs.ch}
+  5586: {name: Lausanne, website: https://www.lausanne.ch}
+  351: {name: Bern, website: https://www.bern.ch, waste: https://www.bern.ch/themen/umwelt-natur-und-energie/abfall}
+  230: {name: Winterthur, website: https://stadt.winterthur.ch}
+  1061: {name: Luzern, website: https://www.stadtluzern.ch}
+  3203: {name: St. Gallen, website: https://www.stadt.sg.ch}
+  5192: {name: Lugano, website: https://www.lugano.ch}
+  371: {name: Biel/Bienne, website: https://www.biel-bienne.ch}
+  3762: {name: Scuol, website: https://www.scuol.net}
+
+# Places outside Switzerland that users often confuse or mention (lowercase, any language).
+foreign_places:
+  countries: [deutschland, germany, allemagne, germania, frankreich, france, francia, italien, italy, italie, italia,
+              österreich, austria, autriche, liechtenstein]
+  places: [konstanz, constance, costanza, münchen, munich, stuttgart, berlin, hamburg, frankfurt, lörrach,
+           weil am rhein, singen, friedrichshafen, lindau, waldshut, bregenz, feldkirch, dornbirn, vaduz, wien,
+           vienne, vienna, innsbruck, mailand, milano, milan, como, varese, torino, turin, roma, rome, paris,
+           lyon, annecy, annemasse, mulhouse, strasbourg, besançon, évian, thonon, london, new york]
+
+# Topics: keywords are matched against the normalised question (lowercase, no accents, word-prefix match).
+# level = who decides the matter; needs_place = answer depends on where the person lives.
+topics:
+  health_premiums:
+    level: federal
+    needs_place: true
+    tool: health_insurance_premiums
+    keywords: [krankenkass, krankenversicherung, grundversicherung, pramie, franchise, assurance maladie, assurance de base,
+               lamal, kvg, cassa malati, assicurazione malattia, assicurazione di base, premio, franchigia, cassa da malsauns,
+               health insurance, premium, deductible]
+    sources: [https://www.priminfo.admin.ch/]
+  school_holidays:
+    level: municipal
+    needs_place: true
+    tool: school_holidays
+    keywords: [schulferien, herbstferien, sommerferien, winterferien, fruhlingsferien, sportferien, vacances scolaires,
+               vacances d, vacanze scolastiche, vacanze, vacanzas, school holiday, schulbeginn, rentree scolaire]
+  waste:
+    level: municipal
+    needs_place: true
+    tool: waste_collection
+    keywords: [karton, altpapier, papiersammlung, kehricht, abfall, entsorg, grungut, bioabfall, sonderabfall, carton,
+               dechet, ordure, poubelle, cartone, rifiuti, raccolta carta, spazzatura, cartun, ruments, waste, cardboard,
+               garbage, recycling, sperrgut, sofa, encombrant]
+  public_transport:
+    level: federal
+    needs_place: false
+    tool: public_transport_connections
+    keywords: [verbindung, fahrplan, nachste zug, nachster zug, zug nach, bus nach, connexion, horaire, prochain train,
+               treno, collegamento, orario, prossimo treno, tren, connection, next train, timetable]
+  federal_votes:
+    level: federal
+    needs_place: false
+    tool: federal_votes
+    keywords: [abstimmung, volksabstimmung, abgestimmt, abstimmen, stimmen wir, votation, vote, votons, votiamo, votazione, votaziun, referendum, ballot, initiative populaire,
+               volksinitiative, iniziativa popolare]
+    sources: [https://www.bk.admin.ch/de/volksabstimmungen]
+  companies:
+    level: federal
+    needs_place: false
+    tool: company_register_search
+    keywords: [handelsregister, zefix, registre du commerce, registro di commercio, commercial register, eingetragen, uid-nummer]
+    sources: [https://www.zefix.ch/]
+  driving_licence:
+    level: cantonal
+    needs_place: false  # the core rules (12-month exchange deadline, eye test) are federal; offices are cantonal
+    keywords: [fuhrerausweis, fahrausweis, fuhrerschein, permis de conduire, licenza di condurre, patente di guida, patente,
+               permiss da manischar, driving licence, driving license, drivers license]
+    sources: [https://asa.ch/strassenverkehrsaemter/adressen/]
+    # official wording used by ch.ch per language (added to the search when this topic is detected)
+    search_terms: {de: Führerausweis umtauschen, fr: permis de conduire échange, it: licenza di condurre estera,
+                   rm: permiss da manischar, en: driving licence exchange}
+  residence_registration:
+    level: municipal
+    needs_place: true
+    keywords: [anmelden, anmeldung, abmelden, melde ich mich, mich anmelden, ummelden, einwohnerkontrolle, einwohnerdienste, zuzug, umzug, demenag, annoncer mon arrivee,
+               controle des habitants, trasloco, notifica arrivo, controllo abitanti, moving, register my address]
+  migration_permits:
+    level: federal
+    needs_place: false
+    keywords: [aufenthaltsbewilligung, arbeitsbewilligung, ausweis b, ausweis c, ausweis l, permis de sejour, permis b, permis c,
+               permis de travail, permesso di dimora, permesso di lavoro, work permit, residence permit, visum, visa]
+    sources: [https://www.sem.admin.ch/sem/de/home/themen/aufenthalt.html]
+  ahv_pension:
+    level: federal
+    needs_place: false
+    keywords: [ahv, altersrente, rente, pensionskasse, avs, rente de vieillesse, rendita, pension, pensiun, old-age]
+    sources: [https://www.ahv-iv.ch/de/]
+  unemployment:
+    level: federal
+    needs_place: false
+    keywords: [arbeitslos, rav, stempeln, chomage, orp, disoccupazione, disoccupat, unemploy]
+    sources: [https://www.arbeit.swiss/de]
+  taxes:
+    level: cantonal
+    needs_place: true
+    keywords: [steuer, steuererklarung, impot, declaration d'impot, imposta, imposte, dichiarazione d'imposta, taglia, tax]
+    sources: [https://www.estv.admin.ch/de]
+  customs:
+    level: federal
+    needs_place: false
+    keywords: [zoll, verzoll, einfuhr, douane, dedouan, importation, dogana, sdoganam, importazione, customs, import duty]
+    sources: [https://www.bazg.admin.ch/de]
+  radio_tv_fee:
+    level: federal
+    needs_place: false
+    keywords: [serafe, rundfunk, radio- und fernsehabgabe, fernsehgebuhr, billag, redevance, canone radiotelevisivo, tv fee]
+    sources: [https://www.serafe.ch/de]
+  reference_rate:
+    level: federal
+    needs_place: false
+    tool: reference_interest_rate
+    keywords: [referenzzinssatz, referenzzins, hypothekarischer referenz, taux de reference, taux hypothecaire,
+               taux d interet de reference, tasso di riferimento, tasso ipotecario, reference interest rate,
+               reference rate, mortgage reference]
+    sources: [https://www.bwo.admin.ch/de/referenzzinssatz]
+  rent_housing:
+    level: federal
+    needs_place: false
+    keywords: [mietzins, miete, mietvertrag, kundigung, loyer, bail, resiliation, pigione, affitto, locazione, rent, lease, tenancy]
+    sources: [https://www.bwo.admin.ch/de/referenzzinssatz]
+  building:
+    level: municipal
+    needs_place: true
+    keywords: [baubewilligung, baugesuch, schwimmbad, pool, warmepumpe, permis de construire, piscine, pompe a chaleur,
+               licenza edilizia, piscina, pompa di calore, building permit, heat pump]
