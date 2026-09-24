@@ -256,6 +256,8 @@ and asks the published sample questions. Results on 2026-09-24:
 | Q5 Rundfunkbeitrag Konstanz | Germany, not covered. Gives no figure and points to the responsible German body | 0 |
 | Wil (ambiguous) | Asks: Wil SG or Wil ZH? | 1 |
 | Reference rate (IT) | 1.25 %, since 2 Sep 2025, confirmed 2 Sep 2026, next publication 1 Dec 2026 | 1 |
+| "Was sagt Art. 266c OR?" (robots.txt respected) | Does not quote from memory. Gives the official article link and flags the new OR version from 1 Oct 2026 | 1 |
+| "Was sagt das Gesetz zur Kündigungsfrist bei der Wohnung?" | Points to Art. 266c OR (link) and summarises ch.ch (contract may set longer periods, 30 days to contest). Gives no figure: ch.ch does not state it, and the law text is not readable by default | 2 |
 
 This run exposed two problems, both now fixed. Q5 used to answer with German figures from memory; the
 instructions now forbid unverified foreign facts. Q2 used to take 9 calls; the router now returns the canton's
