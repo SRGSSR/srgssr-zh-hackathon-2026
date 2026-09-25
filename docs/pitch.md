@@ -65,7 +65,7 @@ The jury took the letter app for the product. They asked:
 |---|---|
 | "Did you build something?" | "Yes: a plugin for LiteLLM, about a thousand lines of Python, running at promisekept.ch, with 48 tests and a ready pull request for the Public AI Utility. The letter service is the example that uses it." Slide 4; Q&A tab "What's in the repo". |
 | "Did you use Apertus?" | "Yes. Every real answer comes from Apertus 1.5 through the Public AI API. The simulated hosts exist so we can break things on purpose, and the page labels them." Said in the demo; Q&A tab "Apertus". |
-| "Can it process images?" | "The prototype reads text: Apertus is a text model, and the photo upload is a mock. The layer never reads the content: text or images, the rule decides where a request may go." Q&A tab "Images". |
+| "Can it process images?" | "Apertus 1.5 can: it takes images, audio and text. Our prototype sends only text so far, and the photo upload is a mock. And the layer doesn't care: a photo of the letter holds the same data, so it gets the same rule." Q&A tab "Images". |
 
 ### What changed from version 1, and why
 
@@ -124,7 +124,7 @@ If the demo breaks, play the teaser (`docs/video/teaser.mp4`, 25 s) and continue
 | "Why Apertus?" | "It's open, it's Swiss, and it explains these letters in all our languages, Romansh and Swiss German included." |
 | "What's next?" | "Get the pull request merged, add evidence for each provider, and turn TLS verification back on in the Utility." |
 | "Did you build something?" | "Yes: a plugin for LiteLLM, running at promisekept.ch. The letter service is only the example." |
-| "Can it process images?" | "The prototype reads text, and the photo upload is a mock. The layer never reads the content: the rule decides where any request may go." |
+| "Can it process images?" | "Apertus 1.5 reads images; our prototype sends text so far. A photo of the letter would get the same rule." |
 
 ## Live demo, step by step (for the expert jury or a longer slot)
 

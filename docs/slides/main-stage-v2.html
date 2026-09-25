@@ -595,7 +595,7 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
     <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
     <h2>Yes: Apertus writes every real answer</h2>
     <ul class="findings">
-      <li><b>Apertus 1.5 70B, through the Public AI API.</b> It is the “Public AI” service in the demo, allowed by every rule.</li>
+      <li><b>Apertus 1.5 70B, through the Public AI API.</b> It is the “Public AI” service in the demo, allowed by every rule. It reads images and audio too; our prototype uses text.</li>
       <li><b>Six languages, in easy language:</b> German, French, Italian, Romansh, Swiss German, English. A native speaker should still check the Romansh and Swiss German wording.</li>
       <li><b>When Public AI is slow</b> (we saw 504s after 60 s under load), the gateway moves on to a Swiss host within the rule. That answer is simulated, and the page says so.</li>
       <li><b>The layer is model-agnostic.</b> Apertus makes the whole chain open: open model, public API, open gateway.</li>
@@ -605,11 +605,11 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
   <!-- Q&A: images -->
   <section class="slide tech" data-tab="Images" aria-label="Q&A: Can it process images?">
     <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
-    <h2>Images? The rule never reads the content</h2>
+    <h2>Images? Apertus 1.5 reads them. The rule doesn’t care.</h2>
     <ul class="findings">
-      <li><b>The prototype reads text.</b> Apertus is a text model.</li>
+      <li><b>Apertus 1.5 takes images, audio and text</b> and answers in text (its model card says so). Our prototype sends only the letter’s text so far.</li>
       <li><b>“Upload a photo or PDF” is a mock.</b> A <code>.txt</code> file is read in the browser; any other file fills in the matching example letter, and the page says so. There is no text recognition.</li>
-      <li><b>The layer decides where a request may go, not what is in it.</b> A request with an image, to a vision model, would pass the same three checks as one more deployment with jurisdiction metadata. We have not tested images yet.</li>
+      <li><b>The layer decides where a request may go, not what is in it.</b> A photo of Ana’s letter holds the same data as its text, so it gets the same rule and the same three checks. We have not tested images yet.</li>
     </ul>
   </section>
 
