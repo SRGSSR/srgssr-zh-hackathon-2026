@@ -26,6 +26,7 @@ def _when(ts: float) -> str:
 
 
 templates.env.filters["when"] = _when
+templates.env.globals["v"] = str(int(__import__("time").time()))  # cache-busting for static files
 
 
 @app.on_event("startup")
@@ -180,7 +181,7 @@ async def api_journey(letter_id: str):
         "served_by_name": (eps.get(job.get("served_by") or "") or {}).get("name"),
         "served_by_kind": (eps.get(job.get("served_by") or "") or {}).get("kind"),
         "receipt": timeline.receipt(evs, eps),
-        "stops": timeline.journey(evs, eps),
+        "stops": timeline.compact(timeline.journey(evs, eps)),
     }
 
 

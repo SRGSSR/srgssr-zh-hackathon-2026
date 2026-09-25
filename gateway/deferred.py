@@ -217,11 +217,11 @@ async def consent(request: Request, auth: UserAPIKeyAuth = Depends(user_api_key_
     allowed = _job_policy(job).get("consent_can_add") or []
     if not wanted or any(j not in allowed for j in wanted):
         raise HTTPException(status_code=400, detail="this service's rule does not allow sending the letter there, even with consent")
-    if job["status"] != "waiting":
+    if job["status"] not in ("waiting", "running"):
         raise HTTPException(status_code=409, detail="consent can only be given while the letter is waiting")
     record = {"jurisdictions": wanted, "statement": str(body.get("statement") or "")[:1000], "at": time.time(),
               "key_alias": auth.key_alias}
-    if store.transition(job["id"], ("waiting",), consent_json=json.dumps(record), next_retry_at=None):
+    if store.transition(job["id"], ("waiting", "running"), consent_json=json.dumps(record), next_retry_at=None):
         _event(job["id"], type="consent_given", jurisdictions=wanted, statement=record["statement"])
     return _public(store.get_job(job["id"]))
 
@@ -250,6 +250,7 @@ async def _run(job_id: str) -> None:
     auth = json.loads(job["auth_json"])
     request_body = json.loads(job["request_json"])
     rule = effective_policy(job)
+    consent_at_start = job.get("consent_json")
     # Server-side metadata only: the same fields the proxy attaches to a normal request, with
     # the rule widened only by this job's recorded consent (if any).
     md = {
@@ -266,6 +267,8 @@ async def _run(job_id: str) -> None:
         policy_hook.report_final_failure(md, exc)
         if _retryable(exc):
             wait = _backoff(runs)
+            if (store.get_job(job_id) or {}).get("consent_json") != consent_at_start:
+                wait = 0  # the resident agreed while this run was going on: use it right away
             if store.transition(job_id, ("running",), status="waiting", next_retry_at=time.time() + wait,
                                 status_reason=WAIT_REASON, error=str(exc)[:1000]):
                 _event(job_id, type="job_waiting", run=runs, retry_in_s=wait, gateway_error=str(exc)[:300])

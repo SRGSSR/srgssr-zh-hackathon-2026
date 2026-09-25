@@ -54,7 +54,7 @@
         <p class="promise-sign">Gemeinde Musterstadt, {{ s.office | lower if key != 'info' else 'all other offices' }}</p>
       </div>
       {% endfor %}
-      <p class="promise-why">Letters from the social services talk about your support, your health and your children. The law protects this information more strongly than almost anything else, and the people who help you at the counter are bound by official secrecy.</p>
+      <p class="promise-why">Which rule applies depends on the office that wrote the letter. Letters from the social services talk about your support, your health and your children. The law protects this information more strongly than almost anything else, so those letters never leave Switzerland.</p>
     </section>
 
     {% if jobs %}
@@ -68,4 +68,4 @@
   </aside>
 </div>
 {% endblock %}
-{% block scripts %}<script src="/static/home.js" defer></script>{% endblock %}
+{% block scripts %}<script src="/static/home.js?v={{ v }}" defer></script>{% endblock %}

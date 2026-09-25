@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Help with letters, Gemeinde Musterstadt{% endblock %}</title>
-  <link rel="stylesheet" href="/static/fonts/fonts.css">
-  <link rel="stylesheet" href="/static/style.css">
-  <script src="/static/vendor/rough-notation.iife.js" defer></script>
-  <script src="/static/marks.js" defer></script>
+  <link rel="stylesheet" href="/static/fonts/fonts.css?v={{ v }}">
+  <link rel="stylesheet" href="/static/style.css?v={{ v }}">
+  <script src="/static/vendor/rough-notation.iife.js?v={{ v }}" defer></script>
+  <script src="/static/marks.js?v={{ v }}" defer></script>
 </head>
 <body class="{% block bodyclass %}{% endblock %}">
   <a class="skip" href="#main">Skip to content</a>
@@ -49,7 +49,7 @@
     <div class="endpoints" data-endpoints></div>
     <p class="drawer-foot">"Received" counts what actually reached each service. Services a rule excludes must stay at zero for letters under that rule. Social services: Switzerland only. School: Switzerland, then the EU. Other offices: Switzerland and the EU; the United States only if the resident agrees.</p>
   </aside>
-  <script src="/static/demo.js" defer></script>
+  <script src="/static/demo.js?v={{ v }}" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -53,10 +53,23 @@
     return li;
   }
 
+  const nodes = new Map();
   function renderJourney(stops, status) {
+    const keys = new Set(stops.map((s) => s.key));
+    nodes.forEach((li, key) => { if (!keys.has(key)) { li.remove(); nodes.delete(key); seen.delete(key); } });
+    stops.forEach((stop) => {
+      const li = nodes.get(stop.key);
+      if (li && li.dataset.text !== (stop.text || "")) {
+        li.dataset.text = stop.text || "";
+        const text = li.querySelector(".stop-text") || li.querySelector(".stop-body").appendChild(el("p", "stop-text"));
+        text.textContent = stop.text;
+      }
+    });
     stops.filter((s) => !seen.has(s.key)).forEach((stop, i) => {
       seen.add(stop.key);
       const li = stopNode(stop);
+      li.dataset.text = stop.text || "";
+      nodes.set(stop.key, li);
       const delay = firstRender ? Math.min(i, 14) * 80 : 0;
       li.style.setProperty("--delay", `${delay}ms`);
       li.classList.add("is-new");
@@ -103,11 +116,14 @@
         key: "", rest: `to a service in ${agreed.join(" and ")}.${ruledText}`,
       };
     }
-    return { lead: "It went ", key: `only to ${withinText}`, rest: `, as the rule of the ${service.office.toLowerCase()} allows.${ruledText}${fallback}` };
+    return { lead: "It went ", key: `only to ${withinText}`, rest: `, as ${service.owner_s} rule allows.${ruledText}${fallback}` };
   }
 
+  // A new attempt after a wait is still part of the wait, for the resident.
+  const shownStatus = (job) => (job.status === "running" && (job.runs || 0) >= 2 ? "waiting" : job.status);
+
   function renderHeader(data) {
-    const status = data.job.status;
+    const status = shownStatus(data.job);
     root.dataset.status = status;
     $("[data-title]").textContent = TITLES[status] || "Your letter";
     const p = promiseFor(data.receipt, status, data.service);
@@ -128,7 +144,8 @@
 
   // --- left column -------------------------------------------------------------------
   function renderPending(data) {
-    const { status, status_reason: reason, next_retry_at: nextAt } = data.job;
+    const { status_reason: reason, next_retry_at: nextAt } = data.job;
+    const status = shownStatus(data.job);
     const pending = $("[data-pending]");
     const actions = $("[data-pending-actions]");
     clearInterval(countdown);

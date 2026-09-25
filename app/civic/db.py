@@ -90,7 +90,8 @@ def update(letter_id: str, **fields: Any) -> None:
         if k in fields:
             fields[k] = json.dumps(fields[k])
     if "consent" in fields:
-        fields["consent_json"] = json.dumps(fields.pop("consent")) if fields.get("consent") else None
+        consent = fields.pop("consent")
+        fields["consent_json"] = json.dumps(consent) if consent else None
     fields["updated_at"] = time.time()
     cols = ", ".join(f"{k}=?" for k in fields)
     with _lock, _conn() as c:

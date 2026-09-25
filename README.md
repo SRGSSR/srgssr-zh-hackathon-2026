@@ -22,7 +22,16 @@ A Swiss commune that wants to use such a service cannot promise its residents th
   - a draft reply in German.
 
   Apertus must return JSON (`summary`, `actions[{action, deadline}]`, `draft_reply`, `output_language`). The JSON is validated and the call is retried once if invalid. A disclaimer says this is not legal advice and the draft must be checked.
-- **The commune's rule, "CH-only", bound to its API key.** Only endpoints whose declared jurisdiction is CH may receive the letter. The rule is checked before **every** attempt, including retries and LiteLLM fallbacks to other model groups. Endpoints with missing metadata are excluded (fail closed). Nothing in a request can change the rule.
+- **One rule per office, each bound to that office's API key.** The office that wrote the letter decides the rule:
+
+  | Who needs it | Office (key) | Rule |
+  |---|---|---|
+  | The strict compliance case | Social services | **Switzerland only**. No exceptions, not even with consent. |
+  | The privacy-conscious family | School | **Switzerland first, then the EU**, which Swiss data protection law treats as adequately protected. Never anywhere else. |
+  | The pragmatic resident | Other offices | **Switzerland and the EU. The United States only if the resident agrees**, for that one letter. The agreement is recorded in the journey. |
+
+  Each rule is checked before **every** attempt, including retries and LiteLLM fallbacks to other model groups. Endpoints with missing metadata are excluded (fail closed). Nothing in a request can change a rule.
+- **Consent, not a request parameter.** Only a rule that lists `consent_can_add` lets the resident widen it. The resident's explicit agreement is given in a dialog while the letter waits. The gateway records it (`/v1/deferred/consent`) and widens the rule for that job only. The sync API never uses consent. Even after consent, Swiss and EU services are tried first.
 - **Continue within the rule, or wait, in the gateway.** If an approved endpoint is up, the request continues there. If none is, the **gateway** keeps it in its local store ("waiting"), inside the same authorized environment, and completes it by itself when an approved endpoint is back, even after a gateway restart. Applications do not implement any waiting: they submit to `/v1/deferred/chat/completions` and read the result. The citizen app is one such client.
 - **A timeline per job**, showing:
   - the rule applied;
@@ -95,7 +104,7 @@ Note: the real Public AI API can be slow under load. During testing it once answ
 make test        # docker compose up, the pytest bench, then tests/restart_check.sh
 ```
 
-37 pytest checks plus a gateway restart check. The assertions rely on each endpoint's own counter of received requests:
+48 pytest checks plus a gateway restart check and an endpoint-recreate check. The assertions rely on each endpoint's own counter of received requests:
 
 | # | scenario | asserted |
 |---|---|---|
@@ -108,9 +117,12 @@ make test        # docker compose up, the pytest bench, then tests/restart_check
 | 7 | timeout after receipt | the endpoint counted the request; the timeline says "data received, no response" |
 | 8 | recovery | the waiting job completes when an approved endpoint returns, both on "try again" and by itself with backoff |
 | + | queue in the gateway, no app involved | a request waits in the gateway and completes by itself; its body is deleted afterwards; routing params, streaming or a spoofed job id are rejected at submit and nothing is stored; jobs are invisible to other keys; a cancelled job is never sent; a request cannot write into another job's timeline; the commune key cannot call other routes |
+| + | three rules and consent (`tests/test_rules.py`) | the school rule prefers Switzerland and uses the EU only when Switzerland is down; it never goes further, even with consent; the other offices' rule waits and offers consent for the US only; consent sends that one letter (another waiting letter stays put) and Switzerland is still tried first; the social services refuse consent; consent through another key, or for a place the rule does not list, is refused; the sync API never reaches the US; the whole flow works through the citizen app |
 | + | gateway restart (`tests/restart_check.sh`) | a waiting request survives `docker compose restart gateway` and completes on the endpoint that comes back; disallowed endpoints received 0 |
 
 The same policy is tested against the Utility's own rendered production config in `upstream/test/` (10/10 checks).
+
+The bench and the demo share the same endpoints. Do not click the demo controls while `make test` runs: the tests set the endpoints' states and read their counters.
 
 ## Repository layout
 

@@ -128,7 +128,8 @@ def journey(events: List[Dict], eps: Dict) -> List[Dict]:
                 add("problem", "warn", f"{name} did not work", "It received the request and answered with an error.", tech)
         elif t == "job_waiting":
             add("waiting", "wait", f"Waiting for {WAITING_FOR.get(policy_id, 'an allowed service')}",
-                f"Your letter stays here, in Switzerland, and is not sent anywhere else. Next try in {int(e.get('retry_in_s', 0))} seconds.",
+                "Your letter stays here, in Switzerland, and is not sent anywhere else. "
+                + (f"Next try in {int(e.get('retry_in_s', 0))} seconds." if int(e.get("retry_in_s", 0)) else "Trying again right away."),
                 (e.get("gateway_error") or "")[:160])
         elif t in ("job_started", "job_resumed"):
             if t == "job_started" and (e.get("run") or 1) == 1:
@@ -157,6 +158,52 @@ def journey(events: List[Dict], eps: Dict) -> List[Dict]:
         elif t == "gateway_unreachable":
             add("problem", "warn", "The commune's gateway could not be reached", "Your letter is still kept here.")
     return stops
+
+
+def compact(stops: List[Dict]) -> List[Dict]:
+    """A finished retry run that only produced errors becomes one line on its "Trying again" stop.
+    The run in progress, sends that got an answer, and timeouts after receipt stay visible."""
+    out, i = [], 0
+    while i < len(stops):
+        s = stops[i]
+        if s["kind"] == "retry":
+            failed, j = [], i + 1
+            while j + 1 < len(stops) and stops[j]["kind"] == "sent" and stops[j + 1]["kind"] == "problem":
+                failed.append(stops[j]["title"][len("Sent to "):])
+                j += 2
+            if j < len(stops) and stops[j]["kind"] == "empty":
+                j += 1
+            finished = j < len(stops) and stops[j]["kind"] in ("waiting", "consent", "fallback", "done", "cancelled", "expired", "failed")
+            if failed and finished:
+                out.append({**s, "text": f"Tried {', '.join(failed)} again. None could answer."})
+                i = j
+                continue
+        out.append(s)
+        i += 1
+    return _merge_waits(out)
+
+
+def _merge_waits(stops: List[Dict]) -> List[Dict]:
+    """Repeated "waiting, tried again, nothing" pairs become one waiting stop with a count.
+    The last waiting stop of such a sequence stays on its own: it may be the live one."""
+    out, i = [], 0
+    while i < len(stops):
+        j, tries = i, 0
+        while (stops[j]["kind"] == "waiting" and j + 2 < len(stops)
+               and stops[j + 1]["kind"] == "retry" and stops[j + 1]["text"].startswith("Tried")
+               and stops[j + 2]["kind"] == "waiting"):
+            tries += 1
+            j += 2
+        if tries:
+            times = "time" if tries == 1 else "times"
+            out.append({**stops[i], "text": f"Your letter stays here and is not sent anywhere else. We tried again {tries} {times}; "
+                                            "none of the allowed services could answer."})
+            out.append(stops[j])
+            i = j + 1
+        else:
+            out.append(stops[i])
+            i += 1
+    return out
 
 
 def receipt(events: List[Dict], eps: Dict) -> Dict:

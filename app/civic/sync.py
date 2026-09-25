@@ -101,7 +101,7 @@ async def wake(letter_id: str) -> None:
 async def consent(letter_id: str, jurisdictions: List[str], statement: str) -> Optional[str]:
     """Pass the resident's explicit agreement to the gateway. Returns an error text, or None."""
     job = db.get(letter_id)
-    if not job or not job["gateway_jobs"] or job["status"] != "waiting":
+    if not job or not job["gateway_jobs"] or job["status"] not in ("waiting", "running"):
         return "The letter is not waiting any more."
     try:
         g = await gateway.consent(job["service"], job["gateway_jobs"][-1], jurisdictions, statement)

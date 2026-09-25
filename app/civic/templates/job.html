@@ -6,9 +6,9 @@
   <header class="job-head">
     <div class="job-head-text">
       <h1 class="job-title" data-title aria-live="polite">Reading your letter</h1>
-      <p class="job-rule">Rule of the {{ service.office | lower if job.service != 'info' else 'office that wrote the letter' }}: {{ service.rule }}.</p>
+      <p class="job-rule">Rule of {{ service.owner }}: {{ service.rule }}.</p>
       <p class="job-promise" data-promise></p>
-      {% if topics %}
+      {% if topics and job.service == 'social' %}
       <p class="job-topics">This letter mentions {{ topics | join(', ') }}. The law protects this kind of information strongly, which is why your commune keeps it in Switzerland.</p>
       {% endif %}
     </div>
@@ -86,4 +86,4 @@
   </div>
 </div>
 {% endblock %}
-{% block scripts %}<script src="/static/job.js" defer></script>{% endblock %}
+{% block scripts %}<script src="/static/job.js?v={{ v }}" defer></script>{% endblock %}

@@ -30,6 +30,8 @@ SAMPLES = {
 SERVICES = {
     "social": {
         "office": "Social services",
+        "owner": "the social services",
+        "owner_s": "the social services'",
         "rule": "Switzerland only",
         "promise": "Only services in Switzerland read your letter. If none is available, it waits here, safely, until one is.",
         "promise_key": "Only services in Switzerland",
@@ -39,6 +41,8 @@ SERVICES = {
     },
     "school": {
         "office": "School",
+        "owner": "the school",
+        "owner_s": "the school's",
         "rule": "Switzerland first, then the EU",
         "promise": "Services in Switzerland read your letter first. If none can answer, services in the EU may. Never anywhere else.",
         "promise_key": "Services in Switzerland",
@@ -48,6 +52,8 @@ SERVICES = {
     },
     "info": {
         "office": "Another office",
+        "owner": "this office",
+        "owner_s": "this office's",
         "rule": "Switzerland and the EU; elsewhere only if you agree",
         "promise": "Services in Switzerland and the EU read your letter. A service anywhere else only if you agree, for this letter only.",
         "promise_key": "Services in Switzerland and the EU",

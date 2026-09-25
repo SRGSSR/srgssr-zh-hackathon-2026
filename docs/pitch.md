@@ -14,7 +14,21 @@ Working document for the team. The opening story assumes we pick the social assi
 
 ## The one sentence
 
-> When the approved provider fails, a public AI service must still keep its promise about citizens' data. Ours does, on every retry and every fallback, and it proves it.
+> When the approved provider fails, a public AI service must still keep its promise about citizens' data. Ours does, on every retry and every fallback, and you can check it.
+
+## Closing line (chosen)
+
+> "With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes."
+
+## Three people, three rules (the frame of the demo)
+
+| Person | Office | Rule | What the jury sees |
+|---|---|---|---|
+| Ana, a letter from the **social services** (the strict compliance case) | Social services | Switzerland only | Every Swiss service broken: the letter waits. No way out, not even with consent. |
+| The Keller family, a letter from the **school** (privacy-conscious) | School | Switzerland first, then the EU | Swiss services broken: the EU host answers. The US and Singapore stay at 0. |
+| Marco, a **payment reminder** (pragmatic) | Other offices | CH and EU; the US only with his consent | Swiss and EU broken: a clear dialog. He agrees, the US counter goes to 1, and the agreement is in the journey. |
+
+Say it plainly: the rule belongs to the office and is bound to its key. The request never decides, and consent is possible only where the office allows it.
 
 ## Three messages (everything else supports these)
 
@@ -32,7 +46,7 @@ Working document for the team. The opening story assumes we pick the social assi
 >
 > So the commune's rule, "CH-only", is enforced in the gateway on every retry and every fallback. If no Swiss endpoint is available, Ana's letter waits in Switzerland and is completed later.
 >
-> Break a provider yourselves: the timeline shows every endpoint contacted, and the disallowed ones stay at zero.
+> Break a provider yourselves: the journey of the letter shows every service contacted, and the ones the rule excludes stay at zero. With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes.
 
 ## 2-minute pitch (main stage), about 280 words
 
@@ -41,8 +55,8 @@ Structure: story (20 s), the gap (25 s), live demo (60 s), proof and upstream (1
 1. **Story (20 s).** Ana's letter, as above, in two sentences.
 2. **The gap (25 s).** "Public AI routes through LiteLLM with automatic fallbacks. In the Utility's own configuration, Apertus falls back to other model families hosted in other countries. For a commune, that breaks the promise at exactly the moment something goes wrong."
 3. **Live demo (60 s).** Follow the demo script below: normal run, break the primary, break all approved, restore.
-4. **Proof and upstream (15 s).** "37 automated checks, including zero requests to disallowed endpoints. The same policy passes 10 out of 10 checks on the Utility's own production config. It's a PR-ready proposal for chat.publicai.co, and it's all Apache 2.0."
-5. **Close (5 s).** "When the provider fails, the promise holds."
+4. **Proof and upstream (15 s).** "48 automated checks, including zero requests to disallowed endpoints under each rule. The same policy passes 10 out of 10 checks on the Utility's own production config. It's a PR-ready proposal for chat.publicai.co, and it's all Apache 2.0."
+5. **Close (5 s).** "With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes."
 
 ## Demo script (driver's view)
 
@@ -50,11 +64,12 @@ Before: `docker compose up -d`, open `http://localhost:8080`, "Reset counters", 
 
 | Step | Click | What the jury should see | Say |
 |---|---|---|---|
-| 1 | Example "Documents needed for your support", Italiano, "Explain my letter" | Explanation in Italian with the deadlines highlighted; journey: rule applied, **US host and unknown-origin host struck through**, answered by Public AI | "The rule is applied before anything is sent." |
-| 2 | Demo controls: Public AI **Broken**, then "Explain it again" | Goes to Swiss host 1. Counters for US, unknown origin and Singapore stay **0** | "A retry, still within the rule." |
-| 3 | **Break every Swiss service**, "Explain it again" | "Your letter is waiting, safely." Journey: **the backup plan wanted SEA-LION in Singapore, nothing was sent** | "This is where the Utility would have gone to Singapore." |
-| 4 | **Repair all** | The letter resumes by itself and completes; the journey shows the whole outage | "The promise held, and nobody had to click retry." |
-| (5) | Optional: Swiss host 1 **Hangs** | "received your letter but never answered" | "We even tell you when a provider got the data but never answered." |
+| 1 | Ana: example "Documents needed for your support", Italiano, "Explain my letter" | Explanation in Italian with the deadlines highlighted; journey: rule applied, **US host and unknown-origin host struck through**, answered by Public AI | "Ana's letter is about her support and her health. Switzerland only, checked before anything is sent." |
+| 2 | Demo controls: **Break every Swiss service**, "Explain it again" | "Your letter is waiting, safely." Journey: **the backup plan wanted SEA-LION in Singapore, nothing was sent** | "This is where the Utility would have gone to Singapore. For Ana, nothing leaves Switzerland, not even with consent." |
+| 3 | New letter: example "Class camp" (school), explain | The **EU host** answers; US and Singapore stay 0 | "The school chose Switzerland first, then the EU." |
+| 4 | **Break Swiss and EU services**; new letter: "Second payment reminder" (other office), explain | Waiting, then the offer: "Send it to the United States instead…". Open the dialog, tick "I understand", **Send it to the United States** | "Marco can choose not to wait. The dialog says exactly what that means." |
+| 5 | Watch the journey and the counters | "You agreed to send this letter to a service in the United States", sent to the US host, **US counter 1** | "His choice, for this letter only, recorded. Ana's letter still waits in Switzerland." |
+| 6 | **Repair all** | Ana's waiting letter completes by itself | "When the Swiss service is back, the promise is kept." |
 
 Fallback if the live demo fails: a pre-recorded 60-second video of the same steps (record it at 10:00).
 
@@ -82,6 +97,7 @@ Roles: **speaker** (tells the story, never touches the laptop), **driver** (clic
 | "The Public AI API routes internally. Isn't that the same problem?" | "Yes, one level down. That's why the proposal is for the Utility itself: jurisdiction metadata and the same policy inside their gateway. Our patch is tested on their production config." |
 | "Why not LiteLLM's tag routing?" | "We tested it on their version. Retries and fallbacks widen the tags, and some request fields bypass them. A filter that runs before every attempt, reading only server-side key metadata, doesn't have those gaps." |
 | "Isn't waiting bad for users?" | "For a letter with a deadline in days, ten minutes of waiting is fine; a leak can't be recalled. For urgent use cases, the commune can approve more Swiss endpoints. The rule decides, not the outage." |
+| "Isn't consent a loophole?" | "Only where the office allows it: the social services' rule refuses it, and the test bench proves that. Consent never comes from a request parameter. It is given in a dialog, recorded, valid for one letter, and Swiss and EU services are still tried first. Whether consent is enough legally for a given office is a question for that office's lawyers, not for the gateway." |
 | "What if DNS sends the request somewhere else?" | "It happened to us during the build: a stale DNS cache sent one demo letter to the wrong container while the gateway thought it went to the right one. Our counters caught it, we fixed it, and the bench now tests it. That's why the proposal to the Utility also says: turn TLS verification back on. It is off in their config." |
 | "What if the gateway itself is compromised?" | "Out of scope, and said so: the gateway and its logs are in the data path. It runs in the commune's environment; network egress controls are the second barrier." |
 | "Where does the waiting request live?" | "In the gateway's local store, a volume in the same authorized environment. The request body is deleted as soon as the job ends." |

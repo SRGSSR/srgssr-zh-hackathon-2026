@@ -153,6 +153,11 @@ Grouped by what they would change. Nothing here is claimed as working in the REA
 - [ ] **Concurrency.** `Router.previous_models`, which we use to rebuild per-attempt outcomes, is router-global and capped at 4 entries. Under concurrent load some attempt details may be missing; the timeline then says "details not available". Test under load.
 - [ ] **Not implemented.** Streaming for deferred requests, a completion webhook (callers poll today), and priorities between jobs.
 
+**Consent (three rules)**
+- [ ] **Legal basis.** Is a resident's consent enough for a public body to send a letter outside Switzerland or the EU? It depends on the office and the canton, and for sensitive data or data under official secrecy probably not. That is why the social services' rule refuses consent entirely. Check it with a data protection officer before offering consent anywhere.
+- [ ] **Consent text versioning.** The statement shown in the dialog is stored with the consent. Version it and keep old versions, so a recorded consent can be matched with the exact text the resident saw.
+- [ ] **Withdrawal.** Consent can be withdrawn only until the letter is sent. After that, the copy in the United States cannot be recalled; the dialog says so.
+
 **Routing and policy**
 - [ ] **Binding names to servers.** Test that TLS verification is on for every real provider (the Utility sets `ssl_verify: false`), and design the egress allowlist that should back the policy at network level.
 - [ ] **`RoutingPlugin`.** Evaluate v1.98's official routing-plugin API as the home of the policy filter (layer 2).
