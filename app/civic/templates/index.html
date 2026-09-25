@@ -57,7 +57,7 @@
       <p class="promise-why">Which rule applies depends on the office that wrote the letter. Letters from the social services talk about your support, your health and your children. The law protects this information more strongly than almost anything else, so those letters never leave Switzerland.</p>
     </section>
 
-    {% if jobs %}
+    {% if jobs and not shared_demo %}
     <section aria-labelledby="recent-title">
       <h2 id="recent-title">Your recent letters</h2>
       <ul class="recent">

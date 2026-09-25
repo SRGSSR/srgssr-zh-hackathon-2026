@@ -12,7 +12,7 @@
     <button type="button" data-bulk="reset" class="btn-quiet">Repair all and reset counters</button>
   </div>
   <div class="endpoints endpoints--wide" data-endpoints></div>
-  {% if jobs %}
+  {% if jobs and not shared_demo %}
   <h2>Recent letters</h2>
   <ul class="recent">{% for j in jobs %}<li><a href="/jobs/{{ j.id }}">Letter of {{ j.created_at | when }}</a><span class="state state--{{ j.status }}">{{ j.status }}</span></li>{% endfor %}</ul>
   {% endif %}

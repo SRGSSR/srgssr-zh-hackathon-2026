@@ -8,7 +8,7 @@ It explains an official letter in simple words, in German, French, Italian, Roma
 
 ## Try it online (during the Swiss {ai} Weeks)
 
-**https://343bd0c9.sslip.io**, user `jury`. The password is in our submission, and the team can give it to you.
+**https://343bd0c9.sslip.io**. No login is needed during the event. Please use the example letters only, never a real one.
 
 - **Location.** This shared demo runs on AWS in Frankfurt (EU). In a real deployment the gateway runs in the commune's own environment in Switzerland.
 - **Shared state.** If services are broken when you arrive, another visitor broke them. *Demo controls → Repair all and reset counters* fixes that.

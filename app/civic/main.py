@@ -47,6 +47,25 @@ async def _view(letter_id: str):
     return job, evs
 
 
+SHARED_DEMO = os.environ.get("SHARED_DEMO") == "1"
+LETTERS_PER_HOUR = int(os.environ.get("SHARED_DEMO_LETTERS_PER_HOUR", "20"))
+_recent_by_ip: dict = {}
+
+
+def _check_rate(request: Request) -> None:
+    """On the open shared demo, limit how many letters one address can send per hour,
+    so nobody uses up the Public AI key's quota."""
+    if not SHARED_DEMO:
+        return
+    import time as _t
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "?")).split(",")[0].strip()
+    now = _t.time()
+    recent = [t for t in _recent_by_ip.get(ip, []) if now - t < 3600]
+    if len(recent) >= LETTERS_PER_HOUR:
+        raise HTTPException(429, "Too many letters from this address in the last hour. Please try again later.")
+    _recent_by_ip[ip] = recent + [now]
+
+
 async def _create(letter: str, language: str, service: str = "social") -> str:
     letter_id = db.create(letter, language, service if service in SERVICES else "social")
     await sync.submit(letter_id)
@@ -70,9 +89,10 @@ async def index(request: Request):
 
 
 @app.post("/jobs")
-async def create_job_form(letter: str = Form(...), language: str = Form("it"), service: str = Form("social")):
+async def create_job_form(request: Request, letter: str = Form(...), language: str = Form("it"), service: str = Form("social")):
     if not letter.strip():
         raise HTTPException(400, "empty letter")
+    _check_rate(request)
     return RedirectResponse(f"/jobs/{await _create(letter.strip(), language, service)}", status_code=303)
 
 
@@ -89,10 +109,11 @@ async def job_page(request: Request, letter_id: str):
 
 
 @app.post("/jobs/{letter_id}/again")
-async def again_form(letter_id: str):
+async def again_form(request: Request, letter_id: str):
     job = db.get(letter_id)
     if not job:
         raise HTTPException(404, "job not found")
+    _check_rate(request)
     return RedirectResponse(f"/jobs/{await _create(job['letter'], job['language'], job['service'])}", status_code=303)
 
 
@@ -151,7 +172,8 @@ class ConsentIn(BaseModel):
 
 
 @app.post("/api/jobs")
-async def api_create(job: JobIn):
+async def api_create(request: Request, job: JobIn):
+    _check_rate(request)
     return {"id": await _create(job.letter, job.language, job.service)}
 
 
