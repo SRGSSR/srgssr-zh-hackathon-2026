@@ -1,0 +1,162 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Commune letter helper - hackathon demo. One EC2 instance runs the same docker compose stack
+  as the repository, behind Caddy (HTTPS on an sslip.io name, one shared password for the jury).
+  Everything lives in this stack, including its own VPC and secrets; delete the stack to remove it all.
+
+Parameters:
+  RepoUrl:
+    Type: String
+    Default: https://github.com/SRGSSR/srgssr-zh-hackathon-2026.git
+  Branch:
+    Type: String
+    Default: public-ai-service
+  InstanceType:
+    Type: String
+    Default: t3.large
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64
+
+Resources:
+  # --- network: a small VPC of its own, so nothing depends on the account's existing setup ---
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.42.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags: [{ Key: Name, Value: commune-letter-demo }, { Key: Project, Value: commune-letter-hackathon }]
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags: [{ Key: Project, Value: commune-letter-hackathon }]
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties: { VpcId: !Ref Vpc, InternetGatewayId: !Ref InternetGateway }
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: 10.42.1.0/24
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      Tags: [{ Key: Project, Value: commune-letter-hackathon }]
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Vpc
+      Tags: [{ Key: Project, Value: commune-letter-hackathon }]
+  DefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayAttachment
+    Properties: { RouteTableId: !Ref RouteTable, DestinationCidrBlock: 0.0.0.0/0, GatewayId: !Ref InternetGateway }
+  SubnetRoute:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: { SubnetId: !Ref PublicSubnet, RouteTableId: !Ref RouteTable }
+  WebSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Commune letter demo - HTTP for the certificate challenge and HTTPS for the jury only
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 80, ToPort: 80, CidrIp: 0.0.0.0/0 }
+        - { IpProtocol: tcp, FromPort: 443, ToPort: 443, CidrIp: 0.0.0.0/0 }
+      Tags: [{ Key: Project, Value: commune-letter-hackathon }]
+
+  # --- secrets: the Public AI key (you put the value in) and a generated jury password ---
+  PublicAiKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: commune-letter-demo/publicai-api-key
+      Description: Public AI API key for the hackathon demo. Replace the placeholder with put-secret-value.
+      SecretString: REPLACE_ME
+      Tags: [{ Key: Project, Value: commune-letter-hackathon }]
+  JuryPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: commune-letter-demo/jury-password
+      Description: Shared password for the jury, user name jury
+      GenerateSecretString: { PasswordLength: 20, ExcludePunctuation: true }
+      Tags: [{ Key: Project, Value: commune-letter-hackathon }]
+
+  # --- instance: managed through SSM Session Manager, no SSH key, no SSH port ---
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: [{ Effect: Allow, Principal: { Service: ec2.amazonaws.com }, Action: sts:AssumeRole }]
+      ManagedPolicyArns: [arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore]
+      Policies:
+        - PolicyName: read-demo-secrets
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: [!Ref PublicAiKeySecret, !Ref JuryPasswordSecret]
+      Tags: [{ Key: Project, Value: commune-letter-hackathon }]
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties: { Roles: [!Ref InstanceRole] }
+  Instance:
+    Type: AWS::EC2::Instance
+    DependsOn: DefaultRoute
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref InstanceProfile
+      SubnetId: !Ref PublicSubnet
+      SecurityGroupIds: [!Ref WebSecurityGroup]
+      MetadataOptions: { HttpTokens: required, HttpEndpoint: enabled }
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs: { VolumeSize: 30, VolumeType: gp3, DeleteOnTermination: true, Encrypted: true }
+      Tags: [{ Key: Name, Value: commune-letter-demo }, { Key: Project, Value: commune-letter-hackathon }]
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -euxo pipefail
+          exec > >(tee /var/log/commune-demo-setup.log) 2>&1
+          dnf install -y docker git
+          systemctl enable --now docker
+          mkdir -p /usr/local/lib/docker/cli-plugins
+          curl -fsSL https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+          curl -fsSL https://github.com/docker/buildx/releases/download/v0.17.1/buildx-v0.17.1.linux-amd64 -o /usr/local/lib/docker/cli-plugins/docker-buildx
+          chmod +x /usr/local/lib/docker/cli-plugins/docker-compose /usr/local/lib/docker/cli-plugins/docker-buildx
+          git clone --depth 1 -b ${Branch} ${RepoUrl} /opt/commune-letter
+          cd /opt/commune-letter
+          TOKEN=$(curl -fsS -X PUT http://169.254.169.254/latest/api/token -H "X-aws-ec2-metadata-token-ttl-seconds: 300")
+          IP=$(curl -fsS -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/public-ipv4)
+          HOST="$(echo "$IP" | tr . -).sslip.io"
+          # Wait up to 30 minutes for the real Public AI key; without it the demo runs simulated.
+          set +x
+          KEY=REPLACE_ME
+          for i in $(seq 1 180); do
+            KEY=$(aws secretsmanager get-secret-value --region ${AWS::Region} --secret-id ${PublicAiKeySecret} --query SecretString --output text)
+            [ "$KEY" != "REPLACE_ME" ] && break
+            sleep 10
+          done
+          [ "$KEY" = "REPLACE_ME" ] && KEY=""
+          PASS=$(aws secretsmanager get-secret-value --region ${AWS::Region} --secret-id ${JuryPasswordSecret} --query SecretString --output text)
+          umask 077
+          printf 'PUBLICAI_API_KEY=%s\nSIMULATE_WITHOUT_KEY=1\nSHARED_DEMO=1\n' "$KEY" > .env
+          HASH=$(docker run --rm caddy:2 caddy hash-password --plaintext "$PASS")
+          printf '%s {\n  basic_auth {\n    jury %s\n  }\n  reverse_proxy app:8080\n}\n' "$HOST" "$HASH" > deploy/aws/Caddyfile
+          set -x
+          docker compose -f docker-compose.yml -f deploy/aws/docker-compose.aws.yml up -d --build
+          echo "ready: https://$HOST"
+
+Outputs:
+  Url:
+    Description: Demo address (user jury, password in the JuryPasswordSecret)
+    Value: !Sub
+      - "https://${Dashed}.sslip.io"
+      - Dashed: !Join ["-", !Split [".", !GetAtt Instance.PublicIp]]
+  InstanceId:
+    Value: !Ref Instance
+  PublicAiKeySecret:
+    Value: !Ref PublicAiKeySecret
+  JuryPasswordSecret:
+    Value: !Ref JuryPasswordSecret

@@ -1,0 +1,18 @@
+# Added on top of docker-compose.yml for the AWS demo: Caddy terminates HTTPS (Let's Encrypt on
+# an sslip.io name) and asks for the shared jury password. Only Caddy is reachable from outside;
+# every other service stays bound to 127.0.0.1 or the internal network.
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./deploy/aws/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [app]
+  app:
+    environment:
+      SHARED_DEMO: "1"
+
+volumes:
+  caddy-data:

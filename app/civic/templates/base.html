@@ -27,6 +27,9 @@
     </nav>
   </header>
 
+  {% if shared_demo %}
+  <p class="shared-note">This is a shared demo for the jury. Please use the example letters only, never a real one. Other visitors can break services too; Demo controls repair them.</p>
+  {% endif %}
   <main id="main">{% block content %}{% endblock %}</main>
 
   <footer class="footer">
@@ -44,7 +47,7 @@
       <button type="button" data-bulk="break-approved" class="btn-quiet danger">Break every Swiss service</button>
       <button type="button" data-bulk="break-swiss-eu" class="btn-quiet danger">Break Swiss and EU services</button>
       <button type="button" data-bulk="restore-all" class="btn-quiet">Repair all</button>
-      <button type="button" data-bulk="reset" class="btn-quiet">Reset counters</button>
+      <button type="button" data-bulk="reset" class="btn-quiet">Repair all and reset counters</button>
     </div>
     <div class="endpoints" data-endpoints></div>
     <p class="drawer-foot">"Received" counts what actually reached each service. Services a rule excludes must stay at zero for letters under that rule. Social services: Switzerland only. School: Switzerland, then the EU. Other offices: Switzerland and the EU; the United States only if the resident agrees.</p>

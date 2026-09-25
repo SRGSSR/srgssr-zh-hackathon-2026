@@ -74,6 +74,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .demo-toggle:hover, .demo-toggle[aria-expanded="true"] { border-style: solid; color: var(--ink); }
 
 main { max-width: 1200px; margin: 0 auto; padding: 8px var(--gutter) 64px; }
+.shared-note { max-width: 1200px; margin: 0 auto 8px; padding: 0 var(--gutter); color: var(--wait); font-size: var(--t-small); }
 .footer {
   max-width: 1200px; margin: 0 auto; padding: 24px var(--gutter) 40px;
   color: var(--ink-3); font-size: var(--t-small); display: flex; gap: 8px 24px; flex-wrap: wrap;
