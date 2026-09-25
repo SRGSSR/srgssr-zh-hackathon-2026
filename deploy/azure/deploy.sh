@@ -2,6 +2,7 @@
 # Deploy or update the demo on Azure. Usage: deploy/azure/deploy.sh [subscription] [resource-group] [location]
 # PUBLICAI_API_KEY comes from the environment or the repository's .env (empty: simulated answers).
 # DEMO_PASSWORD=... protects the demo with one shared password (user jury); without it the demo is open.
+# DOMAINS=promisekept.ch,www.promisekept.ch serves the demo on own domains (DNS first, on every deploy).
 # BRANCH=... deploys another branch. Re-run to deploy the branch's latest commit.
 set -e
 SUB="${1:-z231-as-technology-playground-dev}"; RG="${2:-rg-commune-letter-demo}"; LOCATION="${3:-switzerlandnorth}"
@@ -15,10 +16,10 @@ SSH_KEY="$HOME/.ssh/commune-letter-azure"
 
 # Secrets go through a private parameters file, not the command line.
 PARAMS=$(mktemp); trap 'rm -f "$PARAMS"' EXIT
-KEY="$KEY" LOCATION="$LOCATION" PASS="${DEMO_PASSWORD:-}" BRANCH="${BRANCH:-public-ai-service}" PUB="$(cat "$SSH_KEY.pub")" python3 -c '
+KEY="$KEY" LOCATION="$LOCATION" PASS="${DEMO_PASSWORD:-}" BRANCH="${BRANCH:-public-ai-service}" DOMAINS="${DOMAINS:-}" PUB="$(cat "$SSH_KEY.pub")" python3 -c '
 import json, os
 p = {"publicAiApiKey": os.environ["KEY"], "demoPassword": os.environ["PASS"], "location": os.environ["LOCATION"],
-     "branch": os.environ["BRANCH"], "adminPublicKey": os.environ["PUB"]}
+     "branch": os.environ["BRANCH"], "domains": os.environ["DOMAINS"], "adminPublicKey": os.environ["PUB"]}
 print(json.dumps({"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
                   "contentVersion": "1.0.0.0", "parameters": {k: {"value": v} for k, v in p.items()}}))' > "$PARAMS"
 

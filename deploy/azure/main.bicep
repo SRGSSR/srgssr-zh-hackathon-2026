@@ -24,6 +24,9 @@ param adminPublicKey string
 @description('The demo is served at https://<dnsLabel>.<location>.cloudapp.azure.com')
 param dnsLabel string = 'commune-letter-${uniqueString(resourceGroup().id)}'
 
+@description('Optional own domains, comma-separated, with DNS already pointing to the VM. The first serves the demo; the others and the Azure name redirect to it.')
+param domains string = ''
+
 @description('Changes on every deploy, so the setup script re-runs: pulls the branch, rebuilds, restarts.')
 param deployStamp string = utcNow()
 
@@ -144,6 +147,7 @@ resource setup 'Microsoft.Compute/virtualMachines/extensions@2024-07-01' = {
         'REPO_URL=\'${repoUrl}\''
         'BRANCH=\'${branch}\''
         'SITE_HOST=\'${publicIp.properties.dnsSettings.fqdn}\''
+        'DOMAINS=\'${domains}\''
         'KEY_B64=\'${base64(publicAiApiKey)}\''
         'PASS_B64=\'${base64(demoPassword)}\''
         loadTextContent('setup.sh')
@@ -152,5 +156,6 @@ resource setup 'Microsoft.Compute/virtualMachines/extensions@2024-07-01' = {
   }
 }
 
-output url string = 'https://${publicIp.properties.dnsSettings.fqdn}'
+output url string = 'https://${empty(domains) ? publicIp.properties.dnsSettings.fqdn : first(split(replace(domains, ' ', ''), ','))}'
+output ip string = publicIp.properties.ipAddress
 output vmName string = vm.name
