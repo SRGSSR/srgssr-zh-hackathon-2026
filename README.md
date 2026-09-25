@@ -193,6 +193,7 @@ Useful beyond this project; details and evidence in [docs/findings.md](docs/find
 - There are no user accounts, and all ports bind to `127.0.0.1`.
 - There is one civic task, and chat completions only.
 - *Upload a photo or PDF* is a mock. A `.txt` file is read in the browser; any other file fills in the matching example letter (by file name, for example [`samples/pdf/`](samples/pdf/)), and the page says so. There is no text recognition.
+- The Romansh page text is machine-translated (Supertext) and corrected by us; a native speaker has not reviewed it yet. German, French and Italian are ours, too.
 - The queue relies on adding routes to LiteLLM's FastAPI app from a callback. That is not an official extension API.
 - The queue runs as one replica with SQLite, and its calls skip the proxy's spend tracking.
 - The explanation comes from a language model: it can be wrong, it is not legal advice, and the resident checks the draft.
