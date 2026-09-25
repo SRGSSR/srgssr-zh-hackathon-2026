@@ -6,9 +6,9 @@ It explains an official letter in simple words, in German, French, Italian, Roma
 
 ![A real answer from Apertus: explanation in Italian with the deadlines highlighted, and the journey of the letter](docs/img/answer.png)
 
-## Try it online (during the Swiss {ai} Weeks)
+## Online demo (during the Swiss {ai} Weeks)
 
-**https://343bd0c9.sslip.io**. No login is needed during the event. Please use the example letters only, never a real one.
+The address is in our submission. No login is needed. Please use the example letters only, never a real one.
 
 - **Location.** This shared demo runs on AWS in Frankfurt (EU). In a real deployment the gateway runs in the commune's own environment in Switzerland.
 - **Shared state.** If services are broken when you arrive, another visitor broke them. *Demo controls → Repair all and reset counters* fixes that.

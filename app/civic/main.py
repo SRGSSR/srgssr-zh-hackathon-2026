@@ -48,7 +48,7 @@ async def _view(letter_id: str):
 
 
 SHARED_DEMO = os.environ.get("SHARED_DEMO") == "1"
-LETTERS_PER_HOUR = int(os.environ.get("SHARED_DEMO_LETTERS_PER_HOUR", "20"))
+LETTERS_PER_HOUR = int(os.environ.get("SHARED_DEMO_LETTERS_PER_HOUR", "100"))
 _recent_by_ip: dict = {}
 
 

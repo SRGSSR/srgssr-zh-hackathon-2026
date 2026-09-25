@@ -1,6 +1,6 @@
 #!/bin/sh
 # Re-read the jury password from Secrets Manager (on the instance, so it never leaves AWS) and serve
-# the demo under a short hex name as well (e.g. 343bd0c9.sslip.io instead of 52-59-208-201.sslip.io).
+# the demo under a short hex name as well (e.g. 0a000001.sslip.io instead of 10-0-0-1.sslip.io).
 # Run it after changing the password secret. Usage: deploy/aws/refresh-caddy.sh [profile] [region]
 # NO_AUTH=1 serves the demo without a password (the app then hides the letters list and limits
 # letters per address, because SHARED_DEMO=1).
