@@ -27,7 +27,7 @@ def _when(ts: float) -> str:
 
 templates.env.filters["when"] = _when
 templates.env.globals["v"] = str(int(__import__("time").time()))  # cache-busting for static files
-templates.env.globals["shared_demo"] = os.environ.get("SHARED_DEMO") == "1"  # the public AWS demo
+templates.env.globals["shared_demo"] = os.environ.get("SHARED_DEMO") == "1"  # the shared online demo
 
 
 @app.on_event("startup")

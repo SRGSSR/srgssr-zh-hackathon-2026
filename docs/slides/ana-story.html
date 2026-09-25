@@ -470,7 +470,7 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         <li><b>Covered:</b> primary down, all allowed down, the SEA-LION fallback, a deployment without metadata, a timeout after the provider got the data, recovery, restart.</li>
       </ul>
       <ul class="plain">
-        <li><b>Run it:</b> <code>make test</code> starts the stack and runs the whole bench. Online demo: <code>343bd0c9.sslip.io</code>, example letters only.</li>
+        <li><b>Run it:</b> <code>make test</code> starts the stack and runs the whole bench. Online demo: <code>commune-letter-64v3qzbzgu2f4<wbr>.switzerlandnorth<wbr>.cloudapp.azure.com</code>, example letters only.</li>
         <li><b>Upstream:</b> <code>upstream/</code> adds jurisdiction metadata, the same policy (opt-in per key or team) and attribution headers to chat.publicai.co.</li>
       </ul>
     </div>
@@ -508,7 +508,7 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         <h3>Out of scope</h3>
         <ul>
           <li>A compromised gateway host or a malicious operator.</li>
-          <li>The shared online demo runs on AWS in Frankfurt (EU). A real gateway runs in the commune’s environment in Switzerland.</li>
+          <li>The shared online demo is hosted in Switzerland (Microsoft Azure, Zurich). A real gateway runs in the commune’s own environment.</li>
           <li>Network egress controls. In production they back the policy.</li>
           <li>The gateway and its logs are in the data path; events carry routing data only.</li>
         </ul>

@@ -47,7 +47,7 @@ Built in 24 hours at the Swiss {ai} Weeks (Zurich, September 2026) for the Publi
 
 The address is in our submission. No login is needed. Please use the example letters only, never a real one.
 
-- **Location.** This shared demo runs on AWS in Frankfurt (EU). In a real deployment the gateway runs in the commune's own environment in Switzerland.
+- **Location.** This shared demo is hosted in Switzerland, on Microsoft Azure (Switzerland North, Zurich). The gateway, the waiting letters and the journey stay there. In a real deployment the gateway runs in the commune's own environment.
 - **Shared state.** If services are broken when you arrive, another visitor broke them. *Demo controls → Repair all and reset counters* fixes that.
 - **Timing.** The "Public AI" service is the real Public AI API, and a real answer takes 10 to 60 seconds. If Public AI times out (we have seen 504s after 60 seconds under load), the gateway moves on to a Swiss service within the rule. That answer is simulated and labelled as such, and the journey shows what happened.
 
@@ -211,7 +211,8 @@ tests/       the test bench, plus restart_check.sh
 upstream/    the proposal for chat.publicai.co, tested on its production config
 docs/        findings.md (how LiteLLM really behaves, open questions), pitch.md, plan-example-app.md
              diagram/: source of the architecture picture
-deploy/aws/  the shared online demo: one CloudFormation stack, deploy.sh and teardown.sh
+deploy/azure/ the shared online demo, in Switzerland North: a Bicep template, deploy.sh and teardown.sh
+deploy/aws/  the first online demo (AWS Frankfurt), kept for reference
 ```
 
 Apache 2.0, see [LICENSE](LICENSE). Fonts: Atkinson Hyperlegible Next and Shantell Sans (SIL Open Font License). Hand-drawn marks: [rough-notation](https://github.com/rough-stuff/rough-notation) and [rough.js](https://github.com/rough-stuff/rough) (MIT).
