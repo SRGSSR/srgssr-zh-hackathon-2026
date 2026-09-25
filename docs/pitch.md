@@ -55,7 +55,7 @@ Say it plainly: the rule belongs to the office and is bound to its key. The requ
 
 ## 2-minute pitch (main stage), version 2
 
-Slides: [`docs/slides/main-stage-v2.html`](slides/main-stage-v2.html), built on reveal.js. Arrow keys to move; **S** opens the speaker view with this script as notes, a timer and the next slide; **F** is fullscreen; after the last slide, the Q&A has an index (down arrow for its pages). reveal.js and the fonts load from CDNs, so open the deck once with internet before going on stage.
+Slides: [`docs/slides/main-stage-v2.html`](slides/main-stage-v2.html), built on reveal.js. Arrow keys to move; **S** opens the speaker view with this script as notes, a timer and the next slide (open the deck with `?notes` to see the notes under the slides on one screen); **F** is fullscreen; after the last slide, the Q&A has an index (down arrow for its pages). reveal.js and the fonts load from CDNs, so open the deck once with internet before going on stage.
 
 ### What the expert jury asked
 
@@ -86,22 +86,22 @@ The jury took the letter app for the product. They asked:
 | 0:03 | Slide 2: her letter | "A letter from her social services: her bank statements, her medical certificate, her children, a deadline. In bureaucratic German. Ana speaks Italian." |
 | 0:13 | Slide 3: her doubt | "An AI could explain it. But where does her letter go? Public AI's gateway falls back on its own: if the Apertus hosts are down, it goes to another model, in Singapore. It's in their configuration today. We ran it." |
 | 0:30 | Slide 4: what we built | "So we built a sovereignty layer, in the gateway: a plugin for LiteLLM, the gateway Public AI runs. Ana's office sets the rule: Switzerland only. It's checked on every retry and every fallback. And if no Swiss service is up, her letter waits." |
-| 0:47 | Tab 1 | "Here it is, with Apertus. Ana's letter, explained in Italian. Only Switzerland: three services ruled out before anything was sent." |
+| 0:47 | Slide 5: the video, what Ana sees | "Ana pastes her letter and picks Italian. Apertus explains it: what it says, what she has to do by when, and a reply in German. On the right: only Switzerland, three services ruled out before anything was sent." |
 | 0:58 | Tab 2 | "Every Swiss service broken: the backup plan wants Singapore. Blocked. The letter waits." |
 | 1:06 | Tab 3, demo controls open | "Marco's office allows the US, but only if he agrees. He agrees, for this letter only: the US counter goes to one." |
 | 1:18 | Tab 2 | "A Swiss service is back: Ana's letter completes by itself." |
 | 1:24 | Tab 2, demo controls open: the excluded services show 0 | "Every service counts what it receives. In 48 tests, zero requests reached a place a rule excludes." |
-| 1:33 | Slide 5: Promise kept, to the end | "Any LiteLLM gateway can switch it on, and a pull request is ready for the Public AI Utility. With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes." |
-| 1:48 | Slide 5 | "And Ana? She got her answer, in Italian. Her data never left Switzerland, even when a provider failed. Promise kept." |
+| 1:33 | Slide 6: Promise kept, to the end | "Any LiteLLM gateway can switch it on, and a pull request is ready for the Public AI Utility. With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes." |
+| 1:48 | Slide 6 | "And Ana? She got her answer, in Italian. Her data never left Switzerland, even when a provider failed. Promise kept." |
 
-If a rehearsal runs over 2:00, cut the Tab 1 sentence about the ruled-out services first. Keep the last sentence, whatever happens.
+If a rehearsal runs over 2:00, cut the live part (Tabs 2 and 3) first: the video already shows Ana's journey. Keep the last sentence, whatever happens.
 
 ### Prepare the demo before going on stage
 
 Use the local stack with the latest code (`git pull`, then `docker compose up -d --build`), not the venue's Wi-Fi. A real Apertus answer takes 10 to 60 s and each switch to "waiting" about 20 s, so prepare three tabs:
 
 1. Press **Repair all and reset counters** once, before anything else.
-2. **Tab 1:** Ana's letter ("Documents needed for your support"), Italiano, explained by the real Public AI API.
+2. **Tab 1 (optional, the video on slide 5 shows the same):** Ana's letter ("Documents needed for your support"), Italiano, explained by the real Public AI API.
 3. **Break every Swiss service.** **Tab 2:** the same letter, "Explain it again". Wait until it says "waiting".
 4. **Break Swiss and EU services.** **Tab 3:** the example "Second payment reminder". Wait until the consent offer appears, then open **Demo controls** in this tab.
 

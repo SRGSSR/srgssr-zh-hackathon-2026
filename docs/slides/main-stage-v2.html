@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Promise kept</title>
 <!-- reveal.js 6.0.2 (MIT, Hakim El Hattab), pinned with SRI. Keys: arrows, S = speaker view with notes and timer,
-     O = overview, F = fullscreen, down arrow on the last slide = Q&A. PDF: open with ?print-pdf and print. -->
+     O = overview, F = fullscreen, down arrow on the last slide = Q&A. PDF: open with ?print-pdf and print.
+     One screen only? Open with ?notes to see the notes under each slide. -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.css" integrity="sha384-rKClnwfQQ2b7LYSOAhRvm5m4LS7QKciQTAXBpVvr30y6oGB+ZBBXlpDnvFqlv5Eu" crossorigin="anonymous">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -84,6 +85,11 @@ mark{background:none;color:inherit}
 .dest i{font-style:normal;font-size:14px;font-weight:600;border-radius:10px;padding:3px 10px;white-space:nowrap}
 .dest .ok{background:var(--swiss-soft);color:var(--swiss)}
 .dest .no{background:var(--red-soft);color:var(--red)}
+
+/* what Ana sees: a real recording of the app */
+.video-frame{padding:28px 56px;gap:14px;justify-items:center}
+.video-frame .eyebrow{justify-self:start}
+.journey{display:block;height:600px;width:auto;max-width:100%;border:1px solid var(--rule);border-radius:8px;box-shadow:var(--shadow);background:#fff}
 
 /* promise kept */
 .close-ana{display:grid;grid-template-columns:360px 1fr;gap:64px;align-items:center}
@@ -363,16 +369,27 @@ mark{background:none;color:inherit}
       </ul>
     </div>
       </div>
-      <aside class="notes">So we built a sovereignty layer, in the gateway: a plugin for LiteLLM, the gateway Public AI runs. Ana’s office sets the rule: Switzerland only. It’s checked on every retry and every fallback. And if no Swiss service is up, her letter waits.
-<br><br><b>Switch to the browser.</b>
-<br>Tab 1: “Here it is, with Apertus. Ana’s letter, explained in Italian. Only Switzerland: three services ruled out before anything was sent.”
+      <aside class="notes">So we built a sovereignty layer, in the gateway: a plugin for LiteLLM, the gateway Public AI runs. Ana’s office sets the rule: Switzerland only. It’s checked on every retry and every fallback. And if no Swiss service is up, her letter waits.</aside>
+    </section>
+    <section aria-label="Slide 5: What Ana sees">
+      <div class="frame video-frame">
+        <div class="eyebrow">What Ana sees</div>
+        <video class="journey" data-autoplay muted loop playsinline preload="auto" poster="../img/journey-poster.jpg"
+          aria-label="Screen recording: Ana pastes her letter, chooses Italian and presses Explain. Apertus explains it in Italian with the deadlines highlighted, and the journey shows it went only to services in Switzerland.">
+          <source src="../video/journey.webm" type="video/webm">
+          <source src="../video/journey.mp4" type="video/mp4">
+        </video>
+      </div>
+      <aside class="notes">Over the video: “Ana pastes her letter and picks Italian. Apertus explains it: what it says, what she has to do by when, and a reply in German. On the right: where her letter went. Only Switzerland: three services were ruled out before anything was sent.”
+<br><br><b>Then, live in the browser (if time allows):</b>
 <br>Tab 2: “Every Swiss service broken: the backup plan wants Singapore. Blocked. The letter waits.”
 <br>Tab 3 (demo controls open): “Marco’s office allows the US, but only if he agrees. He agrees, for this letter only: the US counter goes to one.”
 <br>Swiss host 1 to Working, then Try again now in Tab 2: “A Swiss service is back: Ana’s letter completes by itself.”
 <br>Demo controls: “Every service counts what it receives. In 48 tests, zero requests reached a place a rule excludes.”
 <br><br><b>Back to the slides, next slide.</b></aside>
     </section>
-    <section aria-label="Slide 5: Promise kept">
+
+    <section aria-label="Slide 6: Promise kept">
       <div class="frame">
     <div class="close-ana">
       <figure class="portrait"><svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of Ana, smiling, holding her letter with a green check">
@@ -644,6 +661,8 @@ mark{background:none;color:inherit}
     width: 1280, height: 720, margin: 0.04, center: false,
     hash: true, controls: true, progress: true, slideNumber: false,
     transition: 'fade', backgroundTransition: 'none',
+    // ?notes shows the notes under the slides, for rehearsing on one screen
+    showNotes: new URLSearchParams(location.search).has('notes'),
     plugins: [RevealNotes],
   });
 </script>
