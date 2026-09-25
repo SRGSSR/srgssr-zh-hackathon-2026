@@ -55,31 +55,44 @@ Say it plainly: the rule belongs to the office and is bound to its key. The requ
 
 ## 2-minute pitch (main stage), version 2
 
-Written after the expert pitch. What changed from version 1, and why:
+Slides: [`docs/slides/main-stage-v2.html`](slides/main-stage-v2.html) (arrow keys; the Q&A tabs follow the last slide).
 
-- **One demo path, three moments:** Ana waits, Marco chooses, Ana's letter completes. The school's EU case stays on the slide and in the Q&A. Two minutes leave no room for four tabs.
-- **A new block says concretely what we built:** a plugin any LiteLLM gateway can load, and a ready pull request for the Public AI Utility. The main jury judges impact, not only the demo.
-- **One number to remember:** zero requests reached a place a rule excludes.
-- **The problem sentence is exact:** Singapore when the Apertus *hosts* are down (both of them, as on slide 9), not "the Swiss host".
-- **It ends with the address,** promisekept.ch, so people can try it right away.
-- **The repair uses Swiss host 1,** a simulated host that answers in seconds. Public AI would take up to a minute on stage.
+### What the expert jury asked
 
-### Script (about 270 words; rehearse against a timer)
+The jury took the letter app for the product. They asked:
+
+| Question | Answer (and where it is now) |
+|---|---|
+| "Did you build something?" | "Yes: a plugin for LiteLLM, about a thousand lines of Python, running at promisekept.ch, with 48 tests and a ready pull request for the Public AI Utility. The letter service is the example that uses it." Slides 3 and 6; Q&A tab "What's in the repo". |
+| "Did you use Apertus?" | "Yes. Every real answer comes from Apertus 1.5 through the Public AI API. The simulated hosts exist so we can break things on purpose, and the page labels them." Slide 4; Q&A tab "Apertus". |
+| "Can it process images?" | "The prototype reads text: Apertus is a text model, and the photo upload is a mock. The layer never reads the content: text or images, the rule decides where a request may go." Q&A tab "Images". |
+
+### What changed from version 1, and why
+
+- **The layer comes first; the app is the example.** Slide 1 names what we built, slide 3 shows it with its one line of config, and the app only appears on slide 4, titled "our example service".
+- **Apertus is named on screen** (slide 4), with a real answer.
+- **One demo path, three moments:** Ana waits, Marco chooses, Ana's letter completes. The school's EU case stays in the Q&A.
+- **One number to remember:** zero (slide 5).
+- **"Anyone can use it"** (slide 6): three steps for any LiteLLM gateway, and the pull request for the Utility.
+- **The problem sentence is exact:** Singapore when the Apertus *hosts* are down (both), not "the Swiss host".
+- **The repair uses Swiss host 1,** which answers in seconds; Public AI would take up to a minute on stage.
+
+### Script (rehearse against a timer)
 
 | Time | Screen | Speaker says |
 |---|---|---|
-| 0:00 | Slides 1 and 2: Ana, her letter | "This is Ana. A letter from her social services: her bank statements, her medical certificate, her children, a deadline. In bureaucratic German. Ana speaks Italian." |
-| 0:12 | Slide 3: the fallback | "An AI could explain it. But where does her letter go? Public AI's gateway falls back on its own when a provider fails. In its configuration today, if the Apertus hosts are down, the request goes to another model, in Singapore. We ran that configuration: that's where it went." |
-| 0:32 | Tab 1 | "Here is Ana's letter, explained in Italian, with her deadlines. On the right, where it went: Switzerland only. The US, the EU and a host of unknown origin were ruled out before anything was sent." |
-| 0:44 | Tab 2 | "Now every Swiss service is broken. The backup plan wants Singapore: blocked. Ana's letter waits, in Switzerland." |
-| 0:54 | Tab 3, demo controls open | "Other offices can allow more. Marco's payment reminder: Swiss and EU services are down, so the page asks him. He agrees, for this letter only. The US counter goes to one, and his choice is recorded." |
-| 1:10 | Tab 2 | "A Swiss service is back. Ana's letter completes by itself." |
-| 1:18 | Slide: proof | "Behind this is a plugin for LiteLLM, the open gateway Public AI runs. Each office's rule is bound to its key and checked before every attempt, retries and fallbacks included. Every service counts what it receives: in 48 tests with broken services, zero requests reached a place a rule excludes. And a ready pull request brings it to the Public AI Utility: ten out of ten checks on its production config." |
-| 1:48 | Slide: promisekept.ch | "With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes. Try it: promisekept.ch." |
+| 0:00 | Slide 1: Promise kept | "We built Promise kept: a data-sovereignty layer for public AI." |
+| 0:05 | Slide 2: the problem | "Take Ana. Her letter from the social services holds her health, her money, her children. An AI could explain it. But Public AI's gateway falls back on its own: if the Apertus hosts are down, her request goes to another model, in Singapore. It's in their configuration today. We ran it." |
+| 0:25 | Slide 3: what we built | "So we built the missing piece, in the gateway: a plugin for LiteLLM, the gateway Public AI runs. No fork. Each office's rule is bound to its key: Switzerland only, or Switzerland then the EU, or more only with consent. It's checked before every attempt, retries and fallbacks included. No allowed service? The request waits in Switzerland. And every request leaves a trace." |
+| 0:50 | Slide 4, then Tab 1 | "Our example service shows it, with Apertus. Ana's letter, explained by Apertus in Italian. On the right: only Switzerland, three services ruled out before anything was sent." |
+| 1:02 | Tab 2 | "Every Swiss service broken: the backup plan wants Singapore, blocked. Ana's letter waits." |
+| 1:10 | Tab 3, demo controls open | "Marco's reminder comes from an office that allows the US, but only if he agrees. He agrees, for this letter only: the US counter goes to one." |
+| 1:22 | Tab 2 | "A Swiss service is back: Ana's letter completes by itself." |
+| 1:28 | Slide 5: zero | "Every service counts what it receives. In 48 tests with broken services, zero requests reached a place a rule excludes." |
+| 1:38 | Slide 6: anyone can use it | "Any LiteLLM gateway can switch it on, and a ready pull request brings it to the Public AI Utility: ten out of ten checks on its production config." |
+| 1:50 | Slide 7: promisekept.ch | "With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes. Try it: promisekept.ch." |
 
-If a rehearsal runs over 2:00, cut the second sentence of Tab 1 first.
-
-Slide order for the main stage: 1, 2, 3, the demo, then the proof slide, then the promisekept.ch slide.
+If a rehearsal runs over 2:00, cut the Tab 1 sentence about the ruled-out services first.
 
 ### Prepare the demo before going on stage
 
@@ -108,7 +121,8 @@ If the demo breaks, play the teaser (`docs/video/teaser.mp4`, 25 s) and continue
 | "Isn't waiting bad for users?" | "A letter with a deadline in days can wait minutes; a leak can't be undone. Where the office allows it, the resident can choose not to wait." |
 | "Why Apertus?" | "It's open, it's Swiss, and it explains these letters in all our languages, Romansh and Swiss German included." |
 | "What's next?" | "Get the pull request merged, add evidence for each provider, and turn TLS verification back on in the Utility." |
-| "Is the upload real?" | "Reading photos and PDFs is simulated in the prototype, and the page says so. The routing is real." |
+| "Did you build something?" | "Yes: a plugin for LiteLLM, running at promisekept.ch. The letter service is only the example." |
+| "Can it process images?" | "The prototype reads text, and the photo upload is a mock. The layer never reads the content: the rule decides where any request may go." |
 
 ## Live demo, step by step (for the expert jury or a longer slot)
 

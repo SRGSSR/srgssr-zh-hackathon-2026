@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Promise kept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#E9ECF1;
+  --slide:#F7F8FA;
+  --paper:#FFFFFF;
+  --ink:#18202D;
+  --muted:#5A6474;
+  --rule:#D3D8E0;
+  --red:#C8281C;
+  --red-soft:#F7DEDA;
+  --swiss:#1D5E4A;
+  --swiss-soft:#DCEBE5;
+  --shadow:0 1px 2px rgba(24,32,45,.06),0 8px 28px rgba(24,32,45,.10);
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0E1218;--slide:#161B24;--paper:#1F2632;--ink:#E8ECF2;--muted:#9AA4B4;
+    --rule:#2E3644;--red:#FF6B5E;--red-soft:#3A1D1B;--swiss:#6FCBA9;--swiss-soft:#173129;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0E1218;--slide:#161B24;--paper:#1F2632;--ink:#E8ECF2;--muted:#9AA4B4;
+  --rule:#2E3644;--red:#FF6B5E;--red-soft:#3A1D1B;--swiss:#6FCBA9;--swiss-soft:#173129;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding-inline:16px;padding-block:24px}
+.deck{width:100%;max-width:1120px;margin:0 auto;display:grid;gap:24px}
+.slide{background:var(--slide);border:1px solid var(--rule);border-radius:6px;padding:clamp(24px,5vw,56px);display:grid;gap:28px;align-content:center;position:relative}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:12px;align-items:center}
+.eyebrow b{color:var(--ink);font-weight:500}
+h1,h2{font-family:var(--display);font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(40px,7vw,84px)}
+h2{font-size:clamp(28px,4.4vw,52px)}
+p{margin:0;max-width:62ch}
+.lede{font-size:clamp(17px,1.8vw,21px);color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);align-items:center}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+
+/* Slide 1: Ana */
+.portrait{margin:0;justify-self:center;width:min(100%,380px)}
+.portrait svg{display:block;width:100%;height:auto}
+.portrait.sm{width:120px;justify-self:start}
+.doubter{display:grid;grid-template-columns:120px 1fr;gap:24px;align-items:center}
+@media (max-width:480px){.doubter{grid-template-columns:1fr}}
+
+/* Slide 2 & 3: the letter */
+.letter{background:var(--paper);color:var(--ink);border:1px solid var(--rule);box-shadow:var(--shadow);padding:28px 32px;font-size:16px;line-height:1.5;border-radius:2px;position:relative;max-width:100%}
+.letter .head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.letter .sender{font-weight:600}
+.letter .meta{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.letter .subj{font-weight:600;margin:14px 0 10px}
+.letter ol{margin:8px 0 10px;padding-left:22px;display:grid;gap:6px}
+.letter p{margin:0 0 8px}
+.letter.solo{justify-self:center;width:min(100%,720px);font-size:17px;padding:clamp(24px,4vw,44px) clamp(24px,4vw,48px);transform:rotate(-.6deg)}
+/* A rubber stamp inked across the letter: speckled, uneven ink via an SVG filter */
+.overstamp{position:absolute;left:52%;top:60%;z-index:1;width:min(78%,520px);transform:translate(-50%,-50%) rotate(-13deg);opacity:.9;mix-blend-mode:multiply;pointer-events:none}
+.overstamp svg{display:block;width:100%;height:auto}
+.overstamp text{font-family:var(--display);fill:var(--red);text-transform:uppercase}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .overstamp{mix-blend-mode:normal}}
+:root[data-theme="dark"] .overstamp{mix-blend-mode:normal}
+mark{background:none;color:inherit}
+.show-marks mark{background:var(--red-soft);box-shadow:inset 0 -2px 0 var(--red);padding:0 2px;border-radius:2px}
+
+/* Slide 4: doubt */
+.route{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:24px;box-shadow:var(--shadow);overflow-x:auto}
+.route svg{display:block;width:100%;min-width:420px;height:auto}
+.route text{font-family:var(--body);fill:var(--ink)}
+.route .sm{font-family:var(--mono);font-size:11px;fill:var(--muted);letter-spacing:.04em}
+.doubts{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.doubts li{font-family:var(--display);font-weight:700;font-size:clamp(19px,2vw,24px);line-height:1.25;padding-left:22px;position:relative;text-wrap:balance}
+.doubts li::before{content:"?";position:absolute;left:0;top:0;color:var(--red)}
+
+/* Slide 5: trust */
+.wants{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:760px){.wants{grid-template-columns:1fr}}
+.want{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px;display:grid;gap:8px;align-content:start}
+.want .k{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--swiss)}
+.want h3{font-family:var(--display);font-weight:700;font-size:21px;margin:0;line-height:1.2}
+.want p{color:var(--muted);font-size:15px}
+.cross{display:inline-block;width:22px;height:22px;background:var(--red);border-radius:3px;position:relative;vertical-align:-3px;margin-right:10px}
+.cross::before,.cross::after{content:"";position:absolute;background:#fff;left:50%;top:50%;transform:translate(-50%,-50%)}
+.cross::before{width:13px;height:4px}.cross::after{width:4px;height:13px}
+.closing{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.8vw,32px);letter-spacing:-.01em;text-wrap:balance;max-width:34ch}
+.closing em{font-style:normal;color:var(--swiss)}
+
+/* Slide 5: QR to the demo, as big as the slide allows */
+.slide.try{justify-items:center;gap:18px;padding:clamp(16px,3vw,32px)}
+.qr{display:block;background:#FFFFFF;padding:clamp(14px,2.4vw,28px);border-radius:6px;width:min(100%,calc(100vh - 230px),640px)}
+.qr svg{display:block;width:100%;height:auto;shape-rendering:crispEdges}
+.qr-url{font-family:var(--mono);font-size:clamp(16px,2vw,24px);color:var(--muted);text-align:center;max-width:none;overflow-wrap:anywhere}
+
+/* Q&A slides */
+.slide.tech{align-content:start;gap:22px}
+.tech h2{font-size:clamp(26px,3.4vw,40px)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tabs .lbl{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.tabs button{font-family:var(--mono);font-size:12px;color:var(--muted);background:none;border:1px solid var(--rule);border-radius:4px;padding:5px 10px;cursor:pointer}
+.tabs button:hover{color:var(--ink);border-color:var(--muted)}
+.tabs button[aria-current="true"]{color:var(--slide);background:var(--ink);border-color:var(--ink)}
+.tabs button:focus-visible{outline:2px solid var(--swiss);outline-offset:2px}
+code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-radius:3px;padding:1px 4px}
+.note{font-size:14px;color:var(--muted);max-width:none}
+.t-two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,40px);align-items:start}
+.t-three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.t-two,.t-three{grid-template-columns:1fr}}
+.t-stack{display:grid;gap:14px}
+.t-box{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:18px 20px}
+.t-box h3{font-family:var(--display);font-weight:700;font-size:18px;margin:0 0 8px}
+.t-box ul,.plain,.findings{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px}
+.plain{gap:12px;font-size:16px}
+.findings{gap:12px;font-size:16.5px;max-width:92ch}
+.flow{display:grid;gap:6px}
+.node{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:12px 16px;display:grid;gap:2px}
+.node b{font-weight:600}
+.node span{font-size:14px;color:var(--muted)}
+.node.gw{border-color:var(--swiss);background:var(--swiss-soft)}
+.node ul{margin:6px 0 0;padding-left:18px;font-size:14px;display:grid;gap:3px}
+.arrow{font-family:var(--mono);font-size:12px;color:var(--muted);padding-left:16px}
+.t-scroll{overflow-x:auto;display:grid;gap:10px}
+.matrix{border-collapse:collapse;width:100%;font-size:14px;background:var(--paper);border:1px solid var(--rule)}
+.matrix caption{text-align:left;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-bottom:8px}
+.matrix th,.matrix td{border-bottom:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top}
+.matrix thead th{font-weight:600;font-size:13.5px}
+.matrix small{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400}
+.matrix tbody th{font-weight:600}
+.matrix i{font-style:normal;font-size:12.5px;font-weight:600;border-radius:10px;padding:2px 8px;white-space:nowrap}
+.matrix .ok{background:var(--swiss-soft);color:var(--swiss)}
+.matrix .no{background:var(--red-soft);color:var(--red)}
+.matrix .ask{background:var(--ground);color:var(--ink);border:1px dashed var(--muted)}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:c}
+.checks li{counter-increment:c;display:grid;grid-template-columns:34px 1fr;gap:4px 14px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:14px 16px}
+.checks li::before{content:counter(c);grid-row:span 2;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--slide);font-family:var(--mono);font-size:13px;display:grid;place-items:center}
+.checks .when{font-family:var(--display);font-weight:700;font-size:18px}
+.checks p{font-size:15px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px 18px;display:grid;gap:4px;align-content:start}
+.stat b{font-family:var(--display);font-weight:800;font-size:clamp(34px,4vw,48px);line-height:1;font-variant-numeric:tabular-nums}
+.stat:first-child b{color:var(--swiss)}
+.stat span{font-size:14px;color:var(--muted)}
+
+/* Deck mode on wide screens */
+.nav{display:none}
+@media (min-width:900px){
+  body{height:100%;min-height:100vh;display:grid;align-content:center}
+  .deck.is-deck .slide{display:none;min-height:min(630px,calc(100vh - 110px))}
+  .deck.is-deck .slide.active{display:grid}
+  .deck.is-deck + .nav{display:flex}
+}
+.nav{max-width:1120px;margin:16px auto 0;justify-content:space-between;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.nav .btns{display:flex;gap:8px}
+.nav button{font:inherit;color:var(--ink);background:var(--slide);border:1px solid var(--rule);border-radius:4px;padding:8px 14px;cursor:pointer}
+.nav button:hover{border-color:var(--muted)}
+.nav button:focus-visible{outline:2px solid var(--swiss);outline-offset:2px}
+.nav button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion:no-preference){
+  .slide.active{animation:in .35s ease-out}
+  @keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+}
+
+/* ---- version 2: the layer is the product ---- */
+.slide.title{gap:24px}
+.title h1{font-size:clamp(60px,10vw,132px)}
+.title .lede{font-size:clamp(20px,2.3vw,30px);color:var(--ink);max-width:36ch;line-height:1.3}
+.title .by{font-size:15px;color:var(--muted)}
+.layer-map{display:grid;grid-template-columns:minmax(0,.75fr) auto minmax(0,1.75fr) auto minmax(0,1.2fr);gap:12px;align-items:center}
+@media (max-width:900px){.layer-map{grid-template-columns:1fr}.layer-map .to{transform:rotate(90deg);justify-self:center}}
+.layer-map .to{font-family:var(--mono);color:var(--muted);font-size:22px}
+.app-box{background:var(--paper);border:1px dashed var(--muted);border-radius:6px;padding:16px 18px;display:grid;gap:4px;color:var(--muted);font-size:15px}
+.app-box b{color:var(--ink);font-family:var(--display);font-size:19px;font-weight:700}
+.layer{background:var(--swiss-soft);border:2px solid var(--swiss);border-radius:8px;padding:20px 22px;display:grid;gap:10px}
+.layer h3{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.4vw,28px);margin:0;color:var(--swiss);line-height:1.1}
+.layer .sub{font-size:15px;color:var(--ink)}
+.layer ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15.5px}
+.dest{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.dest li{display:flex;justify-content:space-between;gap:10px;align-items:baseline;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:7px 12px;font-size:14.5px}
+.dest i{font-style:normal;font-size:12.5px;font-weight:600;border-radius:10px;padding:2px 8px;white-space:nowrap}
+.dest .ok{background:var(--swiss-soft);color:var(--swiss)}
+.dest .no{background:var(--red-soft);color:var(--red)}
+.dest .ask{background:var(--ground);color:var(--ink);border:1px dashed var(--muted)}
+.code{font-family:var(--mono);font-size:clamp(13px,1.35vw,15.5px);line-height:1.55;background:var(--ink);color:var(--slide);border-radius:6px;padding:14px 18px;margin:0;overflow-x:auto;white-space:pre}
+.code .c{opacity:.62}
+.slide.dense{gap:20px}
+.dense h2{font-size:clamp(26px,3.4vw,40px)}
+.built-row{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:20px;align-items:center}
+.dense .code{font-size:14px}
+@media (max-width:760px){.built-row{grid-template-columns:1fr}}
+.built{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:15.5px;color:var(--muted)}
+.built b{color:var(--ink)}
+.shot{margin:0;background:var(--paper);border:1px solid var(--rule);border-radius:6px;box-shadow:var(--shadow);overflow:hidden}
+.shot img{display:block;width:100%;height:auto}
+.shot figcaption{font-size:13px;color:var(--muted);padding:8px 12px;border-top:1px solid var(--rule)}
+.facts{margin:0;padding-left:18px;display:grid;gap:10px;font-size:clamp(16px,1.6vw,19px)}
+.zero{display:grid;grid-template-columns:auto 1fr;gap:20px 40px;align-items:center}
+@media (max-width:760px){.zero{grid-template-columns:1fr}}
+.zero .big{font-family:var(--display);font-weight:800;font-size:clamp(130px,19vw,240px);line-height:.8;color:var(--swiss);font-variant-numeric:tabular-nums}
+.zero .what{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.6vw,32px);line-height:1.2;max-width:26ch;text-wrap:balance}
+.zero .how{font-size:16px;color:var(--muted);margin-top:12px;max-width:52ch}
+.side-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.checks.steps p code{font-size:13.5px}
+.slide.close{gap:24px}
+.close-grid{display:grid;grid-template-columns:1fr auto;gap:clamp(24px,4vw,56px);align-items:center}
+@media (max-width:760px){.close-grid{grid-template-columns:1fr}}
+.close-grid .qr{width:min(100%,280px)}
+.close-grid .links{font-family:var(--mono);font-size:15px;color:var(--muted);display:grid;gap:6px;margin-top:18px}
+.mini-letter{background:var(--paper);border:1px solid var(--rule);box-shadow:var(--shadow);border-radius:2px;padding:18px 20px;font-size:15px;display:grid;gap:6px;transform:rotate(-.6deg)}
+.mini-letter .sender{font-weight:600}
+.mini-letter .meta{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.ana-row{display:grid;grid-template-columns:110px 1fr;gap:18px;align-items:center}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+</head>
+<body>
+
+<div class="deck is-deck" id="deck">
+
+  <!-- 1 -->
+  <section class="slide active title" aria-label="Slide 1: Promise kept">
+    <div class="eyebrow">Swiss {ai} Weeks, Public AI challenge</div>
+    <h1>Promise kept.</h1>
+    <p class="lede">A data-sovereignty layer for public AI. It keeps a commune’s promise about citizen data on every retry and every fallback, and shows where every request went.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide" aria-label="Slide 2: The problem">
+    <div class="eyebrow">The problem</div>
+    <div class="two">
+      <div style="display:grid;gap:22px">
+        <h2>When a provider fails, where does citizen data go?</h2>
+        <div class="ana-row">
+          <figure class="portrait sm" style="width:110px"><svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="160" cy="170" r="160" fill="var(--swiss-soft)"/>
+          <clipPath id="pc3"><circle cx="160" cy="170" r="160"/></clipPath>
+          <g clip-path="url(#pc3)">
+            <!-- hair, back -->
+            <path d="M92 150 C 78 70, 128 38, 164 40 C 212 40, 246 78, 236 152 C 250 190, 244 238, 226 262 L 100 262 C 80 236, 76 190, 92 150 Z" fill="#2B1B14"/>
+            <!-- body -->
+            <path d="M40 360 C 44 290, 96 262, 160 262 C 224 262, 276 290, 280 360 Z" fill="#3E6A8A"/>
+            <path d="M132 262 L160 300 L188 262 Z" fill="#2F5470"/>
+            <!-- neck -->
+            <path d="M140 214 L140 268 C 150 282, 170 282, 180 268 L180 214 Z" fill="#B97F5C"/>
+            <!-- face -->
+            <ellipse cx="160" cy="160" rx="58" ry="70" fill="#CC9270"/>
+            <!-- ears and earrings -->
+            <ellipse cx="102" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <ellipse cx="218" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <circle cx="102" cy="186" r="4" fill="#E2B64B"/>
+            <circle cx="218" cy="186" r="4" fill="#E2B64B"/>
+            <!-- hair, front -->
+            <path d="M98 150 C 96 92, 132 70, 166 72 C 196 74, 222 94, 224 140 C 206 118, 186 104, 160 100 C 140 110, 118 126, 98 150 Z" fill="#2B1B14"/>
+            <circle cx="112" cy="104" r="16" fill="#2B1B14"/>
+            <circle cx="138" cy="84" r="16" fill="#2B1B14"/>
+            <circle cx="170" cy="78" r="17" fill="#2B1B14"/>
+            <circle cx="200" cy="88" r="16" fill="#2B1B14"/>
+            <circle cx="220" cy="112" r="14" fill="#2B1B14"/>
+            <!-- brows, worried: inner ends raised -->
+            <path d="M124 142 Q 138 138 151 127" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M169 127 Q 182 138 196 142" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <!-- eyes -->
+            <ellipse cx="139" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="141" cy="155" r="2" fill="#FFFFFF"/>
+            <ellipse cx="181" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="183" cy="155" r="2" fill="#FFFFFF"/>
+            <!-- sweat drop --><path d="M206 146 Q 200 158 206 162 Q 212 158 206 146 Z" fill="#8EC3E6"/>
+            <!-- nose, cheeks, mouth -->
+            <path d="M160 162 Q 156 180 162 186" stroke="#A86F4F" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="128" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <circle cx="192" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <path d="M146 208 Q 153 202 160 207 Q 167 212 174 206" stroke="#8A4A3A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <!-- hands and envelope -->
+            <g transform="rotate(-6 160 318)">
+              <rect x="96" y="286" width="128" height="80" rx="3" fill="#FFFFFF" stroke="#C9CFD8" stroke-width="2"/>
+              <path d="M96 288 L160 330 L224 288" fill="none" stroke="#C9CFD8" stroke-width="2"/>
+              <rect x="190" y="296" width="22" height="16" fill="#C8281C"/>
+            </g>
+            <ellipse cx="96" cy="318" rx="16" ry="12" fill="#CC9270"/>
+            <ellipse cx="224" cy="312" rx="16" ry="12" fill="#CC9270"/>
+          </g>
+        </svg></figure>
+          <div class="mini-letter">
+            <div class="sender">Gemeinde Musterstadt, Soziale Dienste</div>
+            <div class="meta">Frau Ana Exemplo, AHV-Nr. 756.0000.0000.00</div>
+            <div>Bank statements, a medical certificate, her children’s allowances. By 15 October, or her support can be cut.</div>
+          </div>
+        </div>
+      </div>
+      <div class="route" role="img" aria-label="Diagram: the request goes to Apertus. If its hosts are down, an automatic fallback sends it to another model in Singapore.">
+        <svg viewBox="0 0 440 300" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--red)"/></marker>
+          </defs>
+          <!-- Ana's letter -->
+          <rect x="16" y="112" width="96" height="76" rx="4" fill="var(--slide)" stroke="var(--rule)"/>
+          <text x="64" y="146" text-anchor="middle" font-size="14" font-weight="600">Ana’s</text>
+          <text x="64" y="164" text-anchor="middle" font-size="14" font-weight="600">data</text>
+          <!-- to CH -->
+          <path d="M112 136 C 170 110, 200 72, 262 66" fill="none" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <rect x="264" y="36" width="170" height="62" rx="4" fill="var(--swiss-soft)" stroke="var(--swiss)"/>
+          <text x="280" y="62" font-size="14" font-weight="600">Apertus</text>
+          <text x="280" y="82" class="sm">CH + ONE UNSTATED</text>
+          <!-- fail mark -->
+          <g transform="translate(414 42)"><circle r="11" fill="var(--red)"/><path d="M-5 -5L5 5M5 -5L-5 5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></g>
+          <text x="264" y="118" class="sm">HOSTS DOWN → FALLBACK</text>
+          <!-- to SG -->
+          <path d="M112 166 C 170 196, 200 232, 262 236" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+          <rect x="264" y="204" width="170" height="62" rx="4" fill="var(--red-soft)" stroke="var(--red)"/>
+          <text x="280" y="230" font-size="14" font-weight="600">SEA-LION</text>
+          <text x="280" y="250" class="sm">OTHER MODEL, SINGAPORE</text>
+          <path d="M344 98 L344 200" fill="none" stroke="var(--red)" stroke-width="1.4" stroke-dasharray="3 4" marker-end="url(#arr)"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide dense" aria-label="Slide 3: What we built">
+    <div class="eyebrow">What we built</div>
+    <h2>The missing piece: a sovereignty layer in the gateway.</h2>
+    <div class="layer-map">
+      <div class="app-box"><b>Any app</b><span>Our example, <i>Help with letters</i>, knows nothing about routing.</span></div>
+      <div class="to" aria-hidden="true">→</div>
+      <div class="layer">
+        <h3>Sovereignty layer</h3>
+        <p class="sub">A plugin for LiteLLM, the gateway the Public AI Utility runs</p>
+        <ul>
+          <li>Each office’s rule, bound to its key</li>
+          <li>Checked before every attempt, retries and fallbacks included</li>
+          <li>No allowed service? The request waits in Switzerland</li>
+          <li>Every request leaves a trace</li>
+        </ul>
+      </div>
+      <div class="to" aria-hidden="true">→</div>
+      <ul class="dest" aria-label="Where a request may go, for the strictest rule and the others">
+        <li>Apertus via Public AI, CH <i class="ok">allowed</i></li>
+        <li>Swiss hosts <i class="ok">allowed</i></li>
+        <li>EU host <i class="ask">if the rule allows</i></li>
+        <li>US host <i class="ask">only with consent</i></li>
+        <li>SEA-LION, Singapore <i class="no">never</i></li>
+        <li>Host of unknown origin <i class="no">never</i></li>
+      </ul>
+    </div>
+    <div class="built-row">
+      <pre class="code"><span class="c"># all LiteLLM needs to load it</span>
+litellm_settings:
+  callbacks: ["policy.policy_hook", "deferred.deferred_plugin"]</pre>
+      <ul class="built"><li><b>No fork</b> of LiteLLM</li><li><b>About 1,000 lines</b> of Python, Apache 2.0</li><li><b>48 tests</b> with broken services</li><li><b>Running</b> at promisekept.ch</li></ul>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide" aria-label="Slide 4: The example, with Apertus">
+    <div class="eyebrow">Shown with Apertus</div>
+    <div class="two">
+      <div style="display:grid;gap:20px">
+        <h2>Our example service: help with official letters</h2>
+        <ul class="facts">
+          <li>A resident pastes a letter from the commune.</li>
+          <li><b>Apertus 1.5</b>, through the Public AI API, explains it in simple words, lists what to do by when, and drafts the reply.</li>
+          <li>In German, French, Italian, Romansh, Swiss German or English.</li>
+          <li>Every real answer comes from Apertus. The simulated hosts exist so we can break things on stage, and the page labels them.</li>
+        </ul>
+      </div>
+      <figure class="shot"><img src="../img/answer.png" alt="A real answer from Apertus: the letter explained in Italian with the deadline highlighted, and on the right where the letter went"><figcaption>A real Apertus answer. On the right: only Switzerland, three services ruled out before anything was sent.</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide" aria-label="Slide 5: Proof">
+    <div class="eyebrow">What we can prove</div>
+    <div class="zero">
+      <div class="big" aria-hidden="true">0</div>
+      <div>
+        <p class="what"><span class="visually-hidden">Zero </span>requests reached a place a rule excludes.</p>
+        <p class="how">Every service counts what it receives, and 48 tests assert on those counters, with services broken, hanging or missing their location. Not on our logs.</p>
+      </div>
+    </div>
+    <div class="side-stats">
+      <div class="stat"><b>17</b><span>ways to override the rule (parameters, tags, headers, a key without a rule), all rejected</span></div>
+      <div class="stat"><b>10/10</b><span>checks of our pull request on the Public AI Utility’s own production config</span></div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide" aria-label="Slide 6: Anyone can use it">
+    <div class="eyebrow">Anyone can use it</div>
+    <h2>Any LiteLLM gateway can switch it on.</h2>
+    <div class="t-two">
+      <ol class="checks steps">
+        <li><span class="when">Load the plugin</span><p><code>callbacks: ["policy.policy_hook"]</code></p></li>
+        <li><span class="when">Say where each deployment runs</span><p><code>model_info: {jurisdiction: CH, provider: …, country: …}</code>. Missing means never used.</p></li>
+        <li><span class="when">Give each office a rule</span><p><code>routing_policy: {allowed_jurisdictions: ["CH"]}</code> on its key or team.</p></li>
+      </ol>
+      <div class="t-box">
+        <h3>For the Public AI Utility</h3>
+        <ul>
+          <li>A ready pull request for <code>forpublicai/chat.publicai.co</code>.</li>
+          <li>It adds jurisdiction metadata to the Apertus deployments and fixes the template that drops it today.</li>
+          <li>Off by default, opt-in per key or team. Keys without a rule behave as today.</li>
+          <li>10 of 10 checks on its production config, in the image production runs.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide close" aria-label="Slide 7: Try it">
+    <div class="close-grid">
+      <div>
+        <p class="closing">With Apertus and our sovereignty layer, a commune can check, request by request, <em>where citizen data goes</em>.</p>
+        <div class="links"><span>promisekept.ch</span><span>github.com/SRGSSR/srgssr-zh-hackathon-2026</span></div>
+      </div>
+      <a class="qr" href="https://promisekept.ch"><svg role="img" aria-label="QR code to the online demo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path stroke="#000" d="M0 0.5h7m2 0h1m1 0h1m3 0h1m2 0h7m-25 1h1m5 0h1m1 0h2m2 0h2m1 0h2m1 0h1m5 0h1m-25 1h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h1m3 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m1 0h3m1 0h1m-25 1h1m5 0h1m2 0h1m1 0h1m1 0h4m1 0h1m5 0h1m-25 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-16 1h2m1 0h2m-14 1h1m1 0h1m1 0h1m1 0h1m6 0h4m3 0h1m2 0h1m-24 1h2m2 0h1m2 0h5m4 0h1m1 0h1m5 0h1m-19 1h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h1m1 0h3m-25 1h1m3 0h1m2 0h1m2 0h2m1 0h1m1 0h5m3 0h1m-23 1h2m2 0h4m1 0h1m1 0h2m2 0h4m1 0h1m1 0h2m-24 1h4m4 0h5m2 0h3m2 0h1m2 0h1m-25 1h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h4m2 0h1m1 0h1m2 0h3m-24 1h1m6 0h2m2 0h3m3 0h1m1 0h1m2 0h1m-24 1h1m1 0h1m1 0h3m1 0h4m1 0h1m2 0h6m-14 1h1m1 0h2m4 0h1m3 0h2m1 0h2m-25 1h7m7 0h3m1 0h1m1 0h2m1 0h2m-25 1h1m5 0h1m4 0h1m1 0h1m2 0h1m3 0h2m1 0h2m-25 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h1m1 0h6m1 0h2m-25 1h1m1 0h3m1 0h1m4 0h3m5 0h4m-23 1h1m1 0h3m1 0h1m1 0h5m1 0h1m5 0h1m3 0h1m-25 1h1m5 0h1m2 0h1m2 0h2m1 0h2m1 0h1m1 0h2m1 0h1m-24 1h7m1 0h2m1 0h2m1 0h6m3 0h2"/></svg></a>
+    </div>
+  </section>
+
+  <!-- Q&A 1 -->
+  <section class="slide tech" data-tab="How it works" aria-label="Q&A: How it works">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>How it works</h2>
+    <div class="t-two">
+      <div class="flow">
+        <div class="node"><b>Resident’s browser</b><span>pastes the text of the letter; German, French, Italian, Romansh, Swiss German or English, in simple words</span></div>
+        <div class="arrow" aria-hidden="true">↓ request</div>
+        <div class="node"><b>Citizen app</b><span>FastAPI, Jinja · thin client, no routing logic</span></div>
+        <div class="arrow" aria-hidden="true">↓ office API key · <code>/v1/deferred/*</code></div>
+        <div class="node gw"><b>Gateway · LiteLLM v1.98.0</b><span>the same image as the Public AI Utility</span>
+          <ul>
+            <li><code>custom_auth.py</code> key → office rule</li>
+            <li><code>policy.py</code> the three checks</li>
+            <li><code>deferred.py</code> queue, journey, consent</li>
+          </ul>
+        </div>
+      </div>
+      <div class="t-scroll">
+        <table class="matrix">
+          <caption>Where each office’s rule lets the request go</caption>
+          <thead><tr><th scope="col">Endpoint</th><th scope="col">Social services<small>CH only</small></th><th scope="col">School<small>CH, then EU</small></th><th scope="col">Other offices<small>CH, EU; US with consent</small></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Public AI → Apertus 1.5<small>CH</small></th><td><i class="ok">yes</i></td><td><i class="ok">yes</i></td><td><i class="ok">yes</i></td></tr>
+            <tr><th scope="row">Swiss hosts 1, 2<small>CH</small></th><td><i class="ok">yes</i></td><td><i class="ok">yes</i></td><td><i class="ok">yes</i></td></tr>
+            <tr><th scope="row">EU host<small>EU</small></th><td><i class="no">never</i></td><td><i class="ok">if CH is down</i></td><td><i class="ok">if CH is down</i></td></tr>
+            <tr><th scope="row">US host<small>US</small></th><td><i class="no">never</i></td><td><i class="no">never</i></td><td><i class="ask">with consent</i></td></tr>
+            <tr><th scope="row">Host without metadata<small>unknown</small></th><td><i class="no">never</i></td><td><i class="no">never</i></td><td><i class="no">never</i></td></tr>
+            <tr><th scope="row">SEA-LION fallback<small>SG · other model</small></th><td><i class="no">never</i></td><td><i class="no">never</i></td><td><i class="no">never</i></td></tr>
+          </tbody>
+        </table>
+        <p class="note">The rule is in <code>gateway/communes.yaml</code>, bound to the office’s key. Nothing in a request can change it. If Public AI times out (we saw 504s under load), the gateway moves on to a Swiss host within the rule.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q&A 2 -->
+  <section class="slide tech" data-tab="Three checks" aria-label="Q&A: The three checks">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>The rule is checked three times</h2>
+    <div class="t-two">
+      <ol class="checks">
+        <li><span class="when">Once per request</span><p>Rejects anything that tries to steer routing: client <code>fallbacks</code>, <code>tags</code> in body, metadata or header, <code>api_base</code>, a deployment id as <code>model</code>, spoofed metadata, a key without a rule.</p></li>
+        <li><span class="when">Before every attempt</span><p>First try, retries, fallbacks. Keeps only deployments whose jurisdiction the rule allows, in the rule’s order. Missing metadata is excluded (fail closed).</p></li>
+        <li><span class="when">Right before each send</span><p>Re-checks the deployment and the exact URL about to be used.</p></li>
+      </ol>
+      <div class="t-stack">
+        <div class="t-box">
+          <h3>The queue lives in the gateway</h3>
+          <ul>
+            <li>No allowed service up: the request waits, in Switzerland.</li>
+            <li>A job is visible only to the key that submitted it.</li>
+            <li>Its text is deleted as soon as the job ends.</li>
+            <li>A waiting job survives a gateway restart.</li>
+          </ul>
+        </div>
+        <div class="t-box">
+          <h3>Consent is not a request parameter</h3>
+          <ul>
+            <li>Only a rule with <code>consent_can_add</code> accepts it. Social services refuse it.</li>
+            <li>Given in a dialog, recorded, valid for one request.</li>
+            <li>Swiss and EU services are still tried first.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q&A 3 -->
+  <section class="slide tech" data-tab="Proof" aria-label="Q&A: What we can prove">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>What we can prove</h2>
+    <div class="stats">
+      <div class="stat"><b>0</b><span>requests reached an endpoint a rule excludes, in any test</span></div>
+      <div class="stat"><b>48</b><span>pytest checks, plus a gateway restart and recreated endpoints</span></div>
+      <div class="stat"><b>17</b><span>override attempts (params, tags, headers, key without rule), all rejected</span></div>
+      <div class="stat"><b>10/10</b><span>checks of our upstream patch on the Utility’s own production config</span></div>
+    </div>
+    <div class="t-two">
+      <ul class="plain">
+        <li><b>Ground truth:</b> each endpoint counts what it receives. The tests assert on those counters, not on the gateway’s logs.</li>
+        <li><b>Covered:</b> primary down, all allowed down, the SEA-LION fallback, a deployment without metadata, a timeout after the provider got the data, recovery, restart.</li>
+      </ul>
+      <ul class="plain">
+        <li><b>Run it:</b> <code>make test</code> starts the stack and runs the whole bench. Online demo: <code>promisekept.ch</code>, example letters only.</li>
+        <li><b>Upstream:</b> <code>upstream/</code> adds jurisdiction metadata, the same policy (opt-in per key or team) and attribution headers to chat.publicai.co.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Q&A 4 -->
+  <section class="slide tech" data-tab="Findings" aria-label="Q&A: What we found">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>What we found in the Utility’s setup</h2>
+    <ul class="findings">
+      <li><b>Fallbacks cross borders and model families.</b> Every Apertus group falls back to SEA-LION (Singapore) and Bielik (Poland). We ran their config against test hosts: with both Apertus 70B hosts down, a normal request was answered by the Singapore one.</li>
+      <li><b>Not every Apertus host has a stated country.</b> Apertus 70B runs at Infomaniak (CH) and Featherless (country not stated); the 8B models run only at Featherless.</li>
+      <li><b>The Public AI API doesn’t say who served a request.</b> It routes to “inference partners worldwide”, and no response header names the partner. Issues #33 and #35 on their repo ask for exactly this.</li>
+      <li><b>Tag routing can’t enforce “Switzerland only”.</b> Retries and fallbacks widen the tag set; <code>litellm_metadata.tags</code> in the body sent 10 of 10 requests to the US deployment; a deployment id as <code>model</code> skips the filter (tested on v1.92.0).</li>
+      <li><b>Jurisdiction metadata can’t reach LiteLLM today.</b> The Helm template keeps only two cost fields of <code>model_info</code> and drops the rest. Our <code>upstream/</code> patch fixes that.</li>
+      <li><b>TLS verification is off</b> (<code>ssl_verify: false</code>), so nothing binds a provider name to the real server. We saw why it matters: a stale DNS cache sent one demo request to another container while every log named the right one. Only the counters caught it.</li>
+    </ul>
+    <p class="note">Details and evidence in <code>docs/findings.md</code>.</p>
+  </section>
+
+  <!-- Q&A: Apertus -->
+  <section class="slide tech" data-tab="Apertus" aria-label="Q&A: Did you use Apertus?">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>Yes: Apertus writes every real answer</h2>
+    <ul class="findings">
+      <li><b>Apertus 1.5 70B, through the Public AI API.</b> It is the “Public AI” service in the demo, allowed by every rule.</li>
+      <li><b>Six languages, in easy language:</b> German, French, Italian, Romansh, Swiss German, English. A native speaker should still check the Romansh and Swiss German wording.</li>
+      <li><b>When Public AI is slow</b> (we saw 504s after 60 s under load), the gateway moves on to a Swiss host within the rule. That answer is simulated, and the page says so.</li>
+      <li><b>The layer is model-agnostic.</b> Apertus makes the whole chain open: open model, public API, open gateway.</li>
+    </ul>
+  </section>
+
+  <!-- Q&A: images -->
+  <section class="slide tech" data-tab="Images" aria-label="Q&A: Can it process images?">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>Images? The rule never reads the content</h2>
+    <ul class="findings">
+      <li><b>The prototype reads text.</b> Apertus is a text model.</li>
+      <li><b>“Upload a photo or PDF” is a mock.</b> A <code>.txt</code> file is read in the browser; any other file fills in the matching example letter, and the page says so. There is no text recognition.</li>
+      <li><b>The layer decides where a request may go, not what is in it.</b> A request with an image, to a vision model, would pass the same three checks as one more deployment with jurisdiction metadata. We have not tested images yet.</li>
+    </ul>
+  </section>
+
+  <!-- Q&A: repository -->
+  <section class="slide tech" data-tab="What’s in the repo" aria-label="Q&A: What is in the repository">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>What we built, file by file</h2>
+    <div class="t-two">
+      <div class="t-stack">
+        <div class="t-box"><h3>The layer (<code>gateway/</code>)</h3><ul>
+          <li><code>policy.py</code>: the three checks, 500 lines</li>
+          <li><code>deferred.py</code> and <code>store.py</code>: the queue, the journey, consent</li>
+          <li><code>communes.yaml</code>: one key and one rule per office</li>
+        </ul></div>
+        <div class="t-box"><h3>The proof (<code>tests/</code>, <code>endpoints/</code>)</h3><ul>
+          <li>48 checks plus restart and recreate checks: <code>make test</code></li>
+          <li>Services that work, break or hang on command, and count what they receive</li>
+        </ul></div>
+      </div>
+      <div class="t-stack">
+        <div class="t-box"><h3>Upstream (<code>upstream/</code>)</h3><ul>
+          <li>The pull request for the Public AI Utility, tested on its production config</li>
+        </ul></div>
+        <div class="t-box"><h3>The example (<code>app/</code>)</h3><ul>
+          <li>Help with letters: a thin client of the gateway, the journey view, the page in five languages</li>
+        </ul></div>
+        <div class="t-box"><h3>Online (<code>deploy/</code>)</h3><ul>
+          <li>promisekept.ch: the same stack on Azure, Switzerland North (Zurich)</li>
+        </ul></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q&A 5 -->
+  <section class="slide tech" data-tab="Limits and next" aria-label="Q&A: Limits and next steps">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>What we don’t claim, and what’s next</h2>
+    <div class="t-three">
+      <div class="t-box">
+        <h3>We can’t prove</h3>
+        <ul>
+          <li>Where a provider physically computes. That needs contracts, audits or attestation.</li>
+          <li>What the Public AI API does internally with its inference partners.</li>
+          <li>That consent is legally enough. That is for each office’s data protection officer.</li>
+        </ul>
+      </div>
+      <div class="t-box">
+        <h3>Out of scope</h3>
+        <ul>
+          <li>A compromised gateway host or a malicious operator.</li>
+          <li>The shared online demo is hosted in Switzerland (Microsoft Azure, Zurich). A real gateway runs in the commune’s own environment.</li>
+          <li>Network egress controls. In production they back the policy.</li>
+          <li>The gateway and its logs are in the data path; events carry routing data only.</li>
+        </ul>
+      </div>
+      <div class="t-box">
+        <h3>Next</h3>
+        <ul>
+          <li>Upstream the metadata and the policy to the Utility.</li>
+          <li>Turn TLS verification on; add evidence per provider.</li>
+          <li>Move the queue from one SQLite replica to a shared store for autoscaling.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">Model-agnostic: the layer works with any model. Apertus makes the whole chain open.</p>
+  </section>
+</div>
+
+<nav class="nav" aria-label="Slide navigation">
+  
+  <span>← → keys</span>
+  <div class="btns">
+    <button id="prev" type="button">← Back</button>
+    <button id="next" type="button">Next →</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  
+  var prev=document.getElementById('prev'), next=document.getElementById('next');
+  var i=0, step=0;
+  function steps(k){return +(slides[k].getAttribute('data-steps')||0);}
+  function paint(){
+    var s=slides[i], n=steps(i);
+    if(n){
+      s.classList.add('build');
+      [].forEach.call(s.querySelectorAll('mark[data-n]'),function(m){m.classList.toggle('on',+m.getAttribute('data-n')<=step);});
+      [].forEach.call(s.querySelectorAll('.list li'),function(li,k){li.classList.toggle('on',k<step);});
+    }
+    prev.disabled=i===0&&step===0;
+    next.disabled=i===slides.length-1&&step>=n;
+  }
+  function show(n,atEnd){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    step=atEnd?steps(i):0;
+    slides.forEach(function(s,k){s.classList.toggle('active',k===i);});
+    paint();
+  }
+  function fwd(){ if(step<steps(i)){step++;paint();} else if(i<slides.length-1){show(i+1);} }
+  function back(){ if(step>0){step--;paint();} else if(i>0){show(i-1,true);} }
+  prev.addEventListener('click',back);
+  next.addEventListener('click',fwd);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();fwd();}
+    if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();back();}
+  });
+  var techs=slides.filter(function(s){return s.classList.contains('tech');});
+  var first=slides.indexOf(techs[0]);
+  [].forEach.call(document.querySelectorAll('.tabs'),function(bar){
+    var own=slides.indexOf(bar.closest('.slide'));
+    var l=document.createElement('span'); l.className='lbl'; l.textContent='Q&A'; bar.appendChild(l);
+    techs.forEach(function(t,k){
+      var b=document.createElement('button'); b.type='button';
+      b.textContent=t.getAttribute('data-tab');
+      if(first+k===own) b.setAttribute('aria-current','true');
+      b.addEventListener('click',function(){show(first+k);});
+      bar.appendChild(b);
+    });
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>
