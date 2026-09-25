@@ -6,7 +6,7 @@ A PR-ready change for [forpublicai/chat.publicai.co](https://github.com/forpubli
 
 `swiss-ai/apertus-v1.5-70b` is served by Infomaniak (CH) and Featherless (country not stated). Its fallbacks are `aisingapore/Qwen-SEA-LION-v4-32B-IT` (api.sea-lion.ai) and `speakleash/Bielik-11B-v3.0-Instruct` (llmlab.plgrid.pl). Every Apertus group can therefore end up on a different model family, in a different country, when a provider fails.
 
-We ran that config offline, in the image prod runs (`litellm-database:v1.98.0`), with the Infomaniak host down. A normal request was answered by the SEA-LION mock (`regular key, CH host down` in the test output below).
+We ran that config offline against mocks, with both Apertus 70B hosts down (Infomaniak and Featherless), on LiteLLM v1.92.0, the version the chart pins. A normal request was answered by the SEA-LION mock (`docs/findings.md` in this repository, T3). On v1.98.0, the version production runs, a request without a policy is still served when only Infomaniak is down (`regular key, CH host down` in the test output below).
 
 An institution that has to keep data in Switzerland cannot rely on this today. The routing metadata it would need is also not in the config at all: the ConfigMap template only renders `input_cost_per_token` and `output_cost_per_token` from `model_info`, and silently drops every other key, including `id`.
 
@@ -63,7 +63,7 @@ PASS CH-only key: client-side fallbacks rejected
 10/10 checks passed
 ```
 
-The civic prototype in this repository runs the same module in fail-closed mode and has a 24-test bench (`make test`).
+The civic prototype in this repository runs the same module in fail-closed mode and has a 48-check bench (`make test`).
 
 ## Next step, not in this patch: waiting in the gateway
 

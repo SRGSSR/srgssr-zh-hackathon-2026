@@ -12,7 +12,7 @@ Built in 24 hours at the Swiss {ai} Weeks (Zurich, September 2026) for the Publi
 
 ## The short version
 
-**The problem is in production today.** The Public AI Utility routes requests through LiteLLM with automatic fallbacks. In its own configuration, when the Swiss host for Apertus fails, requests fall back to *other models hosted in other countries* (SEA-LION in Singapore, Bielik in Poland). We ran that configuration offline, in the image production runs. With the Swiss host down, a normal request was answered by the Singapore mock.
+**The problem is in production today.** The Public AI Utility routes requests through LiteLLM with automatic fallbacks. In its own configuration, when the hosts for Apertus fail, requests fall back to *other models hosted in other countries* (SEA-LION in Singapore, Bielik in Poland). We ran that configuration offline, against test hosts. With both Apertus hosts down (the Swiss one and one with no stated country), a normal request was answered by the Singapore mock.
 
 **What we built:**
 - **the sovereignty layer:** a gateway on LiteLLM v1.98.0, the version the Utility runs, that enforces each office's rule on every attempt, including LiteLLM retries and cross-model fallbacks;

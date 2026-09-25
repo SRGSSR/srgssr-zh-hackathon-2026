@@ -32,7 +32,7 @@ Say it plainly: the rule belongs to the office and is bound to its key. The requ
 
 ## Three messages (everything else supports these)
 
-1. **The problem is real, and it is in the production config.** The Utility's own config falls back from Apertus to other model families in other countries (SEA-LION, Bielik) when a provider fails. We ran that config in the image production runs: with the Swiss host down, a normal request was answered by the Singapore mock.
+1. **The problem is real, and it is in the production config.** The Utility's own config falls back from Apertus to other model families in other countries (SEA-LION, Bielik) when a provider fails. We ran that config against test hosts: with both Apertus hosts down (the Swiss one and one with no stated country), a normal request was answered by the Singapore mock.
 2. **We keep the promise where it can be kept: in the gateway.** Each office sets its own rule, bound to its API key, and the gateway checks it before every attempt, including retries and cross-model fallbacks:
    - social services: Switzerland only;
    - school: Switzerland, then the EU;
@@ -53,32 +53,62 @@ Say it plainly: the rule belongs to the office and is bound to its key. The requ
 >
 > With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes.
 
-## 2-minute pitch (main stage)
+## 2-minute pitch (main stage), version 2
 
-Structure: story (15 s), the problem (20 s), live demo (60 s), proof and upstream (20 s), close (5 s). Total: 120 s.
+Written after the expert pitch. What changed from version 1, and why:
 
-1. **Story (15 s).** Ana's letter, in two sentences (see the 1-minute pitch).
-2. **The problem (20 s).** "Public AI routes through LiteLLM with automatic fallbacks. In the Utility's own configuration, Apertus falls back to other model families hosted in other countries. For a commune, that breaks the promise at exactly the moment something goes wrong."
-3. **Live demo (60 s).** The four prepared tabs below.
-4. **Proof and upstream (20 s).** "48 automated checks, including zero requests to the endpoints each rule excludes. The same policy passes 10 out of 10 checks on the Utility's own production config. It's a PR-ready proposal for chat.publicai.co, and it's all Apache 2.0."
-5. **Close (5 s).** "With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes."
+- **One demo path, three moments:** Ana waits, Marco chooses, Ana's letter completes. The school's EU case stays on the slide and in the Q&A. Two minutes leave no room for four tabs.
+- **A new block says concretely what we built:** a plugin any LiteLLM gateway can load, and a ready pull request for the Public AI Utility. The main jury judges impact, not only the demo.
+- **One number to remember:** zero requests reached a place a rule excludes.
+- **The problem sentence is exact:** Singapore when the Apertus *hosts* are down (both of them, as on slide 9), not "the Swiss host".
+- **It ends with the address,** promisekept.ch, so people can try it right away.
+- **The repair uses Swiss host 1,** a simulated host that answers in seconds. Public AI would take up to a minute on stage.
+
+### Script (about 270 words; rehearse against a timer)
+
+| Time | Screen | Speaker says |
+|---|---|---|
+| 0:00 | Slides 1 and 2: Ana, her letter | "This is Ana. A letter from her social services: her bank statements, her medical certificate, her children, a deadline. In bureaucratic German. Ana speaks Italian." |
+| 0:12 | Slide 3: the fallback | "An AI could explain it. But where does her letter go? Public AI's gateway falls back on its own when a provider fails. In its configuration today, if the Apertus hosts are down, the request goes to another model, in Singapore. We ran that configuration: that's where it went." |
+| 0:32 | Tab 1 | "Here is Ana's letter, explained in Italian, with her deadlines. On the right, where it went: Switzerland only. The US, the EU and a host of unknown origin were ruled out before anything was sent." |
+| 0:44 | Tab 2 | "Now every Swiss service is broken. The backup plan wants Singapore: blocked. Ana's letter waits, in Switzerland." |
+| 0:54 | Tab 3, demo controls open | "Other offices can allow more. Marco's payment reminder: Swiss and EU services are down, so the page asks him. He agrees, for this letter only. The US counter goes to one, and his choice is recorded." |
+| 1:10 | Tab 2 | "A Swiss service is back. Ana's letter completes by itself." |
+| 1:18 | Slide: proof | "Behind this is a plugin for LiteLLM, the open gateway Public AI runs. Each office's rule is bound to its key and checked before every attempt, retries and fallbacks included. Every service counts what it receives: in 48 tests with broken services, zero requests reached a place a rule excludes. And a ready pull request brings it to the Public AI Utility: ten out of ten checks on its production config." |
+| 1:48 | Slide: promisekept.ch | "With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes. Try it: promisekept.ch." |
+
+If a rehearsal runs over 2:00, cut the second sentence of Tab 1 first.
+
+Slide order for the main stage: 1, 2, 3, the demo, then the proof slide, then the promisekept.ch slide.
 
 ### Prepare the demo before going on stage
 
-Each switch to "waiting" takes about 20 s, and a real Apertus answer takes 10 to 60 s. So prepare four tabs in advance:
+Use the local stack with the latest code (`git pull`, then `docker compose up -d --build`), not the venue's Wi-Fi. A real Apertus answer takes 10 to 60 s and each switch to "waiting" about 20 s, so prepare three tabs:
 
-1. **Tab 1:** Ana's letter, already explained ("Documents needed for your support", Italiano).
-2. **Break every Swiss service.** **Tab 2:** the same letter, "Explain it again". Wait until it says "waiting".
-3. **Tab 3:** the example "Class camp". The EU host answers.
-4. **Break Swiss and EU services.** **Tab 4:** the example "Second payment reminder". Wait until the consent offer appears.
+1. Press **Repair all and reset counters** once, before anything else.
+2. **Tab 1:** Ana's letter ("Documents needed for your support"), Italiano, explained by the real Public AI API.
+3. **Break every Swiss service.** **Tab 2:** the same letter, "Explain it again". Wait until it says "waiting".
+4. **Break Swiss and EU services.** **Tab 3:** the example "Second payment reminder". Wait until the consent offer appears, then open **Demo controls** in this tab.
 
-### On stage
+### On stage (driver)
 
-1. **Tab 1:** the answer, and the services struck through before anything was sent.
+1. **Tab 1:** scroll so the answer and the struck-through services are visible.
 2. **Tab 2:** the letter waiting, with Singapore blocked.
-3. **Tab 3:** the answer from the EU host.
-4. **Tab 4:** Marco agrees. With the demo controls open, the US counter goes to 1.
-5. Set Swiss host 1 to **Working**, then **Try again now** in Tab 2. Ana's letter completes. The answer is simulated and labelled as such; with Public AI it would be real, but slow.
+3. **Tab 3:** "Send it to the United States instead…", tick "I understand", **Send it to the United States**. The US counter goes to 1.
+4. In the demo controls, set **Swiss host 1** to **Working**, then **Try again now** in Tab 2. Ana's letter completes. The answer comes from a simulated Swiss host and says so.
+
+If the demo breaks, play the teaser (`docs/video/teaser.mp4`, 25 s) and continue with the proof slide.
+
+### Q&A on the main stage (1 minute: one sentence, then stop)
+
+| Question | Answer |
+|---|---|
+| "Can you prove the data stays in Switzerland?" | "We prove where our gateway sends it, with each service's own counter. Where a provider physically computes needs contracts or audits, and we say so." |
+| "Who can use this?" | "Any LiteLLM gateway: it's a plugin, one line of config. For the Public AI Utility there's a ready pull request." |
+| "Isn't waiting bad for users?" | "A letter with a deadline in days can wait minutes; a leak can't be undone. Where the office allows it, the resident can choose not to wait." |
+| "Why Apertus?" | "It's open, it's Swiss, and it explains these letters in all our languages, Romansh and Swiss German included." |
+| "What's next?" | "Get the pull request merged, add evidence for each provider, and turn TLS verification back on in the Utility." |
+| "Is the upload real?" | "Reading photos and PDFs is simulated in the prototype, and the page says so. The routing is real." |
 
 ## Live demo, step by step (for the expert jury or a longer slot)
 
@@ -130,6 +160,7 @@ Roles: **speaker** (tells the story, never touches the laptop), **driver** (clic
 | "Is the legal part right?" | "We use hedged wording and are not lawyers. The legal basis differs by canton; we name what we checked." (Only say what the team has verified.) |
 | "Does it scale?" | "One replica today. For the Utility's autoscaling it needs a shared store and row locking: it's on our open-questions list." |
 | "Why Apertus?" | "Open weights, trained with Swiss data governance, and truly multilingual: our service explains letters in simple words in German, French, Italian, Romansh, Swiss German and English, and Apertus writes all of them." (Show a Romansh or Swiss German answer if there is time; a native speaker should still check the wording.) |
+| "Is this a pull request for LiteLLM?" | "No. It is a plugin that the standard LiteLLM loads, with no fork. The pull request is for the Public AI Utility's deployment: it adds the metadata and switches the plugin on." |
 | "Does this only work with Apertus?" | "No, the layer is model-agnostic. Apertus makes the whole chain open: open model, public API, open gateway." |
 | "What would you do next?" | "Upstream the metadata and the policy, add evidence for each provider, turn TLS verification on, and move the queue to a shared store so it works with autoscaling." |
 | "Is the answer correct / legal advice?" | "It's an explanation, not legal advice. The UI says so, and the resident checks the draft." |
@@ -145,7 +176,8 @@ Roles: **speaker** (tells the story, never touches the laptop), **driver** (clic
 
 - [ ] `docker compose up -d`; `make test` green (or at least the last full run green)
 - [ ] Press **Repair all and reset counters** once, **before** preparing the tabs. It also sets every service back to Working (`/control/reset` sets `mode=up`). Pressed in the middle of the demo, it would unblock the waiting letters.
-- [ ] The four tabs prepared (see "Prepare the demo before going on stage")
+- [ ] `git pull` and `docker compose up -d --build`: the app changed (languages, upload)
+- [ ] The three tabs prepared (see "Prepare the demo before going on stage")
 - [ ] `PUBLICAI_API_KEY` set, or the SIMULATED label is visible and we say so
 - [ ] `caffeinate -d` running, charger plugged in, notifications off
 - [ ] Backup video on the desktop
