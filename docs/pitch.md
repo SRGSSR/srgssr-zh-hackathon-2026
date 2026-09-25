@@ -55,7 +55,7 @@ Say it plainly: the rule belongs to the office and is bound to its key. The requ
 
 ## 2-minute pitch (main stage), version 2
 
-Slides: [`docs/slides/main-stage-v2.html`](slides/main-stage-v2.html) (arrow keys; the Q&A tabs follow the last slide).
+Slides: [`docs/slides/main-stage-v2.html`](slides/main-stage-v2.html), built on reveal.js. Arrow keys to move; **S** opens the speaker view with this script as notes, a timer and the next slide; **F** is fullscreen; after the last slide, the Q&A has an index (down arrow for its pages). reveal.js and the fonts load from CDNs, so open the deck once with internet before going on stage.
 
 ### What the expert jury asked
 
@@ -193,6 +193,7 @@ Roles: **speaker** (tells the story, never touches the laptop), **driver** (clic
 - [ ] `docker compose up -d`; `make test` green (or at least the last full run green)
 - [ ] Press **Repair all and reset counters** once, **before** preparing the tabs. It also sets every service back to Working (`/control/reset` sets `mode=up`). Pressed in the middle of the demo, it would unblock the waiting letters.
 - [ ] `git pull` and `docker compose up -d --build`: the app changed (languages, upload)
+- [ ] The deck opened once with internet (reveal.js and fonts come from CDNs); speaker view (S) on the laptop screen, slides on the projector
 - [ ] The three tabs prepared (see "Prepare the demo before going on stage")
 - [ ] `PUBLICAI_API_KEY` set, or the SIMULATED label is visible and we say so
 - [ ] `caffeinate -d` running, charger plugged in, notifications off

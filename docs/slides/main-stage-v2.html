@@ -2,186 +2,81 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Promise kept</title>
+<!-- reveal.js 6.0.2 (MIT, Hakim El Hattab), pinned with SRI. Keys: arrows, S = speaker view with notes and timer,
+     O = overview, F = fullscreen, down arrow on the last slide = Q&A. PDF: open with ?print-pdf and print. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.css" integrity="sha384-rKClnwfQQ2b7LYSOAhRvm5m4LS7QKciQTAXBpVvr30y6oGB+ZBBXlpDnvFqlv5Eu" crossorigin="anonymous">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
-  --ground:#E9ECF1;
-  --slide:#F7F8FA;
-  --paper:#FFFFFF;
-  --ink:#18202D;
-  --muted:#5A6474;
-  --rule:#D3D8E0;
-  --red:#C8281C;
-  --red-soft:#F7DEDA;
-  --swiss:#1D5E4A;
-  --swiss-soft:#DCEBE5;
+  --ground:#E9ECF1;--slide:#F7F8FA;--paper:#FFFFFF;--ink:#18202D;--muted:#5A6474;--rule:#D3D8E0;
+  --red:#C8281C;--red-soft:#F7DEDA;--swiss:#1D5E4A;--swiss-soft:#DCEBE5;
   --shadow:0 1px 2px rgba(24,32,45,.06),0 8px 28px rgba(24,32,45,.10);
   --display:"Archivo","Helvetica Neue",Arial,sans-serif;
   --body:"Public Sans","Helvetica Neue",Arial,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    color-scheme:dark;
-    --ground:#0E1218;--slide:#161B24;--paper:#1F2632;--ink:#E8ECF2;--muted:#9AA4B4;
-    --rule:#2E3644;--red:#FF6B5E;--red-soft:#3A1D1B;--swiss:#6FCBA9;--swiss-soft:#173129;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --ground:#0E1218;--slide:#161B24;--paper:#1F2632;--ink:#E8ECF2;--muted:#9AA4B4;
-  --rule:#2E3644;--red:#FF6B5E;--red-soft:#3A1D1B;--swiss:#6FCBA9;--swiss-soft:#173129;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding-inline:16px;padding-block:24px}
-.deck{width:100%;max-width:1120px;margin:0 auto;display:grid;gap:24px}
-.slide{background:var(--slide);border:1px solid var(--rule);border-radius:6px;padding:clamp(24px,5vw,56px);display:grid;gap:28px;align-content:center;position:relative}
-.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:12px;align-items:center}
-.eyebrow b{color:var(--ink);font-weight:500}
-h1,h2{font-family:var(--display);font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:0;text-wrap:balance}
-h1{font-size:clamp(40px,7vw,84px)}
-h2{font-size:clamp(28px,4.4vw,52px)}
-p{margin:0;max-width:62ch}
-.lede{font-size:clamp(17px,1.8vw,21px);color:var(--muted)}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);align-items:center}
-@media (max-width:760px){.two{grid-template-columns:1fr}}
+/* A fixed 1280x720 canvas that reveal.js scales to the screen; light on purpose, for projectors */
+html,body,.reveal-viewport{background:var(--slide)}
+.reveal{font-family:var(--body);font-size:20px;line-height:1.5;color:var(--ink)}
+.reveal .slides{text-align:left}
+.reveal .slides section{height:100%;box-sizing:border-box;padding:0}
+.reveal .controls{color:var(--muted)}
+.reveal .progress{color:var(--swiss);height:4px}
+.frame{height:100%;box-sizing:border-box;padding:56px 72px;display:grid;gap:28px;align-content:center}
+.reveal h1,.reveal h2,.reveal h3{margin:0;color:var(--ink);text-transform:none;text-shadow:none}
+.reveal h1,.reveal h2{font-family:var(--display);font-weight:800;letter-spacing:-.02em;line-height:1.05;text-wrap:balance}
+.reveal h1{font-size:96px}
+.reveal h2{font-size:54px}
+.reveal p{margin:0}
+.reveal a{color:inherit}
+.eyebrow{font-family:var(--mono);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:24px;color:var(--muted);max-width:40ch}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-radius:3px;padding:1px 4px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-/* Slide 1: Ana */
-.portrait{margin:0;justify-self:center;width:min(100%,380px)}
+/* Ana */
+.portrait{margin:0;justify-self:center;width:380px}
 .portrait svg{display:block;width:100%;height:auto}
 .portrait.sm{width:120px;justify-self:start}
 .doubter{display:grid;grid-template-columns:120px 1fr;gap:24px;align-items:center}
-@media (max-width:480px){.doubter{grid-template-columns:1fr}}
 
-/* Slide 2 & 3: the letter */
-.letter{background:var(--paper);color:var(--ink);border:1px solid var(--rule);box-shadow:var(--shadow);padding:28px 32px;font-size:16px;line-height:1.5;border-radius:2px;position:relative;max-width:100%}
-.letter .head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+/* her letter */
+.letter{background:var(--paper);color:var(--ink);border:1px solid var(--rule);box-shadow:var(--shadow);padding:28px 32px;font-size:16px;line-height:1.5;border-radius:2px;position:relative}
+.letter .head{display:flex;justify-content:space-between;gap:16px;margin-bottom:18px}
 .letter .sender{font-weight:600}
 .letter .meta{font-family:var(--mono);font-size:14px;color:var(--muted)}
 .letter .subj{font-weight:600;margin:14px 0 10px}
 .letter ol{margin:8px 0 10px;padding-left:22px;display:grid;gap:6px}
 .letter p{margin:0 0 8px}
-.letter.solo{justify-self:center;width:min(100%,720px);font-size:17px;padding:clamp(24px,4vw,44px) clamp(24px,4vw,48px);transform:rotate(-.6deg)}
-/* A rubber stamp inked across the letter: speckled, uneven ink via an SVG filter */
-.overstamp{position:absolute;left:52%;top:60%;z-index:1;width:min(78%,520px);transform:translate(-50%,-50%) rotate(-13deg);opacity:.9;mix-blend-mode:multiply;pointer-events:none}
+.letter.solo{justify-self:center;width:720px;font-size:17px;padding:38px 46px;transform:rotate(-.6deg)}
+.overstamp{position:absolute;left:52%;top:60%;z-index:1;width:78%;max-width:520px;transform:translate(-50%,-50%) rotate(-13deg);opacity:.9;mix-blend-mode:multiply;pointer-events:none}
 .overstamp svg{display:block;width:100%;height:auto}
 .overstamp text{font-family:var(--display);fill:var(--red);text-transform:uppercase}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .overstamp{mix-blend-mode:normal}}
-:root[data-theme="dark"] .overstamp{mix-blend-mode:normal}
 mark{background:none;color:inherit}
 .show-marks mark{background:var(--red-soft);box-shadow:inset 0 -2px 0 var(--red);padding:0 2px;border-radius:2px}
 
-/* Slide 4: doubt */
-.route{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:24px;box-shadow:var(--shadow);overflow-x:auto}
-.route svg{display:block;width:100%;min-width:420px;height:auto}
+/* her doubt */
+.route{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:24px;box-shadow:var(--shadow)}
+.route svg{display:block;width:100%;height:auto}
 .route text{font-family:var(--body);fill:var(--ink)}
 .route .sm{font-family:var(--mono);font-size:11px;fill:var(--muted);letter-spacing:.04em}
 .doubts{list-style:none;margin:0;padding:0;display:grid;gap:14px}
-.doubts li{font-family:var(--display);font-weight:700;font-size:clamp(19px,2vw,24px);line-height:1.25;padding-left:22px;position:relative;text-wrap:balance}
+.doubts li{font-family:var(--display);font-weight:700;font-size:24px;line-height:1.25;padding-left:22px;position:relative;text-wrap:balance}
 .doubts li::before{content:"?";position:absolute;left:0;top:0;color:var(--red)}
 
-/* Slide 5: trust */
-.wants{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-@media (max-width:760px){.wants{grid-template-columns:1fr}}
-.want{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px;display:grid;gap:8px;align-content:start}
-.want .k{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--swiss)}
-.want h3{font-family:var(--display);font-weight:700;font-size:21px;margin:0;line-height:1.2}
-.want p{color:var(--muted);font-size:15px}
-.cross{display:inline-block;width:22px;height:22px;background:var(--red);border-radius:3px;position:relative;vertical-align:-3px;margin-right:10px}
-.cross::before,.cross::after{content:"";position:absolute;background:#fff;left:50%;top:50%;transform:translate(-50%,-50%)}
-.cross::before{width:13px;height:4px}.cross::after{width:4px;height:13px}
-.closing{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.8vw,32px);letter-spacing:-.01em;text-wrap:balance;max-width:34ch}
-.closing em{font-style:normal;color:var(--swiss)}
-
-/* Slide 5: QR to the demo, as big as the slide allows */
-.slide.try{justify-items:center;gap:18px;padding:clamp(16px,3vw,32px)}
-.qr{display:block;background:#FFFFFF;padding:clamp(14px,2.4vw,28px);border-radius:6px;width:min(100%,calc(100vh - 230px),640px)}
-.qr svg{display:block;width:100%;height:auto;shape-rendering:crispEdges}
-.qr-url{font-family:var(--mono);font-size:clamp(16px,2vw,24px);color:var(--muted);text-align:center;max-width:none;overflow-wrap:anywhere}
-
-/* Q&A slides */
-.slide.tech{align-content:start;gap:22px}
-.tech h2{font-size:clamp(26px,3.4vw,40px)}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.tabs .lbl{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:6px}
-.tabs button{font-family:var(--mono);font-size:12px;color:var(--muted);background:none;border:1px solid var(--rule);border-radius:4px;padding:5px 10px;cursor:pointer}
-.tabs button:hover{color:var(--ink);border-color:var(--muted)}
-.tabs button[aria-current="true"]{color:var(--slide);background:var(--ink);border-color:var(--ink)}
-.tabs button:focus-visible{outline:2px solid var(--swiss);outline-offset:2px}
-code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-radius:3px;padding:1px 4px}
-.note{font-size:14px;color:var(--muted);max-width:none}
-.t-two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,40px);align-items:start}
-.t-three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
-@media (max-width:760px){.t-two,.t-three{grid-template-columns:1fr}}
-.t-stack{display:grid;gap:14px}
-.t-box{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:18px 20px}
-.t-box h3{font-family:var(--display);font-weight:700;font-size:18px;margin:0 0 8px}
-.t-box ul,.plain,.findings{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px}
-.plain{gap:12px;font-size:16px}
-.findings{gap:12px;font-size:16.5px;max-width:92ch}
-.flow{display:grid;gap:6px}
-.node{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:12px 16px;display:grid;gap:2px}
-.node b{font-weight:600}
-.node span{font-size:14px;color:var(--muted)}
-.node.gw{border-color:var(--swiss);background:var(--swiss-soft)}
-.node ul{margin:6px 0 0;padding-left:18px;font-size:14px;display:grid;gap:3px}
-.arrow{font-family:var(--mono);font-size:12px;color:var(--muted);padding-left:16px}
-.t-scroll{overflow-x:auto;display:grid;gap:10px}
-.matrix{border-collapse:collapse;width:100%;font-size:14px;background:var(--paper);border:1px solid var(--rule)}
-.matrix caption{text-align:left;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-bottom:8px}
-.matrix th,.matrix td{border-bottom:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top}
-.matrix thead th{font-weight:600;font-size:13.5px}
-.matrix small{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400}
-.matrix tbody th{font-weight:600}
-.matrix i{font-style:normal;font-size:12.5px;font-weight:600;border-radius:10px;padding:2px 8px;white-space:nowrap}
-.matrix .ok{background:var(--swiss-soft);color:var(--swiss)}
-.matrix .no{background:var(--red-soft);color:var(--red)}
-.matrix .ask{background:var(--ground);color:var(--ink);border:1px dashed var(--muted)}
-.checks{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:c}
-.checks li{counter-increment:c;display:grid;grid-template-columns:34px 1fr;gap:4px 14px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:14px 16px}
-.checks li::before{content:counter(c);grid-row:span 2;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--slide);font-family:var(--mono);font-size:13px;display:grid;place-items:center}
-.checks .when{font-family:var(--display);font-weight:700;font-size:18px}
-.checks p{font-size:15px;color:var(--muted)}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
-.stat{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px 18px;display:grid;gap:4px;align-content:start}
-.stat b{font-family:var(--display);font-weight:800;font-size:clamp(34px,4vw,48px);line-height:1;font-variant-numeric:tabular-nums}
-.stat:first-child b{color:var(--swiss)}
-.stat span{font-size:14px;color:var(--muted)}
-
-/* Deck mode on wide screens */
-.nav{display:none}
-@media (min-width:900px){
-  body{height:100%;min-height:100vh;display:grid;align-content:center}
-  .deck.is-deck .slide{display:none;min-height:min(630px,calc(100vh - 110px))}
-  .deck.is-deck .slide.active{display:grid}
-  .deck.is-deck + .nav{display:flex}
-}
-.nav{max-width:1120px;margin:16px auto 0;justify-content:space-between;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;color:var(--muted)}
-.nav .btns{display:flex;gap:8px}
-.nav button{font:inherit;color:var(--ink);background:var(--slide);border:1px solid var(--rule);border-radius:4px;padding:8px 14px;cursor:pointer}
-.nav button:hover{border-color:var(--muted)}
-.nav button:focus-visible{outline:2px solid var(--swiss);outline-offset:2px}
-.nav button:disabled{opacity:.4;cursor:default}
-@media (prefers-reduced-motion:no-preference){
-  .slide.active{animation:in .35s ease-out}
-  @keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
-}
-
-/* ---- version 2: few words, the speaker tells the rest ---- */
+/* the layer */
 .lane{display:grid;grid-template-columns:minmax(0,.7fr) auto minmax(0,1.6fr) auto minmax(0,.9fr);gap:16px;align-items:center}
-@media (max-width:900px){.lane{grid-template-columns:1fr}.lane .to{transform:rotate(90deg);justify-self:center}}
 .lane .to{font-family:var(--mono);color:var(--muted);font-size:28px}
 .lane-from{background:var(--paper);border:1px solid var(--rule);border-radius:3px;box-shadow:var(--shadow);padding:26px 16px;font-family:var(--display);font-weight:700;font-size:21px;text-align:center;transform:rotate(-1.5deg)}
 .layer{background:var(--swiss-soft);border:2px solid var(--swiss);border-radius:8px;padding:28px;display:grid;gap:12px}
-.layer h3{font-family:var(--display);font-weight:800;font-size:clamp(28px,3.2vw,40px);margin:0;color:var(--swiss);line-height:1.05}
-.layer .sub{font-family:var(--mono);font-size:14px;color:var(--ink);letter-spacing:.02em}
+.reveal .layer h3{font-family:var(--display);font-weight:800;font-size:40px;color:var(--swiss);line-height:1.05}
+.layer .sub{font-family:var(--mono);font-size:14px;letter-spacing:.02em}
 .chips{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
 .chips li{background:var(--paper);border:1px solid var(--swiss);color:var(--swiss);border-radius:999px;padding:7px 14px;font-size:16px;font-weight:600}
 .dest{list-style:none;margin:0;padding:0;display:grid;gap:10px}
@@ -189,31 +84,70 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
 .dest i{font-style:normal;font-size:14px;font-weight:600;border-radius:10px;padding:3px 10px;white-space:nowrap}
 .dest .ok{background:var(--swiss-soft);color:var(--swiss)}
 .dest .no{background:var(--red-soft);color:var(--red)}
-.shot{margin:0;background:var(--paper);border:1px solid var(--rule);border-radius:6px;box-shadow:var(--shadow);overflow:hidden;justify-self:center;max-width:100%}
-.shot img{display:block;height:min(440px,calc(100vh - 330px));width:auto;max-width:100%;object-fit:contain}
-.zero{display:grid;grid-template-columns:auto 1fr;gap:20px 44px;align-items:center}
-@media (max-width:760px){.zero{grid-template-columns:1fr}}
-.zero .big{font-family:var(--display);font-weight:800;font-size:clamp(150px,22vw,280px);line-height:.8;color:var(--swiss);font-variant-numeric:tabular-nums}
-.zero .what{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.2vw,40px);line-height:1.15;max-width:18ch;text-wrap:balance}
-.zero .how{font-size:17px;color:var(--muted);margin-top:14px}
-.code{font-family:var(--mono);font-size:clamp(18px,2.2vw,26px);background:var(--ink);color:var(--slide);border-radius:6px;padding:22px 28px;margin:0;overflow-x:auto;white-space:pre;justify-self:start}
-.close-ana{display:grid;grid-template-columns:minmax(0,360px) 1fr;gap:clamp(24px,5vw,64px);align-items:center}
-@media (max-width:760px){.close-ana{grid-template-columns:1fr}}
+
+/* promise kept */
+.close-ana{display:grid;grid-template-columns:360px 1fr;gap:64px;align-items:center}
 .close-ana .portrait{width:100%}
-.close-ana h1{font-size:clamp(56px,8.5vw,112px)}
-.close-ana .lede{color:var(--ink);font-size:clamp(20px,2.3vw,28px);margin-top:18px;max-width:24ch}
+.reveal .close-ana h1{font-size:104px}
+.close-ana .lede{color:var(--ink);font-size:28px;margin-top:18px;max-width:24ch}
 .close-ana .end{display:flex;gap:16px;align-items:center;margin-top:28px}
+.qr{display:block;background:#FFFFFF;border-radius:6px}
+.qr svg{display:block;width:100%;height:auto;shape-rendering:crispEdges}
 .close-ana .qr{width:112px;padding:8px}
 .close-ana .url{font-family:var(--mono);font-size:18px;color:var(--muted)}
-.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Q&A */
+.qa-links{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.reveal .qa-links a{display:block;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:18px 20px;font-family:var(--display);font-weight:700;font-size:20px;color:var(--ink);text-decoration:none}
+.reveal .qa-links a:hover,.reveal .qa-links a:focus-visible{border-color:var(--swiss);color:var(--swiss)}
+.tech .frame{align-content:start;gap:16px;padding:40px 64px}
+.reveal .tech h2{font-size:38px}
+.reveal .back{font-family:var(--mono);font-size:13px;color:var(--muted);text-decoration:none;justify-self:start}
+.note{font-size:14px;color:var(--muted)}
+.t-two{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+.t-three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+.t-stack{display:grid;gap:12px}
+.t-box{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:14px 18px}
+.reveal .t-box h3{font-family:var(--display);font-weight:700;font-size:18px;margin:0 0 6px}
+.t-box ul,.plain,.findings{margin:0;padding-left:18px;display:grid;gap:5px;font-size:15px}
+.plain{gap:10px;font-size:16px}
+.findings{gap:10px;font-size:16px}
+.flow{display:grid;gap:5px}
+.node{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:10px 14px;display:grid;gap:2px}
+.node b{font-weight:600}
+.node span{font-size:14px;color:var(--muted)}
+.node.gw{border-color:var(--swiss);background:var(--swiss-soft)}
+.node ul{margin:4px 0 0;padding-left:18px;font-size:14px;display:grid;gap:2px}
+.arrow{font-family:var(--mono);font-size:12px;color:var(--muted);padding-left:16px}
+.t-scroll{display:grid;gap:10px}
+.matrix{border-collapse:collapse;width:100%;font-size:14px;background:var(--paper);border:1px solid var(--rule)}
+.matrix caption{text-align:left;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-bottom:8px}
+.matrix th,.matrix td{border-bottom:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+.matrix thead th{font-weight:600;font-size:13.5px}
+.matrix small{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400}
+.matrix tbody th{font-weight:600}
+.matrix i{font-style:normal;font-size:12.5px;font-weight:600;border-radius:10px;padding:2px 8px;white-space:nowrap}
+.matrix .ok{background:var(--swiss-soft);color:var(--swiss)}
+.matrix .no{background:var(--red-soft);color:var(--red)}
+.matrix .ask{background:var(--ground);color:var(--ink);border:1px dashed var(--muted)}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:c}
+.checks li{counter-increment:c;display:grid;grid-template-columns:34px 1fr;gap:4px 14px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:12px 16px}
+.checks li::before{content:counter(c);grid-row:span 2;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--slide);font-family:var(--mono);font-size:13px;display:grid;place-items:center}
+.checks .when{font-family:var(--display);font-weight:700;font-size:18px}
+.checks p{font-size:15px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;display:grid;gap:4px;align-content:start}
+.stat b{font-family:var(--display);font-weight:800;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.stat:first-child b{color:var(--swiss)}
+.stat span{font-size:14px;color:var(--muted)}
 </style>
 </head>
 <body>
+<div class="reveal">
+  <div class="slides">
 
-<div class="deck is-deck" id="deck">
-
-  <!-- 1 -->
-  <section class="slide active" aria-label="Slide 1: Meet Ana">
+    <section aria-label="Slide 1: Meet Ana">
+      <div class="frame">
     <div class="eyebrow">Meet Ana</div>
     <div class="two">
       <h1>This is Ana.</h1>
@@ -267,10 +201,11 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         </svg>
       </figure>
     </div>
-  </section>
-
-  <!-- 2 -->
-  <section class="slide" aria-label="Slide 2: A letter from the social services">
+      </div>
+      <aside class="notes">This is Ana. (Pause.)</aside>
+    </section>
+    <section aria-label="Slide 2: A letter from the social services">
+      <div class="frame">
     <div class="eyebrow">A letter arrives</div>
     <div class="letter solo show-marks" aria-label="Confidential letter from the social services of the City of Zurich, with sensitive details marked">
       <div class="overstamp" role="img" aria-label="Stamp: Vertraulich, confidential">
@@ -312,10 +247,11 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
       </ol>
       <p>Bitte bis spätestens 15. Oktober 2026 einreichen. Sonst kann die <mark>Unterstützung gekürzt oder eingestellt</mark> werden.</p>
     </div>
-  </section>
-
-  <!-- 3 -->
-  <section class="slide" aria-label="Slide 3: Ana does not trust the AI">
+      </div>
+      <aside class="notes">A letter from her social services: her bank statements, her medical certificate, her children, a deadline. In bureaucratic German. Ana speaks Italian.</aside>
+    </section>
+    <section aria-label="Slide 3: Ana does not trust the AI">
+      <div class="frame">
     <div class="eyebrow">“I could ask an AI…”</div>
     <div class="two">
       <div style="display:grid;gap:22px">
@@ -405,10 +341,11 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         <p style="font-size:13px;color:var(--muted);margin-top:10px">This fallback is in the Public AI Utility’s own configuration today.</p>
       </div>
     </div>
-  </section>
-
-  <!-- 4 -->
-  <section class="slide" aria-label="Slide 4: What we built">
+      </div>
+      <aside class="notes">An AI could explain it. But where does her letter go? Public AI’s gateway falls back on its own: if the Apertus hosts are down, it goes to another model, in Singapore. It’s in their configuration today. We ran it.</aside>
+    </section>
+    <section aria-label="Slide 4: What we built">
+      <div class="frame">
     <div class="eyebrow">What we built</div>
     <h2>A sovereignty layer, in the gateway.</h2>
     <div class="lane">
@@ -425,10 +362,18 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         <li>Singapore <i class="no">never</i></li>
       </ul>
     </div>
-  </section>
-
-  <!-- 5 -->
-  <section class="slide" aria-label="Slide 5: Promise kept">
+      </div>
+      <aside class="notes">So we built a sovereignty layer, in the gateway: a plugin for LiteLLM, the gateway Public AI runs. Ana’s office sets the rule: Switzerland only. It’s checked on every retry and every fallback. And if no Swiss service is up, her letter waits.
+<br><br><b>Switch to the browser.</b>
+<br>Tab 1: “Here it is, with Apertus. Ana’s letter, explained in Italian. Only Switzerland: three services ruled out before anything was sent.”
+<br>Tab 2: “Every Swiss service broken: the backup plan wants Singapore. Blocked. The letter waits.”
+<br>Tab 3 (demo controls open): “Marco’s office allows the US, but only if he agrees. He agrees, for this letter only: the US counter goes to one.”
+<br>Swiss host 1 to Working, then Try again now in Tab 2: “A Swiss service is back: Ana’s letter completes by itself.”
+<br>Demo controls: “Every service counts what it receives. In 48 tests, zero requests reached a place a rule excludes.”
+<br><br><b>Back to the slides, next slide.</b></aside>
+    </section>
+    <section aria-label="Slide 5: Promise kept">
+      <div class="frame">
     <div class="close-ana">
       <figure class="portrait"><svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of Ana, smiling, holding her letter with a green check">
           <circle cx="160" cy="170" r="160" fill="var(--swiss-soft)"/>
@@ -483,11 +428,29 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         <div class="end"><a class="qr" href="https://promisekept.ch"><svg role="img" aria-label="QR code to the online demo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path stroke="#000" d="M0 0.5h7m2 0h1m1 0h1m3 0h1m2 0h7m-25 1h1m5 0h1m1 0h2m2 0h2m1 0h2m1 0h1m5 0h1m-25 1h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h1m3 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m1 0h3m1 0h1m-25 1h1m5 0h1m2 0h1m1 0h1m1 0h4m1 0h1m5 0h1m-25 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-16 1h2m1 0h2m-14 1h1m1 0h1m1 0h1m1 0h1m6 0h4m3 0h1m2 0h1m-24 1h2m2 0h1m2 0h5m4 0h1m1 0h1m5 0h1m-19 1h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h1m1 0h3m-25 1h1m3 0h1m2 0h1m2 0h2m1 0h1m1 0h5m3 0h1m-23 1h2m2 0h4m1 0h1m1 0h2m2 0h4m1 0h1m1 0h2m-24 1h4m4 0h5m2 0h3m2 0h1m2 0h1m-25 1h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h4m2 0h1m1 0h1m2 0h3m-24 1h1m6 0h2m2 0h3m3 0h1m1 0h1m2 0h1m-24 1h1m1 0h1m1 0h3m1 0h4m1 0h1m2 0h6m-14 1h1m1 0h2m4 0h1m3 0h2m1 0h2m-25 1h7m7 0h3m1 0h1m1 0h2m1 0h2m-25 1h1m5 0h1m4 0h1m1 0h1m2 0h1m3 0h2m1 0h2m-25 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h1m1 0h6m1 0h2m-25 1h1m1 0h3m1 0h1m4 0h3m5 0h4m-23 1h1m1 0h3m1 0h1m1 0h5m1 0h1m5 0h1m3 0h1m-25 1h1m5 0h1m2 0h1m2 0h2m1 0h2m1 0h1m1 0h2m1 0h1m-24 1h7m1 0h2m1 0h2m1 0h6m3 0h2"/></svg></a><span class="url">promisekept.ch</span></div>
       </div>
     </div>
-  </section>
+      </div>
+      <aside class="notes">Any LiteLLM gateway can switch it on, and a pull request is ready for the Public AI Utility. With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes.
+<br><br>And Ana? She got her answer, in Italian. Her data never left Switzerland, even when a provider failed. Promise kept.</aside>
+    </section>
 
-  <!-- Q&A 1 -->
-  <section class="slide tech" data-tab="How it works" aria-label="Q&A: How it works">
-    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <section>
+      <section id="qa" aria-label="Q&amp;A">
+        <div class="frame">
+          <h2>Q&amp;A</h2>
+          <nav class="qa-links" aria-label="Q&amp;A topics">
+          <a href="#/qa-how-it-works">How it works</a>
+          <a href="#/qa-three-checks">Three checks</a>
+          <a href="#/qa-proof">Proof</a>
+          <a href="#/qa-findings">Findings</a>
+          <a href="#/qa-apertus">Apertus</a>
+          <a href="#/qa-images">Images</a>
+          <a href="#/qa-whats-in-the-repo">What’s in the repo</a>
+          <a href="#/qa-limits-and-next">Limits and next</a>
+          </nav>
+        </div>
+      </section>
+      <section id="qa-how-it-works" class="tech" aria-label="Q&A: How it works">
+        <div class="frame"><a class="back" href="#/qa">← Q&amp;A</a>
     <h2>How it works</h2>
     <div class="t-two">
       <div class="flow">
@@ -519,11 +482,10 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         <p class="note">The rule is in <code>gateway/communes.yaml</code>, bound to the office’s key. Nothing in a request can change it. If Public AI times out (we saw 504s under load), the gateway moves on to a Swiss host within the rule.</p>
       </div>
     </div>
-  </section>
-
-  <!-- Q&A 2 -->
-  <section class="slide tech" data-tab="Three checks" aria-label="Q&A: The three checks">
-    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+        </div>
+      </section>
+      <section id="qa-three-checks" class="tech" aria-label="Q&A: The three checks">
+        <div class="frame"><a class="back" href="#/qa">← Q&amp;A</a>
     <h2>The rule is checked three times</h2>
     <div class="t-two">
       <ol class="checks">
@@ -551,11 +513,10 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- Q&A 3 -->
-  <section class="slide tech" data-tab="Proof" aria-label="Q&A: What we can prove">
-    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+        </div>
+      </section>
+      <section id="qa-proof" class="tech" aria-label="Q&A: What we can prove">
+        <div class="frame"><a class="back" href="#/qa">← Q&amp;A</a>
     <h2>What we can prove</h2>
     <div class="stats">
       <div class="stat"><b>0</b><span>requests reached an endpoint a rule excludes, in any test</span></div>
@@ -573,11 +534,10 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         <li><b>Upstream:</b> <code>upstream/</code> adds jurisdiction metadata, the same policy (opt-in per key or team) and attribution headers to chat.publicai.co.</li>
       </ul>
     </div>
-  </section>
-
-  <!-- Q&A 4 -->
-  <section class="slide tech" data-tab="Findings" aria-label="Q&A: What we found">
-    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+        </div>
+      </section>
+      <section id="qa-findings" class="tech" aria-label="Q&A: What we found">
+        <div class="frame"><a class="back" href="#/qa">← Q&amp;A</a>
     <h2>What we found in the Utility’s setup</h2>
     <ul class="findings">
       <li><b>Fallbacks cross borders and model families.</b> Every Apertus group falls back to SEA-LION (Singapore) and Bielik (Poland). We ran their config against test hosts: with both Apertus 70B hosts down, a normal request was answered by the Singapore one.</li>
@@ -588,11 +548,10 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
       <li><b>TLS verification is off</b> (<code>ssl_verify: false</code>), so nothing binds a provider name to the real server. We saw why it matters: a stale DNS cache sent one demo request to another container while every log named the right one. Only the counters caught it.</li>
     </ul>
     <p class="note">Details and evidence in <code>docs/findings.md</code>.</p>
-  </section>
-
-  <!-- Q&A: Apertus -->
-  <section class="slide tech" data-tab="Apertus" aria-label="Q&A: Did you use Apertus?">
-    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+        </div>
+      </section>
+      <section id="qa-apertus" class="tech" aria-label="Q&A: Did you use Apertus?">
+        <div class="frame"><a class="back" href="#/qa">← Q&amp;A</a>
     <h2>Yes: Apertus writes every real answer</h2>
     <ul class="findings">
       <li><b>Apertus 1.5 70B, through the Public AI API.</b> It is the “Public AI” service in the demo, allowed by every rule. It reads images and audio too; our prototype uses text.</li>
@@ -600,22 +559,20 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
       <li><b>When Public AI is slow</b> (we saw 504s after 60 s under load), the gateway moves on to a Swiss host within the rule. That answer is simulated, and the page says so.</li>
       <li><b>The layer is model-agnostic.</b> Apertus makes the whole chain open: open model, public API, open gateway.</li>
     </ul>
-  </section>
-
-  <!-- Q&A: images -->
-  <section class="slide tech" data-tab="Images" aria-label="Q&A: Can it process images?">
-    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+        </div>
+      </section>
+      <section id="qa-images" class="tech" aria-label="Q&A: Can it process images?">
+        <div class="frame"><a class="back" href="#/qa">← Q&amp;A</a>
     <h2>Images? Apertus 1.5 reads them. The rule doesn’t care.</h2>
     <ul class="findings">
       <li><b>Apertus 1.5 takes images, audio and text</b> and answers in text (its model card says so). Our prototype sends only the letter’s text so far.</li>
       <li><b>“Upload a photo or PDF” is a mock.</b> A <code>.txt</code> file is read in the browser; any other file fills in the matching example letter, and the page says so. There is no text recognition.</li>
       <li><b>The layer decides where a request may go, not what is in it.</b> A photo of Ana’s letter holds the same data as its text, so it gets the same rule and the same three checks. We have not tested images yet.</li>
     </ul>
-  </section>
-
-  <!-- Q&A: repository -->
-  <section class="slide tech" data-tab="What’s in the repo" aria-label="Q&A: What is in the repository">
-    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+        </div>
+      </section>
+      <section id="qa-whats-in-the-repo" class="tech" aria-label="Q&A: What is in the repository">
+        <div class="frame"><a class="back" href="#/qa">← Q&amp;A</a>
     <h2>What we built, file by file</h2>
     <div class="t-two">
       <div class="t-stack">
@@ -641,11 +598,10 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
         </ul></div>
       </div>
     </div>
-  </section>
-
-  <!-- Q&A 5 -->
-  <section class="slide tech" data-tab="Limits and next" aria-label="Q&A: Limits and next steps">
-    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+        </div>
+      </section>
+      <section id="qa-limits-and-next" class="tech" aria-label="Q&A: Limits and next steps">
+        <div class="frame"><a class="back" href="#/qa">← Q&amp;A</a>
     <h2>What we don’t claim, and what’s next</h2>
     <div class="t-three">
       <div class="t-box">
@@ -675,64 +631,21 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
       </div>
     </div>
     <p class="note">Model-agnostic: the layer works with any model. Apertus makes the whole chain open.</p>
-  </section>
-</div>
+        </div>
+      </section>
+    </section>
 
-<nav class="nav" aria-label="Slide navigation">
-  
-  <span>← → keys</span>
-  <div class="btns">
-    <button id="prev" type="button">← Back</button>
-    <button id="next" type="button">Next →</button>
   </div>
-</nav>
-
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/reveal.js" integrity="sha384-UilXW7W77EPIY5TmQGBrjhBPcfX40NqGwuIC8DGs6OeGTCxKy36B+DiOXtfqgk9S" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@6.0.2/dist/plugin/notes.js" integrity="sha384-XUVoTb/UbE06yoCUaqswCPKSUvPq3q4heijGsemnUSS/JEgW1lNnK0rKlNwjuz7O" crossorigin="anonymous"></script>
 <script>
-(function(){
-  var slides=[].slice.call(document.querySelectorAll('.slide'));
-  
-  var prev=document.getElementById('prev'), next=document.getElementById('next');
-  var i=0, step=0;
-  function steps(k){return +(slides[k].getAttribute('data-steps')||0);}
-  function paint(){
-    var s=slides[i], n=steps(i);
-    if(n){
-      s.classList.add('build');
-      [].forEach.call(s.querySelectorAll('mark[data-n]'),function(m){m.classList.toggle('on',+m.getAttribute('data-n')<=step);});
-      [].forEach.call(s.querySelectorAll('.list li'),function(li,k){li.classList.toggle('on',k<step);});
-    }
-    prev.disabled=i===0&&step===0;
-    next.disabled=i===slides.length-1&&step>=n;
-  }
-  function show(n,atEnd){
-    i=Math.max(0,Math.min(slides.length-1,n));
-    step=atEnd?steps(i):0;
-    slides.forEach(function(s,k){s.classList.toggle('active',k===i);});
-    paint();
-  }
-  function fwd(){ if(step<steps(i)){step++;paint();} else if(i<slides.length-1){show(i+1);} }
-  function back(){ if(step>0){step--;paint();} else if(i>0){show(i-1,true);} }
-  prev.addEventListener('click',back);
-  next.addEventListener('click',fwd);
-  document.addEventListener('keydown',function(e){
-    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();fwd();}
-    if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();back();}
+  Reveal.initialize({
+    width: 1280, height: 720, margin: 0.04, center: false,
+    hash: true, controls: true, progress: true, slideNumber: false,
+    transition: 'fade', backgroundTransition: 'none',
+    plugins: [RevealNotes],
   });
-  var techs=slides.filter(function(s){return s.classList.contains('tech');});
-  var first=slides.indexOf(techs[0]);
-  [].forEach.call(document.querySelectorAll('.tabs'),function(bar){
-    var own=slides.indexOf(bar.closest('.slide'));
-    var l=document.createElement('span'); l.className='lbl'; l.textContent='Q&A'; bar.appendChild(l);
-    techs.forEach(function(t,k){
-      var b=document.createElement('button'); b.type='button';
-      b.textContent=t.getAttribute('data-tab');
-      if(first+k===own) b.setAttribute('aria-current','true');
-      b.addEventListener('click',function(){show(first+k);});
-      bar.appendChild(b);
-    });
-  });
-  show(0);
-})();
 </script>
 </body>
 </html>
