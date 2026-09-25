@@ -10,7 +10,7 @@ param repoUrl string = 'https://github.com/SRGSSR/srgssr-zh-hackathon-2026.git'
 param branch string = 'public-ai-service'
 param vmSize string = 'Standard_D2s_v5'
 
-@description('Public AI API key. Empty: the relay answers with clearly labelled simulated responses.')
+@description('Public AI API key. Empty: keep the key already on the VM; a new VM then answers with clearly labelled simulated responses.')
 @secure()
 param publicAiApiKey string = ''
 

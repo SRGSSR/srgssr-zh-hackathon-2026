@@ -1,6 +1,7 @@
 #!/bin/sh
 # Deploy or update the demo on Azure. Usage: deploy/azure/deploy.sh [subscription] [resource-group] [location]
-# PUBLICAI_API_KEY comes from the environment or the repository's .env (empty: simulated answers).
+# PUBLICAI_API_KEY comes from the environment or the repository's .env. Without one, the VM keeps the key
+# it already has; only a new VM (after teardown.sh) needs it once, or it answers with simulated responses.
 # DEMO_PASSWORD=... protects the demo with one shared password (user jury); without it the demo is open.
 # The demo is served at promisekept.ch (www and the Azure name redirect there). DOMAINS=other.ch,... serves
 # other domains (their DNS first); DOMAINS= serves only the Azure name.

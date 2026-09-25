@@ -23,6 +23,8 @@ fi
 cd "$DIR"
 
 KEY=$(printf %s "$KEY_B64" | base64 -d)
+# No key given: keep the one already on the VM, so a redeploy never falls back to simulated answers.
+[ -n "$KEY" ] || [ ! -f .env ] || KEY=$(sed -n 's/^PUBLICAI_API_KEY=//p' .env | tail -1)
 PASS=$(printf %s "$PASS_B64" | base64 -d)
 umask 077
 mkdir -p "$CONF"
