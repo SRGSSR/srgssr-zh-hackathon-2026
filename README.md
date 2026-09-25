@@ -1,179 +1,182 @@
-# Commune letter helper: a public AI service that keeps its promise when providers fail
+# Commune letter helper
 
-> **When the approved provider fails, does a public AI service still keep its promise about citizens' data?**
->
-> Our prototype completes a real civic task with Apertus through Public AI. It enforces a commune's routing rule across every retry and fallback, and it resumes interrupted work once an approved endpoint is back. In the demo, the jury breaks providers on purpose. A request timeline and reproducible tests show exactly which endpoints were contacted and whether the rule held.
+**A public AI service that keeps its promise about citizens' data, even when providers fail.**
 
-Built at the Swiss {ai} Weeks hackathon (Zurich, September 2026) for the Public AI challenge "Build a public AI service". Apache 2.0.
+It explains an official letter in the resident's language, with Apertus through the Public AI API. It sends the letter only where the commune's rule allows, on every retry and every fallback. When no allowed service is up, the letter waits in Switzerland until one is back. Built in 24 hours at the Swiss {ai} Weeks (Zurich, September 2026) for the Public AI challenge "Build a public AI service". Apache 2.0.
 
-## The problem
+![A real answer from Apertus: explanation in Italian with the deadlines highlighted, and the journey of the letter](docs/img/answer.png)
 
-The Public AI Utility (chat.publicai.co) routes requests through LiteLLM to several providers, with automatic fallbacks. In its current config, `swiss-ai/apertus-v1.5-70b` is served by Infomaniak (CH) and Featherless (country not stated). When those fail, it falls back to **other model families hosted elsewhere**: SEA-LION (api.sea-lion.ai) and Bielik (llmlab.plgrid.pl).
+## The short version
 
-We ran that exact config offline, in the image production runs, with the Swiss host down. The request was answered by the SEA-LION mock (see `upstream/`).
+**The problem is in production today.** The Public AI Utility routes requests through LiteLLM with automatic fallbacks. In its own configuration, when the Swiss host for Apertus fails, requests fall back to *other models hosted in other countries* (SEA-LION in Singapore, Bielik in Poland). We ran that configuration offline, in the image production runs. With the Swiss host down, a normal request was answered by the Singapore mock.
 
-A Swiss commune that wants to use such a service cannot promise its residents that their data only goes to approved endpoints, least of all when something breaks.
+**What we built:**
+- a civic service, *"Understand a letter from your commune"*;
+- a gateway that enforces the commune's rule on every attempt, including LiteLLM retries and cross-model fallbacks;
+- a queue inside that gateway: if no allowed service can answer, the letter waits there, in Switzerland, and completes by itself later, even across a gateway restart. No application has to implement waiting.
 
-## What we built
+**Three offices, three rules.** Each rule is bound to the office's API key, never to the request:
 
-- **The civic task: "Understand a letter from your commune".** A resident pastes an official letter written in bureaucratic German (tax assessment, payment reminder, naturalisation paperwork). They get:
-  - a plain-language explanation in their language (Italian, French, Portuguese, Albanian, English, ...);
-  - the actions they must take, with deadlines;
-  - a draft reply in German.
+| Person | Letter from | Rule |
+|---|---|---|
+| Ana, the strict compliance case | social services (support, health, children) | **Switzerland only.** No exceptions, not even with consent. |
+| A family, privacy first | the school | **Switzerland first, then the EU.** Never anywhere else. |
+| Marco, pragmatic | another office (payment reminder) | **Switzerland and the EU. The United States only if he explicitly agrees**, for that one letter, recorded. |
 
-  Apertus must return JSON (`summary`, `actions[{action, deadline}]`, `draft_reply`, `output_language`). The JSON is validated and the call is retried once if invalid. A disclaimer says this is not legal advice and the draft must be checked.
-- **One rule per office, each bound to that office's API key.** The office that wrote the letter decides the rule:
+**What we can show.** Every endpoint counts what it receives. **48 automated checks** assert that endpoints a rule excludes receive **zero** requests, and that overrides through parameters, tags or headers are ignored. Two more checks restart the gateway and recreate the endpoints.
 
-  | Who needs it | Office (key) | Rule |
-  |---|---|---|
-  | The strict compliance case | Social services | **Switzerland only**. No exceptions, not even with consent. |
-  | The privacy-conscious family | School | **Switzerland first, then the EU**, which Swiss data protection law treats as adequately protected. Never anywhere else. |
-  | The pragmatic resident | Other offices | **Switzerland and the EU. The United States only if the resident agrees**, for that one letter. The agreement is recorded in the journey. |
+**Ready for upstream.** [`upstream/`](upstream/README.md) is a patch for chat.publicai.co: jurisdiction metadata, the same policy as an opt-in per key or team, and attribution headers. It is tested on the Utility's own rendered production config: **10/10 checks**.
 
-  Each rule is checked before **every** attempt, including retries and LiteLLM fallbacks to other model groups. Endpoints with missing metadata are excluded (fail closed). Nothing in a request can change a rule.
-- **Consent, not a request parameter.** Only a rule that lists `consent_can_add` lets the resident widen it. The resident's explicit agreement is given in a dialog while the letter waits. The gateway records it (`/v1/deferred/consent`) and widens the rule for that job only. The sync API never uses consent. Even after consent, Swiss and EU services are tried first.
-- **Continue within the rule, or wait, in the gateway.** If an approved endpoint is up, the request continues there. If none is, the **gateway** keeps it in its local store ("waiting"), inside the same authorized environment, and completes it by itself when an approved endpoint is back, even after a gateway restart. Applications do not implement any waiting: they submit to `/v1/deferred/chat/completions` and read the result. The citizen app is one such client.
-- **A timeline per job**, showing:
-  - the rule applied;
-  - every routing decision: endpoints selected, and endpoints **blocked before any data was sent**, with the reason;
-  - every send, and its outcome: answer, error, or "data received, no response" (timeout after the provider got the data);
-  - the model that answered.
-- **A demo control panel** to break, hang or restore each endpoint, plus "Break all approved". Real and simulated endpoints are labelled.
+**What we cannot show.** Where a provider physically computes. That needs provider-side evidence. We show where *our gateway* sent the data, and we say so.
 
-## Architecture
+## See it
+
+| The letter waits; the backup model in Singapore is ruled out | Marco decides; his choice is recorded | The demo controls: excluded services stay at 0 |
+|---|---|---|
+| ![Journey: Swiss services tried, the SEA-LION fallback in Singapore blocked before send, waiting](docs/img/waiting.png) | ![Consent dialog: keep waiting in Switzerland, or send to the United States](docs/img/consent.png) | ![Demo controls with per-service counters](docs/img/drawer.png) |
+
+## Try it (5 minutes)
+
+You need Docker with Compose. A Public AI key is optional.
+
+```bash
+git clone -b public-ai-service https://github.com/SRGSSR/srgssr-zh-hackathon-2026.git
+cd srgssr-zh-hackathon-2026
+cp env.example .env          # optional: add PUBLICAI_API_KEY for real Apertus answers
+docker compose up -d --build # first start pulls the LiteLLM image (about 1 GB)
+open http://localhost:8080
+```
+
+Without a key, the "real" endpoint answers with a clearly labelled **simulated** response, and everything else works the same.
+
+**Demo script.** Open *Demo controls* at the top right to break and repair services.
+
+1. **Ana.** Pick the example *"Documents needed for your support"*, choose *Italiano*, then *Explain my letter*. You get the explanation, the deadlines and a German draft reply. The journey on the right shows the rule, the places ruled out before anything was sent (struck through), and who answered.
+2. **Break every Swiss service**, then *Explain it again*. The letter waits. The journey shows LiteLLM's backup plan (SEA-LION in Singapore) ruled out, and nothing sent. There is no consent option for Ana.
+3. **The family.** New letter, the example *"Class camp"*. The EU host answers because the school's rule allows it. The US and Singapore counters stay at 0.
+4. **Marco.** *Break Swiss and EU services*, new letter, the example *"Second payment reminder"*. While it waits, he can choose *Send it to the United States instead…*. The dialog says exactly what that means. He agrees, the US counter goes to 1, and his agreement appears in the journey.
+5. **Repair all.** Ana's waiting letter completes by itself.
+
+The real Public AI API can be slow under load. If it does not answer, the gateway moves on to a Swiss service within the rule, and the journey shows it.
+
+## How it works
 
 ```mermaid
 flowchart LR
   R[Resident's browser] -->|letter| APP
-  subgraph local["Authorized local environment (docker compose)"]
-    APP["Citizen app<br/>FastAPI + Jinja + HTMX<br/>thin client: no queue"]
-    GW["Policy gateway<br/>LiteLLM v1.98.0 (same image as the Utility)<br/>+ custom_auth: key → commune policy<br/>+ policy.py: 3 checks<br/>+ deferred.py: queue, worker, timeline"]
-    ST[("gateway store<br/>SQLite volume:<br/>waiting requests<br/>+ timeline")]
-    APP -->|"commune key<br/>POST /v1/deferred/chat/completions<br/>GET /v1/deferred/jobs, /events"| GW
+  subgraph local["Authorized environment (docker compose)"]
+    APP["Citizen app<br/>FastAPI, Jinja<br/>thin client"]
+    GW["Gateway: LiteLLM v1.98.0<br/>(same image as the Utility)<br/>custom_auth: key to office rule<br/>policy.py: 3 checks<br/>deferred.py: queue and journey"]
+    ST[("Gateway store<br/>waiting letters,<br/>journey, consent")]
+    APP -->|"office key<br/>/v1/deferred/*"| GW
     GW --- ST
-    PUB["ep-publicai<br/>relay with fault switch"]
-    CH1[mock-ch-1<br/>CH]
-    CH2[mock-ch-2<br/>CH]
-    US[mock-us-1<br/>US]
-    NM[mock-nometa<br/>no metadata]
-    SG["mock-sg-1<br/>SG, other model<br/>(fallback group)"]
+    PUB["Public AI relay<br/>(with a break switch)"]
+    CH["Swiss hosts 1, 2<br/>simulated"]
+    EU["EU host<br/>simulated"]
+    US["US host<br/>simulated"]
+    NO["Unknown origin<br/>simulated"]
+    SG["Singapore host<br/>other model"]
   end
-  GW -->|allowed| PUB
-  GW -->|allowed| CH1
-  GW -->|allowed| CH2
-  GW -.-x|blocked before send| US
-  GW -.-x|blocked before send| NM
-  GW -.-x|blocked before send| SG
-  PUB -->|real request| PAPI[(Public AI API<br/>api.publicai.co<br/>Apertus 1.5)]
+  GW -->|every rule| PUB
+  GW -->|every rule| CH
+  GW -.->|school, other offices| EU
+  GW -.->|only with consent| US
+  GW -.-x|never| NO
+  GW -.-x|never| SG
+  PUB --> PAPI[(Public AI API<br/>Apertus 1.5)]
 ```
 
-The policy (`gateway/policy.py`) is one LiteLLM `CustomLogger` with three checks:
+**The rule is checked three times, in one LiteLLM callback** ([`gateway/policy.py`](gateway/policy.py)):
 
-| where | when | what it does |
-|---|---|---|
-| `async_pre_call_hook` | once per request | Rejects request fields that steer routing: client `fallbacks`, `tags` (body, metadata, `litellm_metadata`, header), `api_base` / `base_url` / `api_key`, a deployment id or other model group as `model`, `mock_response`, spoofed `routing_policy`. Rejects keys without a policy. |
-| `async_filter_deployments` | before **every** attempt (first try, retries, fallbacks) | Keeps only deployments with complete metadata whose jurisdiction is allowed. Picks the highest-priority one that has not failed yet in this request. Logs every exclusion. |
-| `async_pre_call_deployment_hook` | right before each send | Re-checks the chosen deployment and that the `api_base` about to be used is the configured one. |
+| When | Check |
+|---|---|
+| once per request | Rejects anything that tries to steer routing: client `fallbacks`, `tags` (body, metadata, header), `api_base`, a deployment id as `model`, spoofed metadata, and keys without a rule. |
+| before **every** attempt (first try, retries, fallbacks) | Keeps only deployments whose jurisdiction the rule allows, in the rule's order of preference. Deployments with missing metadata are excluded (fail closed). |
+| right before each send | Re-checks the deployment and the exact URL about to be used. |
 
-The queue (`gateway/deferred.py`) is loaded the same way, as a LiteLLM callback module. It adds `/v1/deferred/*` routes to the proxy and a worker that retries waiting requests with backoff. Every attempt still passes through the policy, because the worker calls the router with the routing policy captured from the key at submit. Jobs are visible only to the key that submitted them. The request body is deleted as soon as a job ends. Details and open questions: [docs/findings.md](docs/findings.md) sections 11 and 12.
+**The queue lives in the gateway** ([`gateway/deferred.py`](gateway/deferred.py)). It is loaded as a LiteLLM callback, adds `/v1/deferred/*` endpoints and runs a worker, and every attempt still passes the three checks.
+- A job is visible only to the key that submitted it.
+- The letter's text is deleted as soon as the job ends.
+- A waiting job survives a gateway restart.
 
-Why not LiteLLM's tag-based routing? We tested it in the image the Utility runs. Retries and fallbacks widen the tag set, and several request fields bypass it. See [docs/findings.md](docs/findings.md).
+**Consent is not a request parameter.** Only a rule that lists `consent_can_add` accepts it. The resident gives it in a dialog, the gateway records it, and it widens the rule for that one letter only; Swiss and EU services are still tried first. The social services' rule refuses consent.
 
-## Run the demo
+**Why not LiteLLM's tag routing?** We tested it in the Utility's version. Retries and fallbacks widen the tag set, and several request fields bypass it ([docs/findings.md](docs/findings.md)).
+
+## Proof: the test bench
 
 ```bash
-cp env.example .env        # optional: set PUBLICAI_API_KEY for real Apertus answers
-docker compose up -d --build
-open http://localhost:8080
+make test   # starts the stack, runs 48 pytest checks, then restarts the gateway and recreates the endpoints
 ```
 
-Without `PUBLICAI_API_KEY`, the "real" endpoint's relay answers with a clearly labelled **SIMULATED** response. Everything else works the same.
+The assertions use each endpoint's own counter of received requests. That is the ground truth, independent of the gateway's logs.
 
-**Demo script** (about 3 minutes):
-1. Pick the example "Social services: Documents needed for your support", choose Italiano, then "Explain my letter". The journey on the right shows the rule applied, the places ruled out before any send (US host, host of unknown origin, struck through by hand), the send to Public AI, and the answer. Deadlines are highlighted in the explanation.
-2. Open **Demo controls**, set Public AI to **Broken**, then "Explain it again". The letter goes to Swiss host 1. The US, unknown-origin and Singapore hosts still show **0 received**.
-3. **Break every Swiss service** and explain again. The letter waits, and the page says so. The journey shows the backup plan (SEA-LION, in Singapore) ruled out before anything was sent.
-4. **Repair all** (or set one Swiss host back to **Working**). The gateway resumes the letter by itself and completes it; the journey shows the whole outage.
-5. Optional: set Swiss host 1 to **Hangs**. The journey says it "received your letter but never answered", then continues on Swiss host 2.
+| Scenario | What is asserted |
+|---|---|
+| Normal run | the preferred allowed service answers; nobody else received anything |
+| Primary down | the next allowed service answers; excluded services were blocked on every attempt and received 0 |
+| All allowed services down | the letter waits; excluded services received 0 |
+| LiteLLM fallback to another model (SEA-LION) | evaluated, blocked before send, 0 received |
+| Deployment without jurisdiction metadata | excluded (fail closed), 0 received, even when it is the only one up |
+| Override attempts (17 variants: params, tags, headers, key without rule) | all rejected; excluded services received 0 |
+| Timeout after the provider received the data | the journey says "received your letter but never answered" |
+| Recovery | the waiting letter completes by itself, or on "try again" |
+| Queue in the gateway | waits without any app, body deleted afterwards, invisible to other keys, cancelled letters never sent, no event injection into another letter's journey |
+| Three rules and consent (11 checks) | the school uses the EU only when Switzerland is down and never goes further; consent is refused where the rule does not allow it, through another key, or for other places; it sends only that letter; Switzerland is still tried first; the sync API never reaches the US |
+| Gateway restart and endpoint recreate | the waiting letter survives the restart; after new endpoint containers, requests reach exactly the named endpoint |
 
-Note: the real Public AI API can be slow under load. During testing it once answered with a 504 after 60 seconds, and the gateway moved on to a Swiss mock. That is the rule working, but for a smooth demo run the first request a few minutes before.
+The same policy is tested on the Utility's own production config: `upstream/test/render.sh` and `upstream/test/run.sh` give 10/10.
 
-## Run the tests
+The bench and the demo share the same endpoints, so do not click the demo controls while `make test` runs.
 
-```bash
-make test        # docker compose up, the pytest bench, then tests/restart_check.sh
-```
+## What we found along the way
 
-48 pytest checks plus a gateway restart check and an endpoint-recreate check. The assertions rely on each endpoint's own counter of received requests:
+Useful beyond this project; details and evidence in [docs/findings.md](docs/findings.md):
 
-| # | scenario | asserted |
-|---|---|---|
-| 1 | normal | the approved primary answers; every other endpoint received 0 |
-| 2 | primary down | the second approved endpoint answers; disallowed endpoints were blocked on every attempt and received 0 |
-| 3 | all approved down | the job is `waiting`, and US / no-metadata / SG received **0** |
-| 4 | LiteLLM fallback to another model group | the SEA-LION group was evaluated and blocked before send; SG received 0 |
-| 5 | missing jurisdiction metadata | excluded with "missing metadata (fail closed)"; received 0, even when it is the only endpoint up |
-| 6 | override via params, tags, headers, key without policy | 16 variants, each rejected; disallowed endpoints received 0 |
-| 7 | timeout after receipt | the endpoint counted the request; the timeline says "data received, no response" |
-| 8 | recovery | the waiting job completes when an approved endpoint returns, both on "try again" and by itself with backoff |
-| + | queue in the gateway, no app involved | a request waits in the gateway and completes by itself; its body is deleted afterwards; routing params, streaming or a spoofed job id are rejected at submit and nothing is stored; jobs are invisible to other keys; a cancelled job is never sent; a request cannot write into another job's timeline; the commune key cannot call other routes |
-| + | three rules and consent (`tests/test_rules.py`) | the school rule prefers Switzerland and uses the EU only when Switzerland is down; it never goes further, even with consent; the other offices' rule waits and offers consent for the US only; consent sends that one letter (another waiting letter stays put) and Switzerland is still tried first; the social services refuse consent; consent through another key, or for a place the rule does not list, is refused; the sync API never reaches the US; the whole flow works through the citizen app |
-| + | gateway restart (`tests/restart_check.sh`) | a waiting request survives `docker compose restart gateway` and completes on the endpoint that comes back; disallowed endpoints received 0 |
-
-The same policy is tested against the Utility's own rendered production config in `upstream/test/` (10/10 checks).
-
-The bench and the demo share the same endpoints. Do not click the demo controls while `make test` runs: the tests set the endpoints' states and read their counters.
-
-## Repository layout
-
-```
-gateway/     LiteLLM config, policy.py (the 3 checks), deferred.py + store.py (queue, worker, timeline), custom_auth.py, communes.yaml
-endpoints/   faultbox.py: OpenAI-compatible mock / relay with up|down|slow|timeout and request counters
-app/         citizen app (FastAPI, Jinja, HTMX): a thin client of the deferred API, JSON validation, timeline view
-samples/     3 fictional letters (Gemeinde Musterstadt, AHV 756.0000.0000.00)
-tests/       the test bench
-upstream/    PR-ready proposal for chat.publicai.co, tested against their rendered config
-docs/        findings.md (how LiteLLM really behaves, open questions), pitch.md, plan-example-app.md
-```
+- **The Utility's fallbacks cross borders and model families.** Every Apertus model group falls back to SEA-LION (Singapore) and Bielik (Poland).
+- **Its config cannot carry jurisdiction metadata today.** The Helm template renders only the two cost fields of `model_info` and silently drops everything else, including `id`.
+- **Production runs LiteLLM v1.98.0, not the v1.92.0 pinned in the chart.**
+- **TLS verification is off** (`ssl_verify: false`). A policy decides on provider names, and only certificate verification binds a name to the real server. We saw what happens without it in our own demo: a stale DNS cache (LiteLLM keeps DNS answers for 300 s) sent one letter to a different container than the one every log named. Only the endpoints' counters caught it. Fixed, and now tested.
+- **LiteLLM's tag routing widens tags on retries**, and the failure callback fires once per request, not once per attempt.
+- **15 cost values are loaded as strings** (`1e-07` without a decimal point).
+- A request-level `api_base` injection we reproduced on v1.92.0 is rejected on v1.98.0, the version in production.
 
 ## Honest claims
 
-- **We can show** which endpoints *our gateway* contacted, which it excluded before sending anything, and which rule it applied, for every attempt. The tests prove it with the endpoints' own request counters.
-- **We cannot prove** where processing physically happens. "Jurisdiction" is metadata declared in the config. Proving physical location needs provider-side evidence (contracts, audits, hardware attestation), which is out of scope.
-- **The real endpoint routes internally.** The Public AI API sends requests to its own inference partners, and we cannot observe or control that from outside. In this prototype the fictional commune "approves" it as CH; the UI and config say so (`jurisdiction_basis`).
-- **Waiting requests are stored in the gateway.** While no approved endpoint is up, the request sits in the gateway's local store (a Docker volume in the same environment). That is what "kept in an authorized local environment" means here. The body is deleted when the job ends; results and timelines are kept.
-- **The gateway and its logs are in the data path too.** They run in the same local environment as the app. Our policy events carry routing data only, never letter text; LiteLLM runs with `LITELLM_LOG=ERROR`.
-- **Simulated endpoints are simulated.** Their answers are canned, labelled `[SIMULATED ...]`, and only show where a request was routed.
+- **We can show** which services our gateway contacted, which it excluded before sending anything, and which rule it applied, for every attempt. The tests prove it with the endpoints' own counters.
+- **We cannot prove** where processing physically happens. "Jurisdiction" is declared metadata. Physical location needs provider-side evidence (contracts, audits, attestation).
+- **The real endpoint routes internally.** The Public AI API sends requests to its own inference partners, which we cannot observe. In this prototype the fictional commune "approves" it as Swiss (`jurisdiction_basis` in the config says so).
+- **Waiting letters are stored in the gateway**, a volume in the same environment. The gateway and its logs are part of the data path. Our events carry routing data only, never letter text.
+- **Consent is not legal advice.** Whether a resident's consent is enough for a public body to send data outside Switzerland or the EU depends on the office and the canton. That is why the social services' rule refuses it. Check with a data protection officer before offering it for real.
+- **Simulated services are simulated.** Their answers are labelled and only show where a request went.
 
 ## Limitations and threat model
 
-**In scope:** a request, or a misconfigured deployment, must not cause citizen data to reach an endpoint outside the rule. That covers retries, fallbacks, cross-model fallbacks, client-side routing parameters and missing metadata.
+**In scope:** citizen data must not reach a service outside the office's rule because of a request, a retry, a fallback, a misconfigured deployment or missing metadata.
 
-**What the policy checks, and what it cannot.** The policy decides on endpoint names and configured URLs. Where packets actually go depends on DNS and the network. During the build, a stale DNS cache in the gateway sent one demo letter to the wrong container, although every gateway event named the right one. The endpoints' own counters caught it (details in [docs/findings.md](docs/findings.md), section 11). We fixed the demo, and the bench now recreates the endpoints to test for it. In production, TLS certificate verification and an egress allowlist must back the policy.
-
-**Out of scope:**
-- A compromised gateway host.
-- A malicious operator editing `gateway/config.yaml` or `communes.yaml`.
-- Provider-side behavior.
-- TLS termination and network egress controls. A production deployment should also restrict egress at the network level, so the policy is not the only barrier.
+**Out of scope:** a compromised gateway host, a malicious operator editing the configuration, provider-side behavior, network egress controls. In production, TLS verification and an egress allowlist must back the policy.
 
 **Prototype limits:**
-- No user accounts. Anyone who can reach the app can read jobs, so all ports bind to `127.0.0.1`.
-- One policy (CH-only), one civic task.
-- Chat completions only; streaming is not used.
-- LiteLLM's failure callback fires once per proxy request, so per-attempt outcomes are rebuilt from the router's retry log.
-- The queue relies on adding routes to LiteLLM's FastAPI app from a callback module. This is not an official extension API. It runs as one replica with SQLite, and its calls skip the proxy's spend tracking. See the open questions in `docs/findings.md`.
-- Deployment priority is decided by our filter, because LiteLLM 1.98 has no deployment order.
-- The explanation is produced by a language model. It can be wrong, it is not legal advice, and the draft reply must be checked by the resident.
+- There are no user accounts, and all ports bind to `127.0.0.1`.
+- There is one civic task, and chat completions only.
+- The queue relies on adding routes to LiteLLM's FastAPI app from a callback. That is not an official extension API.
+- The queue runs as one replica with SQLite, and its calls skip the proxy's spend tracking.
+- The explanation comes from a language model: it can be wrong, it is not legal advice, and the resident checks the draft.
+- All letters and data are fictional (Gemeinde Musterstadt, AHV 756.0000.0000.00). Do not paste real letters.
 
-**Data:** only fictional letters and obviously fake data (Gemeinde Musterstadt, AHV 756.0000.0000.00). Do not paste real letters into this prototype.
+The open questions are listed in [docs/findings.md](docs/findings.md#12-open-questions-to-verify).
 
-## Contributing upstream
+## Repository map
 
-`upstream/` contains a patch for chat.publicai.co with four parts:
-- `model_info` pass-through in the ConfigMap template (today it drops everything but costs);
-- jurisdiction metadata on the Apertus deployments;
-- this policy as an opt-in, per-key or per-team callback;
-- attribution headers naming the deployment that actually answered (issue #33).
+```
+gateway/     LiteLLM config, policy.py (the 3 checks), deferred.py + store.py (queue, journey, consent),
+             custom_auth.py, communes.yaml (one key and rule per office)
+endpoints/   faultbox.py: OpenAI-compatible mock and relay with working, broken and hanging modes and counters
+app/         the citizen app: a thin client of the gateway, JSON validation, the journey view
+samples/     four fictional letters (social services x2, school, finance office)
+tests/       the test bench, plus restart_check.sh
+upstream/    the proposal for chat.publicai.co, tested on its production config
+docs/        findings.md (how LiteLLM really behaves, open questions), pitch.md, plan-example-app.md
+```
 
-It is tested on their rendered prod config in the prod image.
+Apache 2.0, see [LICENSE](LICENSE). Fonts: Atkinson Hyperlegible Next and Shantell Sans (SIL Open Font License). Hand-drawn marks: [rough-notation](https://github.com/rough-stuff/rough-notation) (MIT).
