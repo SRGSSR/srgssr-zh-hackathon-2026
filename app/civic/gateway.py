@@ -40,7 +40,7 @@ async def _request(method: str, path: str, service: str, **kw) -> dict:
 
 
 async def submit(service: str, messages: list, metadata: Optional[dict] = None) -> dict:
-    body = {"model": GATEWAY_MODEL, "messages": messages, "temperature": 0.2, "max_tokens": 1800,
+    body = {"model": GATEWAY_MODEL, "messages": messages, "temperature": 0.2, "max_tokens": 1200,
             "metadata": metadata or {}}
     return await _request("POST", "/v1/deferred/chat/completions", service, json=body)
 

@@ -52,7 +52,9 @@ def build_messages(letter: str, language: str) -> list:
         '  "draft_reply": a short, polite reply letter to the commune written in German (formal "Sie"), '
         "that the reader can adapt; use placeholders like [Name] and [Datum] instead of inventing personal data;\n"
         f'  "output_language": the ISO 639-1 code of the language of summary and actions ("{language}").\n'
-        "Only use facts from the letter. If something is unclear, say so in the summary. Do not add markdown."
+        "Only use facts from the letter. If something is unclear, say so in the summary. Do not add markdown.\n"
+        "Keep it short, so that people can read it quickly: the summary in at most 120 words, "
+        "at most 6 actions of one sentence each, and a reply of at most 150 words."
     )
     return [
         {"role": "system", "content": system},

@@ -6,6 +6,22 @@ It explains an official letter in the resident's language, with Apertus through 
 
 ![A real answer from Apertus: explanation in Italian with the deadlines highlighted, and the journey of the letter](docs/img/answer.png)
 
+## Try it online (during the Swiss {ai} Weeks)
+
+**https://343bd0c9.sslip.io**, user `jury`. The password is in our submission, and the team can give it to you.
+
+- **Location.** This shared demo runs on AWS in Frankfurt (EU). In a real deployment the gateway runs in the commune's own environment in Switzerland.
+- **Shared state.** If services are broken when you arrive, another visitor broke them. *Demo controls → Repair all and reset counters* fixes that.
+- **Timing.** The "Public AI" service is the real Public AI API, and a real answer takes 10 to 60 seconds. If Public AI times out (we have seen 504s after 60 seconds under load), the gateway moves on to a Swiss service within the rule. That answer is simulated and labelled as such, and the journey shows what happened.
+
+**To see the consent dialog:**
+1. Choose the example *"Second payment reminder"*. It sets *The letter is from: Another office*, the only office whose rule allows consent.
+2. Open *Demo controls* and press *Break Swiss and EU services*.
+3. Press *Explain my letter*. After about 20 seconds the page says *Your letter is waiting, safely* and offers *Send it to the United States instead…*.
+4. Open it, tick *I understand*, and press *Send it to the United States*. The journey records your agreement, and the US host's counter in *Demo controls* goes to 1.
+
+For the social services and the school the offer never appears: their rules do not allow consent.
+
 ## The short version
 
 **The problem is in production today.** The Public AI Utility routes requests through LiteLLM with automatic fallbacks. In its own configuration, when the Swiss host for Apertus fails, requests fall back to *other models hosted in other countries* (SEA-LION in Singapore, Bielik in Poland). We ran that configuration offline, in the image production runs. With the Swiss host down, a normal request was answered by the Singapore mock.
