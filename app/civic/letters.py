@@ -3,6 +3,8 @@ kind of sensitive information a letter contains (shown to explain why the rule m
 
 import re
 
+from .i18n import t
+
 # Language names in their own language, so people find theirs.
 LANGUAGE_NAMES = {
     "de": "Deutsch",
@@ -13,71 +15,40 @@ LANGUAGE_NAMES = {
     "en": "English",
 }
 
-# file -> (sender, subject, service whose rule applies)
+# file -> (sender, subject, service whose rule applies); sender and subject are string keys (locales/)
 SAMPLES = {
-    "01-sozialhilfe-unterlagen.txt": ("Social services", "Documents needed for your support", "social"),
-    "02-sozialhilfe-rueckerstattung.txt": ("Social services", "Asked to pay back CHF 1'240", "social"),
-    "03-schule-klassenlager.txt": ("School", "Class camp: registration and costs", "school"),
-    "04-zahlungserinnerung.txt": ("Finance office", "Second payment reminder", "info"),
+    "01-sozialhilfe-unterlagen.txt": ("service.social.office", "sample.01", "social"),
+    "02-sozialhilfe-rueckerstattung.txt": ("service.social.office", "sample.02", "social"),
+    "03-schule-klassenlager.txt": ("service.school.office", "sample.03", "school"),
+    "04-zahlungserinnerung.txt": ("sample.sender.finance", "sample.04", "info"),
 }
 
 # Which office wrote the letter decides which rule applies. Each service has its own API key,
 # and the gateway binds the rule to that key (gateway/communes.yaml). The lists below are only
-# for display; the gateway enforces the real rule.
+# for display; the gateway enforces the real rule. The texts are in locales/ (service.<key>.*).
 SERVICES = {
-    "social": {
-        "office": "Social services",
-        "owner": "the social services",
-        "owner_s": "the social services'",
-        "rule": "Switzerland only",
-        "promise": "Only services in Switzerland read your letter. If none is available, it waits here, safely, until one is.",
-        "promise_key": "Only services in Switzerland",
-        "key_env": "GATEWAY_API_KEY",
-        "allowed": ["CH"],
-        "consent": [],
-    },
-    "school": {
-        "office": "School",
-        "owner": "the school",
-        "owner_s": "the school's",
-        "rule": "Switzerland first, then the EU",
-        "promise": "Services in Switzerland read your letter first. If none can answer, services in the EU may. Never anywhere else.",
-        "promise_key": "Services in Switzerland",
-        "key_env": "GATEWAY_API_KEY_SCHOOL",
-        "allowed": ["CH", "EU"],
-        "consent": [],
-    },
-    "info": {
-        "office": "Another office",
-        "owner": "this office",
-        "owner_s": "this office's",
-        "rule": "Switzerland and the EU; elsewhere only if you agree",
-        "promise": "Services in Switzerland and the EU read your letter. A service anywhere else only if you agree, for this letter only.",
-        "promise_key": "Services in Switzerland and the EU",
-        "key_env": "GATEWAY_API_KEY_INFO",
-        "allowed": ["CH", "EU"],
-        "consent": ["US"],
-    },
+    "social": {"key_env": "GATEWAY_API_KEY", "allowed": ["CH"], "consent": []},
+    "school": {"key_env": "GATEWAY_API_KEY_SCHOOL", "allowed": ["CH", "EU"], "consent": []},
+    "info": {"key_env": "GATEWAY_API_KEY_INFO", "allowed": ["CH", "EU"], "consent": ["US"]},
 }
 
 _SENSITIVE = [
-    ("social assistance", r"sozialhilfe|unterstützung|sozialdienst|soziale dienste|grundbedarf"),
-    ("health", r"arztzeugnis|arbeitsunfähig|gesundheit|krankheit|spital|therapie"),
-    ("children", r"\bkinder\b|\bkind\b|kinderzulage"),
-    ("money and debts", r"steuer|mahnung|betreibung|rückforderung|chf"),
-    ("your AHV number", r"756\.\d{4}\.\d{4}\.\d{2}"),
+    ("topic.social_assistance", r"sozialhilfe|unterstützung|sozialdienst|soziale dienste|grundbedarf"),
+    ("topic.health", r"arztzeugnis|arbeitsunfähig|gesundheit|krankheit|spital|therapie"),
+    ("topic.children", r"\bkinder\b|\bkind\b|kinderzulage"),
+    ("topic.money", r"steuer|mahnung|betreibung|rückforderung|chf"),
+    ("topic.ahv", r"756\.\d{4}\.\d{4}\.\d{2}"),
 ]
 
 
-for _s in SERVICES.values():
-    assert _s["promise"].startswith(_s["promise_key"])
-    _s["promise_rest"] = _s["promise"][len(_s["promise_key"]):]
+def service_view(key: str, lang: str) -> dict:
+    """What the pages show about an office's rule, in the page's language."""
+    key = key if key in SERVICES else "social"
+    s = {name: t(lang, f"service.{key}.{name}") for name in ("office", "rule_line", "promise", "sign", "allows")}
+    return {**SERVICES[key], **s, "key": key}
 
 
 def sensitive_topics(letter: str) -> list:
+    """String keys of the kinds of sensitive information the letter mentions."""
     text = (letter or "").lower()
     return [name for name, pattern in _SENSITIVE if re.search(pattern, text)]
-
-
-def is_social_assistance(letter: str) -> bool:
-    return "social assistance" in sensitive_topics(letter)

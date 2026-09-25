@@ -6,7 +6,7 @@
 
 When a provider fails, the gateway in front of a public AI service retries and falls back on its own, and a fallback can send citizen data to another model in another country. Our layer works where that happens, in the gateway. Each office of a commune has a rule about where its data may go. The gateway checks it before every attempt, and when no allowed service is up, the request waits in Switzerland instead of leaving.
 
-**The example service** is *Help with letters*, for the fictional commune of Musterstadt. A resident pastes an official letter, and Apertus, through the Public AI API, explains it in simple words, in German, French, Italian, Romansh, Swiss German or English. A letter from the social services carries health, money and children's details: exactly the data a rule has to protect.
+**The example service** is *Help with letters*, for the fictional commune of Musterstadt. A resident pastes or uploads an official letter, and Apertus, through the Public AI API, explains it in simple words, in German, French, Italian, Romansh, Swiss German or English. The page itself is in German, French, Italian, Romansh and English (*DE FR IT RM EN*, top right). A letter from the social services carries health, money and children's details: exactly the data a rule has to protect.
 
 Built in 24 hours at the Swiss {ai} Weeks (Zurich, September 2026) for the Public AI challenge "Build a public AI service". Apache 2.0.
 
@@ -192,6 +192,7 @@ Useful beyond this project; details and evidence in [docs/findings.md](docs/find
 **Prototype limits:**
 - There are no user accounts, and all ports bind to `127.0.0.1`.
 - There is one civic task, and chat completions only.
+- *Upload a photo or PDF* is a mock. A `.txt` file is read in the browser; any other file fills in the matching example letter (by file name, for example [`samples/pdf/`](samples/pdf/)), and the page says so. There is no text recognition.
 - The queue relies on adding routes to LiteLLM's FastAPI app from a callback. That is not an official extension API.
 - The queue runs as one replica with SQLite, and its calls skip the proxy's spend tracking.
 - The explanation comes from a language model: it can be wrong, it is not legal advice, and the resident checks the draft.
@@ -205,8 +206,9 @@ The open questions are listed in [docs/findings.md](docs/findings.md#12-open-que
 gateway/     LiteLLM config, policy.py (the 3 checks), deferred.py + store.py (queue, journey, consent),
              custom_auth.py, communes.yaml (one key and rule per office)
 endpoints/   faultbox.py: OpenAI-compatible mock and relay with working, broken and hanging modes and counters
-app/         the example service, Help with letters: a thin client of the gateway, the journey view
-samples/     four fictional letters (social services x2, school, finance office)
+app/         the example service, Help with letters: a thin client of the gateway, the journey view,
+             locales/ with the page in de, fr, it, rm, en
+samples/     four fictional letters (social services x2, school, finance office); pdf/ has them as PDFs to upload
 tests/       the test bench, plus restart_check.sh
 upstream/    the proposal for chat.publicai.co, tested on its production config
 docs/        findings.md (how LiteLLM really behaves, open questions), pitch.md, plan-example-app.md

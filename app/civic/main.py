@@ -7,8 +7,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
-from . import db, endpoints, sync, timeline
-from .letters import LANGUAGE_NAMES, SAMPLES, SERVICES, sensitive_topics
+from . import db, endpoints, i18n, sync, timeline
+from .letters import LANGUAGE_NAMES, SAMPLES, SERVICES, sensitive_topics, service_view
 
 SAMPLES_DIR = Path(os.environ.get("SAMPLES_DIR", "/samples"))
 HERE = Path(__file__).parent
@@ -18,14 +18,16 @@ app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 templates = Jinja2Templates(directory=HERE / "templates")
 
 
-def _when(ts: float) -> str:
+def _when(ts: float, lang: str = "en") -> str:
     import datetime as dt
     d = dt.datetime.fromtimestamp(ts, timeline.LOCAL_TZ)
     today = dt.datetime.now(timeline.LOCAL_TZ).date()
-    return ("today, " if d.date() == today else d.strftime("%-d %b, ")) + d.strftime("%H:%M")
+    return (i18n.t(lang, "common.today") if d.date() == today else f"{d.day}.{d.month}.") + d.strftime(", %H:%M")
 
 
 templates.env.filters["when"] = _when
+templates.env.filters["marked"] = i18n.marked
+templates.env.filters["capitalize_first"] = lambda s: s[:1].upper() + s[1:]
 templates.env.globals["v"] = str(int(__import__("time").time()))  # cache-busting for static files
 templates.env.globals["shared_demo"] = os.environ.get("SHARED_DEMO") == "1"  # the shared online demo
 
@@ -33,6 +35,24 @@ templates.env.globals["shared_demo"] = os.environ.get("SHARED_DEMO") == "1"  # t
 @app.on_event("startup")
 async def startup():
     db.init()
+
+
+@app.middleware("http")
+async def language(request: Request, call_next):
+    """The page's language: ?lang= (remembered in a cookie), else the browser's, else English."""
+    asked = request.query_params.get("lang")
+    request.state.lang = i18n.pick(asked, request.cookies.get("lang"), request.headers.get("accept-language", ""))
+    response = await call_next(request)
+    if asked in i18n.UI_LANGUAGES and request.cookies.get("lang") != asked:
+        response.set_cookie("lang", asked, max_age=365 * 24 * 3600, samesite="lax")
+    return response
+
+
+def _render(request: Request, name: str, context: dict):
+    lang = request.state.lang
+    base = {"lang": lang, "t": lambda key, **kw: i18n.t(lang, key, **kw), "ui_languages": i18n.UI_LANGUAGES,
+            "strings": i18n.strings(lang)}
+    return templates.TemplateResponse(request, name, {**base, **context})
 
 
 def _samples():
@@ -62,7 +82,7 @@ def _check_rate(request: Request) -> None:
     now = _t.time()
     recent = [t for t in _recent_by_ip.get(ip, []) if now - t < 3600]
     if len(recent) >= LETTERS_PER_HOUR:
-        raise HTTPException(429, "Too many letters from this address in the last hour. Please try again later.")
+        raise HTTPException(429, i18n.t(request.state.lang, "error.rate"))
     _recent_by_ip[ip] = recent + [now]
 
 
@@ -79,13 +99,16 @@ async def index(request: Request):
     for j in jobs:
         if j["status"] not in db.TERMINAL:
             j["status"] = (await sync.refresh(j["id"]) or j)["status"]
+    lang = request.state.lang
     samples = []
     for f in _samples():
         sender, subject, service = SAMPLES.get(f, ("", f, "social"))
-        samples.append({"file": f, "sender": sender, "subject": subject, "service": service})
-    return templates.TemplateResponse(
-        request, "index.html", {"languages": LANGUAGE_NAMES, "samples": samples, "jobs": jobs, "services": SERVICES}
-    )
+        samples.append({"file": f, "sender": i18n.t(lang, sender), "subject": i18n.t(lang, subject), "service": service})
+    return _render(request, "index.html", {
+        "languages": LANGUAGE_NAMES, "samples": samples, "jobs": jobs,
+        "services": {key: service_view(key, lang) for key in SERVICES},
+        "explain_in": lang if lang in LANGUAGE_NAMES else "it",
+    })
 
 
 @app.post("/jobs")
@@ -101,11 +124,12 @@ async def job_page(request: Request, letter_id: str):
     job = db.get(letter_id)
     if not job:
         raise HTTPException(404, "job not found")
-    return templates.TemplateResponse(
-        request, "job.html",
-        {"job": job, "language_name": LANGUAGE_NAMES.get(job["language"], job["language"]),
-         "topics": sensitive_topics(job["letter"]), "service": SERVICES.get(job["service"], SERVICES["social"])},
-    )
+    lang = request.state.lang
+    return _render(request, "job.html", {
+        "job": job, "language_name": LANGUAGE_NAMES.get(job["language"], job["language"]),
+        "topics": [i18n.t(lang, key) for key in sensitive_topics(job["letter"])],
+        "service": service_view(job["service"], lang),
+    })
 
 
 @app.post("/jobs/{letter_id}/again")
@@ -119,7 +143,7 @@ async def again_form(request: Request, letter_id: str):
 
 @app.get("/demo", response_class=HTMLResponse)
 async def demo_page(request: Request):
-    return templates.TemplateResponse(request, "demo.html", {"jobs": db.recent(10)})
+    return _render(request, "demo.html", {"jobs": db.recent(10)})
 
 
 @app.post("/demo/endpoint/{endpoint_id}/{mode}")
@@ -193,18 +217,21 @@ async def api_job(letter_id: str):
 
 
 @app.get("/api/jobs/{letter_id}/journey")
-async def api_journey(letter_id: str):
-    """Everything the letter page shows, refreshed every second by static/job.js."""
+async def api_journey(request: Request, letter_id: str):
+    """Everything the letter page shows, refreshed every second by static/job.js, in the page's language."""
+    lang = request.state.lang
     job, evs = await _view(letter_id)
-    eps = endpoints.by_id()
+    eps = endpoints.by_id(lang)
+    shown = {k: job.get(k) for k in ("id", "status", "status_reason", "next_retry_at", "result", "language", "served_by", "runs",
+                                      "service", "consent_options", "consent")}
+    shown["status_reason"] = i18n.reason(lang, shown["status_reason"])
     return {
-        "job": {k: job.get(k) for k in ("id", "status", "status_reason", "next_retry_at", "result", "language", "served_by", "runs",
-                                          "service", "consent_options", "consent")},
-        "service": SERVICES.get(job["service"], SERVICES["social"]),
+        "job": shown,
+        "service": service_view(job["service"], lang),
         "served_by_name": (eps.get(job.get("served_by") or "") or {}).get("name"),
         "served_by_kind": (eps.get(job.get("served_by") or "") or {}).get("kind"),
-        "receipt": timeline.receipt(evs, eps),
-        "stops": timeline.compact(timeline.journey(evs, eps)),
+        "receipt": timeline.receipt(evs, eps, lang),
+        "stops": timeline.compact(timeline.journey(evs, eps, lang), lang),
     }
 
 
@@ -228,8 +255,8 @@ async def api_cancel(letter_id: str):
 
 
 @app.get("/api/endpoints")
-async def api_endpoints():
-    return await endpoints.status()
+async def api_endpoints(request: Request):
+    return await endpoints.status(request.state.lang)
 
 
 @app.get("/healthz")

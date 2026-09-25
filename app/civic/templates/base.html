@@ -1,16 +1,18 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Help with letters, Gemeinde Musterstadt{% endblock %}</title>
+  <title>{% block title %}{{ t('base.service') }}{% endblock %}, Gemeinde Musterstadt</title>
   <link rel="stylesheet" href="/static/fonts/fonts.css?v={{ v }}">
   <link rel="stylesheet" href="/static/style.css?v={{ v }}">
+  <script id="i18n" type="application/json">{{ strings | tojson }}</script>
+  <script src="/static/i18n.js?v={{ v }}" defer></script>
   <script src="/static/vendor/rough-notation.iife.js?v={{ v }}" defer></script>
   <script src="/static/marks.js?v={{ v }}" defer></script>
 </head>
 <body class="{% block bodyclass %}{% endblock %}">
-  <a class="skip" href="#main">Skip to content</a>
+  <a class="skip" href="#main">{{ t('base.skip') }}</a>
   <header class="masthead">
     <a class="home" href="/">
       <svg class="crest" viewBox="0 0 32 38" aria-hidden="true">
@@ -19,38 +21,43 @@
         <circle cx="16" cy="11" r="3.2" fill="#fff"/>
       </svg>
       <span class="home-name">Gemeinde Musterstadt</span>
-      <span class="home-service">Help with letters</span>
+      <span class="home-service">{{ t('base.service') }}</span>
     </a>
     <nav class="masthead-nav">
-      <a href="/">New letter</a>
-      <button type="button" class="demo-toggle" aria-controls="demo-drawer" aria-expanded="false">Demo controls</button>
+      <a class="nav-new" href="/">{{ t('base.new_letter') }}</a>
+      <ul class="langs" aria-label="{{ t('base.language') }}">
+        {% for code, name in ui_languages.items() %}
+        <li><a href="?lang={{ code }}" hreflang="{{ code }}" lang="{{ code }}" title="{{ name }}" aria-label="{{ name }}"{% if code == lang %} aria-current="true"{% endif %}>{{ code | upper }}</a></li>
+        {% endfor %}
+      </ul>
+      <button type="button" class="demo-toggle" aria-controls="demo-drawer" aria-expanded="false">{{ t('demo.title') }}</button>
     </nav>
   </header>
 
   {% if shared_demo %}
-  <p class="shared-note">This is a shared demo for the jury, hosted in Switzerland (Microsoft Azure, Zurich). Please use the example letters only, never a real one. Other visitors can break services too; Demo controls repair them.</p>
+  <p class="shared-note">{{ t('base.shared_note') }}</p>
   {% endif %}
   <main id="main">{% block content %}{% endblock %}</main>
 
   <footer class="footer">
-    <p>A prototype for the Swiss {ai} Weeks. The commune and every letter here are fictional. Explanations are not legal advice.</p>
-    <p><a href="https://github.com/SRGSSR/srgssr-zh-hackathon-2026/tree/public-ai-service">Source code</a>, Apache 2.0.</p>
+    <p>{{ t('base.footer') }}</p>
+    <p><a href="https://github.com/SRGSSR/srgssr-zh-hackathon-2026/tree/public-ai-service">{{ t('base.source') }}</a>, Apache 2.0.</p>
   </footer>
 
-  <aside id="demo-drawer" class="drawer" aria-label="Demo controls" hidden>
+  <aside id="demo-drawer" class="drawer" aria-label="{{ t('demo.title') }}" hidden>
     <div class="drawer-head">
-      <h2>Demo controls</h2>
-      <button type="button" class="drawer-close" aria-label="Close demo controls">Close</button>
+      <h2>{{ t('demo.title') }}</h2>
+      <button type="button" class="drawer-close" aria-label="{{ t('demo.close_label') }}">{{ t('demo.close') }}</button>
     </div>
-    <p class="drawer-intro">Break the services on purpose and watch what happens to the letter. Real means the Public AI API, behind a local switch. Simulated services only show where a request went.</p>
+    <p class="drawer-intro">{{ t('demo.intro') }}</p>
     <div class="drawer-bulk">
-      <button type="button" data-bulk="break-approved" class="btn-quiet danger">Break every Swiss service</button>
-      <button type="button" data-bulk="break-swiss-eu" class="btn-quiet danger">Break Swiss and EU services</button>
-      <button type="button" data-bulk="restore-all" class="btn-quiet">Repair all</button>
-      <button type="button" data-bulk="reset" class="btn-quiet">Repair all and reset counters</button>
+      <button type="button" data-bulk="break-approved" class="btn-quiet danger">{{ t('demo.break_swiss') }}</button>
+      <button type="button" data-bulk="break-swiss-eu" class="btn-quiet danger">{{ t('demo.break_swiss_eu') }}</button>
+      <button type="button" data-bulk="restore-all" class="btn-quiet">{{ t('demo.repair') }}</button>
+      <button type="button" data-bulk="reset" class="btn-quiet">{{ t('demo.reset') }}</button>
     </div>
     <div class="endpoints" data-endpoints></div>
-    <p class="drawer-foot">"Received" counts what actually reached each service. Services a rule excludes must stay at zero for letters under that rule. Social services: Switzerland only. School: Switzerland, then the EU. Other offices: Switzerland and the EU; the United States only if the resident agrees.</p>
+    <p class="drawer-foot">{{ t('demo.foot') }}</p>
   </aside>
   <script src="/static/demo.js?v={{ v }}" defer></script>
   {% block scripts %}{% endblock %}

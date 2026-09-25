@@ -1,85 +1,85 @@
 {% extends "base.html" %}
-{% block title %}Your letter, Gemeinde Musterstadt{% endblock %}
+{% block title %}{{ t('job.page_title') }}{% endblock %}
 {% block bodyclass %}page-job{% endblock %}
 {% block content %}
 <div class="job" data-job="{{ job.id }}" data-status="{{ job.status }}">
   <header class="job-head">
     <div class="job-head-text">
-      <h1 class="job-title" data-title aria-live="polite">Reading your letter</h1>
-      <p class="job-rule">Rule of {{ service.owner }}: {{ service.rule }}.</p>
+      <h1 class="job-title" data-title aria-live="polite">{{ t('job.title.reading') }}</h1>
+      <p class="job-rule">{{ service.rule_line }}</p>
       <p class="job-promise" data-promise></p>
       {% if topics and job.service == 'social' %}
-      <p class="job-topics">This letter mentions {{ topics | join(', ') }}. The law protects this kind of information strongly, which is why your commune keeps it in Switzerland.</p>
+      <p class="job-topics">{{ t('job.topics', topics=(topics | join(', '))) }}</p>
       {% endif %}
     </div>
     <form method="post" action="/jobs/{{ job.id }}/again" class="job-again">
-      <button class="btn-quiet" type="submit">Explain it again</button>
+      <button class="btn-quiet" type="submit">{{ t('job.again') }}</button>
     </form>
   </header>
 
   <div class="job-grid">
-    <section class="reading" aria-label="Explanation">
+    <section class="reading" aria-label="{{ t('job.explanation') }}">
       <div class="pending" data-pending>
-        <p class="pending-title" data-pending-title>We are reading your letter with you.</p>
-        <p class="pending-text" data-pending-text>This usually takes less than a minute.</p>
+        <p class="pending-title" data-pending-title>{{ t('job.pending_title') }}</p>
+        <p class="pending-text" data-pending-text>{{ t('job.pending_text') }}</p>
         <div class="pending-actions" data-pending-actions hidden>
-          <button type="button" class="btn-quiet" data-action="wake">Try again now</button>
-          <button type="button" class="btn-quiet" data-action="cancel">Cancel</button>
+          <button type="button" class="btn-quiet" data-action="wake">{{ t('job.try_now') }}</button>
+          <button type="button" class="btn-quiet" data-action="cancel">{{ t('job.cancel') }}</button>
         </div>
         <div class="consent-offer" data-consent-offer hidden>
-          <p><strong>You can also choose not to wait.</strong> This office allows your letter to go to a service in the United States, but only if you agree. Waiting in Switzerland is the safer choice.</p>
-          <button type="button" class="btn-quiet" data-consent-open>Send it to the United States instead…</button>
+          <p><strong>{{ t('job.consent_offer_lead') }}</strong> {{ t('job.consent_offer') }}</p>
+          <button type="button" class="btn-quiet" data-consent-open>{{ t('job.consent_open') }}</button>
         </div>
       </div>
 
       <dialog class="consent" data-consent-dialog aria-labelledby="consent-title">
         <form method="dialog" class="consent-form">
-          <h2 id="consent-title">Send this letter to a service in the United States?</h2>
-          <p>No service in Switzerland or the EU can answer right now. If you agree:</p>
+          <h2 id="consent-title">{{ t('consent.title') }}</h2>
+          <p>{{ t('consent.intro') }}</p>
           <ul>
-            <li>a service in the United States receives <strong>your whole letter</strong>, including your name, your address and any numbers in it;</li>
-            <li>Swiss data protection law does not apply there in the same way, and authorities there may be able to access it;</li>
-            <li>this cannot be undone once it is sent. It applies to this letter only.</li>
+            <li>{{ t('consent.point1') | marked }}</li>
+            <li>{{ t('consent.point2') }}</li>
+            <li>{{ t('consent.point3') }}</li>
           </ul>
-          <p>Your choice is recorded in the journey of your letter.</p>
-          <label class="consent-check"><input type="checkbox" data-consent-check> I understand and I agree for this letter.</label>
+          <p>{{ t('consent.recorded') }}</p>
+          <label class="consent-check"><input type="checkbox" data-consent-check> {{ t('consent.check') }}</label>
           <div class="consent-actions">
-            <button value="wait" class="btn-primary" autofocus>Keep waiting in Switzerland</button>
-            <button value="agree" class="btn-quiet danger" data-consent-agree disabled>Send it to the United States</button>
+            <button value="wait" class="btn-primary" autofocus>{{ t('consent.wait') }}</button>
+            <button value="agree" class="btn-quiet danger" data-consent-agree disabled>{{ t('consent.agree') }}</button>
           </div>
         </form>
       </dialog>
 
       <div class="answer" data-answer hidden>
         <section class="answer-part">
-          <h2>What the letter says</h2>
-          <p class="simulated-note" data-simulated hidden>This answer comes from a simulated demo service, not from a language model.</p>
+          <h2>{{ t('job.says') }}</h2>
+          <p class="simulated-note" data-simulated hidden>{{ t('job.simulated') }}</p>
           <p class="explanation" data-summary lang="{{ job.language }}"></p>
         </section>
         <section class="answer-part">
-          <h2>What you need to do</h2>
+          <h2>{{ t('job.todo') }}</h2>
           <ol class="todo" data-actions lang="{{ job.language }}"></ol>
         </section>
         <section class="answer-part">
           <div class="reply-head">
-            <h2>Your reply, in German</h2>
-            <button type="button" class="btn-quiet" data-copy>Copy the reply</button>
+            <h2>{{ t('job.reply') }}</h2>
+            <button type="button" class="btn-quiet" data-copy>{{ t('job.copy') }}</button>
           </div>
           <div class="sheet sheet--reply"><pre class="reply" data-reply lang="de"></pre></div>
-          <p class="fine">Check the reply and every date against the original letter before you send it. If something is unclear, call the number in the letter.</p>
+          <p class="fine">{{ t('job.fine') }}</p>
         </section>
       </div>
 
       <details class="original">
-        <summary>The original letter</summary>
+        <summary>{{ t('job.original') }}</summary>
         <div class="sheet sheet--original"><pre lang="de">{{ job.letter }}</pre></div>
       </details>
     </section>
 
     <section class="trail" aria-labelledby="trail-title">
       <div class="trail-head">
-        <h2 id="trail-title">Where your letter went</h2>
-        <label class="tech-switch"><input type="checkbox" data-tech-toggle> Technical details</label>
+        <h2 id="trail-title">{{ t('job.trail') }}</h2>
+        <label class="tech-switch"><input type="checkbox" data-tech-toggle> {{ t('job.tech') }}</label>
       </div>
       <ol class="journey" data-journey aria-live="polite" data-tech="off"></ol>
     </section>

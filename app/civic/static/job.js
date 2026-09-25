@@ -43,7 +43,8 @@
       const list = el("ul", "stop-crossed");
       stop.crossed.forEach((c) => {
         const item = el("li");
-        item.append("Not sent to ", el("span", "x", c.name), `, because ${c.reason}.`);
+        const p = tParts("journey.not_sent_to", { name: c.name, reason: c.reason });
+        item.append(p.before, el("span", "x", p.mark), p.after);
         list.append(item);
       });
       body.append(list);
@@ -84,39 +85,38 @@
   }
 
   // --- header ------------------------------------------------------------------------
-  const TITLES = {
-    queued: "Reading your letter",
-    running: "Reading your letter",
-    waiting: "Your letter is waiting, safely",
-    done: "Here is what your letter says",
-    failed: "This did not work",
-    cancelled: "You cancelled this letter",
-    expired: "No Swiss service answered in time",
+  const TITLE_KEYS = {
+    queued: "job.title.reading",
+    running: "job.title.reading",
+    waiting: "job.title.waiting",
+    done: "job.title.done",
+    failed: "job.title.failed",
+    cancelled: "job.title.cancelled",
+    expired: "job.title.expired",
   };
+  const title = (status) => (TITLE_KEYS[status] ? t(TITLE_KEYS[status]) : t("job.page_title"));
 
+  // The sentence under the title: where the letter went, with its key phrase underlined.
   function promiseFor(receipt, status, service) {
     const ruled = receipt.ruled_out.length;
-    const others = ruled === 1 ? "One other service was" : `${ruled} other services were`;
-    const ruledText = ruled ? ` ${others} ruled out before anything was sent.` : "";
+    const ruledText = ruled ? " " + (ruled === 1 ? t("job.ruled_one") : t("job.ruled_many", { n: ruled })) : "";
     const fallback = receipt.fallbacks_blocked.length
-      ? ` That includes a backup model in ${receipt.fallbacks_blocked[0].places.join(" and ")}.`
+      ? " " + t("job.fallback_blocked", { where: tJoin(receipt.fallbacks_blocked[0].places) })
       : "";
+    const withRest = (p, extra) => ({ lead: p.before, key: p.mark, rest: p.after + extra });
     if (!receipt.sent_to.length) {
-      return status === "waiting"
-        ? { lead: "It has not been sent anywhere yet. ", key: "It stays in Switzerland", rest: ` until a Swiss service can answer.${ruledText}${fallback}` }
-        : { lead: "", key: "", rest: "" };
+      return status === "waiting" ? withRest(tParts("job.not_sent_yet"), ruledText + fallback) : { lead: "", key: "", rest: "" };
     }
-    if (receipt.all_swiss) return { lead: "It went ", key: "only to services in Switzerland", rest: `.${ruledText}${fallback}` };
+    if (receipt.all_swiss) return withRest(tParts("job.went_swiss"), ruledText + fallback);
     const agreed = receipt.consented || [];
     const within = receipt.places.filter((p) => !agreed.includes(p));
-    const withinText = within.length ? `services in ${within.join(" and ")}` : "";
     if (agreed.length) {
-      return {
-        lead: withinText ? `It went to ${withinText} and, because you agreed, ` : "Because you agreed, it went ",
-        key: "", rest: `to a service in ${agreed.join(" and ")}.${ruledText}`,
-      };
+      const text = within.length
+        ? t("job.went_consent", { where: tJoin(within), agreed: tJoin(agreed) })
+        : t("job.went_consent_only", { agreed: tJoin(agreed) });
+      return { lead: text + ruledText, key: "", rest: "" };
     }
-    return { lead: "It went ", key: `only to ${withinText}`, rest: `, as ${service.owner_s} rule allows.${ruledText}${fallback}` };
+    return withRest(tParts("job.went_within", { where: tJoin(within), allows: service.allows }), ruledText + fallback);
   }
 
   // A new attempt after a wait is still part of the wait, for the resident.
@@ -125,7 +125,7 @@
   function renderHeader(data) {
     const status = shownStatus(data.job);
     root.dataset.status = status;
-    $("[data-title]").textContent = TITLES[status] || "Your letter";
+    $("[data-title]").textContent = title(status);
     const p = promiseFor(data.receipt, status, data.service);
     const text = p.lead + p.key + p.rest;
     if (text === promiseText) return;
@@ -151,25 +151,25 @@
     clearInterval(countdown);
     if (status === "done") { pending.hidden = true; return; }
     pending.hidden = false;
-    const title = $("[data-pending-title]");
+    const heading = $("[data-pending-title]");
     const text = $("[data-pending-text]");
     actions.hidden = status !== "waiting";
     const offer = $("[data-consent-offer]");
     const canAsk = (data.job.consent_options || []).includes("US") && !data.job.consent;
     offer.hidden = !(status === "waiting" && canAsk);
     if (status === "waiting") {
-      title.textContent = data.service.allowed.includes("EU") ? "No service in Switzerland or the EU can answer right now." : "No Swiss service can answer right now.";
+      heading.textContent = data.service.allowed.includes("EU") ? t("job.wait_title_eu") : t("job.wait_title_ch");
       const tick = () => {
         const s = nextAt ? Math.max(0, Math.round(nextAt - Date.now() / 1000)) : 0;
-        text.textContent = `Your letter stays here and is not sent anywhere else. ${s > 0 ? `Next try in ${s} seconds.` : "Trying again now."}`;
+        text.textContent = `${t("job.wait_text")} ${s > 0 ? t("common.next_try", { n: s }) : t("job.trying_now")}`;
       };
       tick();
       countdown = setInterval(tick, 1000);
     } else if (status === "queued" || status === "running") {
-      title.textContent = "We are reading your letter with you.";
-      text.textContent = "This usually takes less than a minute.";
+      heading.textContent = t("job.pending_title");
+      text.textContent = t("job.pending_text");
     } else {
-      title.textContent = TITLES[status];
+      heading.textContent = title(status);
       text.textContent = reason || "";
     }
   }
@@ -236,7 +236,7 @@
     });
     if (!response.ok) {
       const offer = $("[data-consent-offer]");
-      offer.querySelector("p").textContent = "Your choice could not be recorded, so nothing was sent. The letter keeps waiting.";
+      offer.querySelector("p").textContent = t("job.consent_error");
     }
     poll();
   });
@@ -245,9 +245,9 @@
   copy.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText($("[data-reply]").textContent);
-      copy.textContent = "Copied";
-      setTimeout(() => { copy.textContent = "Copy the reply"; }, 2000);
-    } catch (e) { copy.textContent = "Select the text to copy it"; }
+      copy.textContent = t("job.copied");
+      setTimeout(() => { copy.textContent = t("job.copy"); }, 2000);
+    } catch (e) { copy.textContent = t("job.copy_manual"); }
   });
 
   // --- polling -----------------------------------------------------------------------

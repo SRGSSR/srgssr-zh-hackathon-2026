@@ -8,20 +8,21 @@ from typing import Dict, List
 import httpx
 import yaml
 
+from . import i18n
+
 GATEWAY_CONFIG = os.environ.get("GATEWAY_CONFIG", "/config/gateway.yaml")
 # Display only. The gateway enforces the real rule from the key-bound policy.
 DISPLAY_ALLOWED_JURISDICTIONS = os.environ.get("DISPLAY_ALLOWED_JURISDICTIONS", "CH").split(",")
 REQUIRED = ("provider", "country", "jurisdiction")
-PLACES = {"CH": "Switzerland", "EU": "the EU", "US": "the United States", "SG": "Singapore", "PL": "Poland", "DE": "Germany"}
-GROUPS = {"swiss-ai/apertus-v1.5-70b": "Apertus", "aisingapore/Qwen-SEA-LION-v4-32B-IT": "SEA-LION, a different model"}
+GROUPS = {"swiss-ai/apertus-v1.5-70b": "Apertus", "aisingapore/Qwen-SEA-LION-v4-32B-IT": "model.sealion"}
 
 
-def place(code):
-    """Human name of a jurisdiction code, or None if unknown."""
-    return PLACES.get(code) if code else None
+def group_name(lang: str, group: str) -> str:
+    name = GROUPS.get(group, group)
+    return i18n.t(lang, name) if name.startswith("model.") else name
 
 
-def load() -> List[Dict]:
+def load(lang: str = "en") -> List[Dict]:
     with open(GATEWAY_CONFIG) as f:
         cfg = yaml.safe_load(f)
     fallbacks = {}
@@ -39,23 +40,19 @@ def load() -> List[Dict]:
             rule = f"excluded: jurisdiction {mi['jurisdiction']}"
         j = mi.get("jurisdiction")
         if missing:
-            why, reach = "Never used: its location is unknown", "never"
-        elif j == "CH":
-            why, reach = "In Switzerland: allowed by every rule", "all"
-        elif j == "EU":
-            why, reach = "In the EU: school and other offices only", "some"
-        elif j == "US":
-            why, reach = "In the United States: only if a resident agrees", "consent"
+            why, reach = i18n.t(lang, "ep.why.unknown"), "never"
+        elif j in ("CH", "EU", "US"):
+            why, reach = i18n.t(lang, f"ep.why.{j}"), {"CH": "all", "EU": "some", "US": "consent"}[j]
         else:
-            why, reach = f"Never used: it is in {place(j) or j}", "never"
+            why, reach = i18n.t(lang, "ep.why.other", where=i18n.place(lang, j) or j), "never"
         out.append(
             {
                 "why": why,
                 "reach": reach,
                 "id": mi.get("id"),
                 "label": mi.get("label", mi.get("id")),
-                "name": mi.get("display_name") or mi.get("id"),
-                "place": place(mi.get("jurisdiction")),
+                "name": i18n.t(lang, f"ep.{mi.get('id')}", default=mi.get("display_name") or mi.get("id")),
+                "place": i18n.place(lang, mi.get("jurisdiction")),
                 "model_group": d["model_name"],
                 "provider": mi.get("provider"),
                 "country": mi.get("country"),
@@ -72,12 +69,12 @@ def load() -> List[Dict]:
     return out
 
 
-def by_id() -> Dict[str, Dict]:
-    return {e["id"]: e for e in load()}
+def by_id(lang: str = "en") -> Dict[str, Dict]:
+    return {e["id"]: e for e in load(lang)}
 
 
-async def status() -> List[Dict]:
-    eps = load()
+async def status(lang: str = "en") -> List[Dict]:
+    eps = load(lang)
 
     async def one(client, e):
         try:

@@ -3,38 +3,47 @@
 {% block content %}
 <div class="home-grid">
   <section class="intro" aria-labelledby="intro-title">
-    <h1 id="intro-title">A letter from the commune you don't understand?</h1>
-    <p class="lead">Paste it below. We explain it in simple words and in your language, tell you what to do and by when, and write a reply in German that you can check and send.</p>
+    <h1 id="intro-title">{{ t('home.title') }}</h1>
+    <p class="lead">{{ t('home.lead') }}</p>
 
     <form class="letter-form" method="post" action="/jobs">
-      <label class="sheet sheet--input" for="letter">
-        <span class="visually-hidden">Your letter</span>
+      <label class="sheet sheet--input" for="letter" data-sheet>
+        <span class="visually-hidden">{{ t('home.your_letter') }}</span>
         <textarea id="letter" name="letter" rows="17" required spellcheck="false"
-          placeholder="Gemeinde Musterstadt&#10;Soziale Dienste&#10;&#10;Sehr geehrte Frau …&#10;&#10;Paste the text of your letter here, or pick an example on the right."></textarea>
+          placeholder="Gemeinde Musterstadt&#10;Soziale Dienste&#10;&#10;Sehr geehrte Frau …&#10;&#10;{{ t('home.placeholder') }}"></textarea>
       </label>
+      <div class="upload">
+        <button type="button" class="btn-quiet upload-button" data-upload>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 13V3m0 0L6 7m4-4 4 4M4 12v4h12v-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ t('home.upload') }}
+        </button>
+        <input type="file" class="visually-hidden" data-upload-input tabindex="-1" aria-hidden="true"
+          accept="image/*,.pdf,application/pdf,.txt,text/plain">
+        <p class="upload-note" data-upload-note aria-live="polite" hidden></p>
+      </div>
       <div class="form-row">
         <label class="lang">
-          <span>The letter is from</span>
+          <span>{{ t('home.from') }}</span>
           <select name="service" data-service>
             {% for key, s in services.items() %}<option value="{{ key }}">{{ s.office }}</option>{% endfor %}
           </select>
         </label>
         <label class="lang">
-          <span>Explain it to me in</span>
+          <span>{{ t('home.explain_in') }}</span>
           <select name="language">
-            {% for code, name in languages.items() %}<option value="{{ code }}" {% if code == 'it' %}selected{% endif %}>{{ name }}</option>{% endfor %}
+            {% for code, name in languages.items() %}<option value="{{ code }}" lang="{{ code }}" {% if code == explain_in %}selected{% endif %}>{{ name }}</option>{% endfor %}
           </select>
         </label>
-        <button class="btn-primary" type="submit">Explain my letter</button>
+        <button class="btn-primary" type="submit">{{ t('home.submit') }}</button>
       </div>
-      <p class="fine">This is an explanation, not legal advice. You decide what to send.</p>
+      <p class="fine">{{ t('home.fine') }}</p>
     </form>
   </section>
 
   <aside class="side">
     {% if samples %}
     <section aria-labelledby="examples-title">
-      <h2 id="examples-title">Try an example</h2>
+      <h2 id="examples-title">{{ t('home.examples') }}</h2>
       <ul class="examples">
         {% for s in samples %}
         <li><button type="button" class="example" data-sample="{{ s.file }}" data-sample-service="{{ s.service }}">
@@ -47,21 +56,21 @@
     {% endif %}
 
     <section class="promise" aria-labelledby="promise-title">
-      <h2 id="promise-title">Our promise about your letter</h2>
+      <h2 id="promise-title">{{ t('home.promise_title') }}</h2>
       {% for key, s in services.items() %}
       <div class="promise-variant" data-promise-for="{{ key }}" {% if not loop.first %}hidden{% endif %}>
-        <p class="promise-note"><span data-promise-key>{{ s.promise_key }}</span>{{ s.promise_rest }}</p>
-        <p class="promise-sign">Gemeinde Musterstadt, {{ s.office | lower if key != 'info' else 'all other offices' }}</p>
+        <p class="promise-note">{{ s.promise | marked('span', 'data-promise-key') }}</p>
+        <p class="promise-sign">{{ s.sign }}</p>
       </div>
       {% endfor %}
-      <p class="promise-why">Which rule applies depends on the office that wrote the letter. Letters from the social services talk about your support, your health and your children. The law protects this information more strongly than almost anything else, so those letters never leave Switzerland.</p>
+      <p class="promise-why">{{ t('home.promise_why') }}</p>
     </section>
 
     {% if jobs and not shared_demo %}
     <section aria-labelledby="recent-title">
-      <h2 id="recent-title">Your recent letters</h2>
+      <h2 id="recent-title">{{ t('home.recent') }}</h2>
       <ul class="recent">
-        {% for j in jobs %}<li><a href="/jobs/{{ j.id }}">Letter of {{ j.created_at | when }}</a><span class="state state--{{ j.status }}">{{ {'done': 'explained', 'waiting': 'waiting', 'queued': 'in progress', 'running': 'in progress', 'failed': 'did not work', 'cancelled': 'cancelled', 'expired': 'expired'}.get(j.status, j.status) }}</span></li>{% endfor %}
+        {% for j in jobs %}<li><a href="/jobs/{{ j.id }}">{{ (j.created_at | when(lang)) | capitalize_first }}</a><span class="state state--{{ j.status }}">{{ t('status.' ~ ('running' if j.status == 'queued' else j.status)) }}</span></li>{% endfor %}
       </ul>
     </section>
     {% endif %}

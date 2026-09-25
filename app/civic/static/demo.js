@@ -3,7 +3,7 @@
   const drawer = document.getElementById("demo-drawer");
   const toggle = document.querySelector(".demo-toggle");
   const onDemoPage = document.body.classList.contains("page-demo");
-  const MODES = [["up", "Working"], ["down", "Broken"], ["timeout", "Hangs"]];
+  const MODES = [["up", t("demo.mode_up")], ["down", t("demo.mode_down")], ["timeout", t("demo.mode_timeout")]];
   const lastCount = {};
   let timer = null;
 
@@ -31,17 +31,18 @@
     node.innerHTML = `
       <div class="ep-name"></div>
       <div class="ep-why"></div>
-      <div class="ep-count"><span class="num">0</span><span class="lbl">received</span></div>
+      <div class="ep-count"><span class="num">0</span><span class="lbl"></span></div>
       <div class="ep-modes" role="group"></div>`;
+    node.querySelector(".ep-count .lbl").textContent = t("demo.received");
     const name = node.querySelector(".ep-name");
     name.textContent = ep.name;
     const kind = document.createElement("span");
     kind.className = `kind kind--${ep.kind}`;
-    kind.textContent = ep.kind === "real" ? "real" : "simulated";
+    kind.textContent = ep.kind === "real" ? t("demo.real") : t("demo.simulated");
     name.append(kind);
     node.querySelector(".ep-why").textContent = ep.why;
     const modes = node.querySelector(".ep-modes");
-    modes.setAttribute("aria-label", `State of ${ep.name}`);
+    modes.setAttribute("aria-label", t("demo.state_of", { name: ep.name }));
     MODES.forEach(([mode, label]) => {
       const b = document.createElement("button");
       b.type = "button";

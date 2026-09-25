@@ -1,20 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Demo controls, Gemeinde Musterstadt{% endblock %}
+{% block title %}{{ t('demo.title') }}{% endblock %}
 {% block bodyclass %}page-demo{% endblock %}
 {% block content %}
 <div class="demo-page">
-  <h1>Demo controls</h1>
-  <p class="lead">Open a letter in another window, then break services here and watch its journey.</p>
+  <h1>{{ t('demo.title') }}</h1>
+  <p class="lead">{{ t('demo.lead') }}</p>
   <div class="drawer-bulk">
-    <button type="button" data-bulk="break-approved" class="btn-quiet danger">Break every Swiss service</button>
-    <button type="button" data-bulk="break-swiss-eu" class="btn-quiet danger">Break Swiss and EU services</button>
-    <button type="button" data-bulk="restore-all" class="btn-quiet">Repair all</button>
-    <button type="button" data-bulk="reset" class="btn-quiet">Repair all and reset counters</button>
+    <button type="button" data-bulk="break-approved" class="btn-quiet danger">{{ t('demo.break_swiss') }}</button>
+    <button type="button" data-bulk="break-swiss-eu" class="btn-quiet danger">{{ t('demo.break_swiss_eu') }}</button>
+    <button type="button" data-bulk="restore-all" class="btn-quiet">{{ t('demo.repair') }}</button>
+    <button type="button" data-bulk="reset" class="btn-quiet">{{ t('demo.reset') }}</button>
   </div>
   <div class="endpoints endpoints--wide" data-endpoints></div>
   {% if jobs and not shared_demo %}
-  <h2>Recent letters</h2>
-  <ul class="recent">{% for j in jobs %}<li><a href="/jobs/{{ j.id }}">Letter of {{ j.created_at | when }}</a><span class="state state--{{ j.status }}">{{ j.status }}</span></li>{% endfor %}</ul>
+  <h2>{{ t('demo.recent') }}</h2>
+  <ul class="recent">{% for j in jobs %}<li><a href="/jobs/{{ j.id }}">{{ (j.created_at | when(lang)) | capitalize_first }}</a><span class="state state--{{ j.status }}">{{ t('status.' ~ ('running' if j.status == 'queued' else j.status)) }}</span></li>{% endfor %}</ul>
   {% endif %}
 </div>
 {% endblock %}
