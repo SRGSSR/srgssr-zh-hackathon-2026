@@ -67,19 +67,15 @@ p{margin:0;max-width:62ch}
 .letter .subj{font-weight:600;margin:14px 0 10px}
 .letter ol{margin:8px 0 10px;padding-left:22px;display:grid;gap:6px}
 .letter p{margin:0 0 8px}
-.stamp{align-self:start;transform:rotate(-8deg);border:2px solid var(--red);color:var(--red);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:4px 8px;border-radius:3px;text-transform:uppercase;opacity:.85}
+.letter.solo{justify-self:center;width:min(100%,720px);font-size:17px;padding:clamp(24px,4vw,44px) clamp(24px,4vw,48px);transform:rotate(-.6deg)}
+/* A rubber stamp inked across the letter: speckled, uneven ink via an SVG filter */
+.overstamp{position:absolute;left:52%;top:60%;z-index:1;width:min(78%,520px);transform:translate(-50%,-50%) rotate(-13deg);opacity:.9;mix-blend-mode:multiply;pointer-events:none}
+.overstamp svg{display:block;width:100%;height:auto}
+.overstamp text{font-family:var(--display);fill:var(--red);text-transform:uppercase}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .overstamp{mix-blend-mode:normal}}
+:root[data-theme="dark"] .overstamp{mix-blend-mode:normal}
 mark{background:none;color:inherit}
 .show-marks mark{background:var(--red-soft);box-shadow:inset 0 -2px 0 var(--red);padding:0 2px;border-radius:2px}
-.show-marks mark[data-n]::after{content:attr(data-n);font-family:var(--mono);font-size:12px;font-weight:500;color:var(--paper);background:var(--red);border-radius:9px;padding:1px 6px;margin-left:4px;vertical-align:2px}
-.de-note{font-size:14px;color:var(--muted);font-style:italic}
-.quote{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.6vw,30px);line-height:1.2;letter-spacing:-.01em;max-width:24ch;text-wrap:balance}
-.quote small{display:block;font-family:var(--body);font-weight:400;font-size:15px;color:var(--muted);margin-top:8px;letter-spacing:0}
-
-.list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
-.list li{display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:start;font-size:19px;line-height:1.3}
-.list .n{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--paper);background:var(--red);border-radius:11px;height:22px;display:grid;place-items:center;margin-top:1px}
-.list b{display:block;font-weight:600}
-.list span{color:var(--muted);font-size:14.5px}
 
 /* Slide 4: doubt */
 .route{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:24px;box-shadow:var(--shadow);overflow-x:auto}
@@ -237,35 +233,45 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
   <!-- 2 -->
   <section class="slide" aria-label="Slide 2: A letter from the social services">
     <div class="eyebrow">A letter arrives</div>
-    <div class="two">
-      <div class="letter show-marks" aria-label="Letter from the social services, with sensitive details marked">
-        <div class="head">
-          <div><div class="sender">Gemeinde Musterstadt</div>Soziale Dienste</div>
-          <div style="display:grid;gap:14px;justify-items:end"><div class="meta">21. September 2026</div><div class="stamp">Vertraulich</div></div>
-        </div>
-        <div><mark data-n="1">Frau Ana Exemplo, Musterplatz 7</mark></div>
-        <div class="meta" style="margin-top:6px">Dossier-Nr.: <mark data-n="2">SH-2026-0000</mark> · AHV-Nr.: <mark data-n="2">756.0000.0000.00</mark></div>
-        <p class="subj">Wirtschaftliche Sozialhilfe: Überprüfung Ihres Unterstützungsbudgets</p>
-        <ol>
-          <li><mark data-n="3">Kontoauszüge</mark> sämtlicher Bank- und Postkonten, Juni bis August 2026</li>
-          <li>Mietvertrag und Nebenkostenabrechnung 2025</li>
-          <li>das <mark data-n="4">Arztzeugnis zu Ihrer Arbeitsunfähigkeit</mark>, mit Grad und Dauer</li>
-          <li>Kinderzulagen für <mark data-n="5">Luca (geb. 2015) und Sara (geb. 2019)</mark></li>
-        </ol>
-        <p>Bitte bis spätestens 15. Oktober 2026 einreichen. Sonst kann die <mark data-n="6">Unterstützung gekürzt oder eingestellt</mark> werden.</p>
+    <div class="letter solo show-marks" aria-label="Confidential letter from the social services of the City of Zurich, with sensitive details marked">
+      <div class="overstamp" role="img" aria-label="Stamp: Vertraulich, confidential">
+        <svg viewBox="0 0 520 190" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="7" result="grain"/>
+              <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.2 0 0 0 1.95" result="holes"/>
+              <feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="2" seed="3" result="blotch"/>
+              <feColorMatrix in="blotch" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.3 0 0 0 1.55" result="fade"/>
+              <feComposite in="holes" in2="fade" operator="arithmetic" k1="1" result="mask"/>
+              <feComposite in="SourceGraphic" in2="mask" operator="in" result="speckled"/>
+              <feTurbulence type="turbulence" baseFrequency=".05" numOctaves="2" seed="11" result="wobble"/>
+              <feDisplacementMap in="speckled" in2="wobble" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+          </defs>
+          <g filter="url(#ink)">
+            <rect x="8" y="8" width="504" height="174" rx="14" fill="none" stroke="var(--red)" stroke-width="9"/>
+            <rect x="24" y="24" width="472" height="142" rx="6" fill="none" stroke="var(--red)" stroke-width="3"/>
+            <text x="260" y="62" text-anchor="middle" font-size="17" font-weight="700" letter-spacing="7">★ Stadt Zürich ★</text>
+            <line x1="46" y1="76" x2="474" y2="76" stroke="var(--red)" stroke-width="3"/>
+            <text x="260" y="134" text-anchor="middle" font-size="60" font-weight="800" letter-spacing="5" textLength="420" lengthAdjust="spacingAndGlyphs">Vertraulich</text>
+            <line x1="46" y1="146" x2="474" y2="146" stroke="var(--red)" stroke-width="3"/>
+          </g>
+        </svg>
       </div>
-      <div style="display:grid;gap:20px">
-        <h2>A letter from the social services. Her whole life is in it.</h2>
-        <p class="quote">“Cosa vogliono da me?”<small>“What do they want from me?”</small></p>
-        <ul class="list">
-          <li><span class="n">1</span><div><b>Name and home address</b></div></li>
-          <li><span class="n">2</span><div><b>Case number and AHV number</b></div></li>
-          <li><span class="n">3</span><div><b>Her bank accounts</b></div></li>
-          <li><span class="n">4</span><div><b>Her health</b></div></li>
-          <li><span class="n">5</span><div><b>Her children</b></div></li>
-          <li><span class="n">6</span><div><b>That she depends on social assistance</b></div></li>
-        </ul>
+      <div class="head">
+        <div><div class="sender">Stadt Zürich</div>Sozialdepartement · Soziale Dienste</div>
+        <div class="meta">Zürich, 21. September 2026</div>
       </div>
+      <div><mark>Frau Ana Exemplo</mark><br><mark>Musterstrasse 7, 8004 Zürich</mark></div>
+      <div class="meta" style="margin-top:6px">Dossier-Nr.: <mark>SH-2026-0000</mark> · AHV-Nr.: <mark>756.0000.0000.00</mark></div>
+      <p class="subj">Wirtschaftliche Sozialhilfe: Überprüfung Ihres Unterstützungsbudgets</p>
+      <ol>
+        <li><mark>Kontoauszüge</mark> sämtlicher Bank- und Postkonten, Juni bis August 2026</li>
+        <li>Mietvertrag und Nebenkostenabrechnung 2025</li>
+        <li>das <mark>Arztzeugnis zu Ihrer Arbeitsunfähigkeit</mark>, mit Grad und Dauer</li>
+        <li>Kinderzulagen für <mark>Luca (geb. 2015) und Sara (geb. 2019)</mark></li>
+      </ol>
+      <p>Bitte bis spätestens 15. Oktober 2026 einreichen. Sonst kann die <mark>Unterstützung gekürzt oder eingestellt</mark> werden.</p>
     </div>
   </section>
 
