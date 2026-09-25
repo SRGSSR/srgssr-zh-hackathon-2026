@@ -1,37 +1,23 @@
-# Commune letter helper
+# Data sovereignty layer for public AI
 
-**A public AI service that keeps its promise about citizens' data, even when providers fail.**
-
-It explains an official letter in simple words, in German, French, Italian, Romansh, Swiss German or English, with Apertus through the Public AI API. It sends the letter only where the commune's rule allows, on every retry and every fallback. When no allowed service is up, the letter waits in Switzerland until one is back. Built in 24 hours at the Swiss {ai} Weeks (Zurich, September 2026) for the Public AI challenge "Build a public AI service". Apache 2.0.
-
-![A real answer from Apertus: explanation in Italian with the deadlines highlighted, and the journey of the letter](docs/img/answer.png)
-
-## Online demo (during the Swiss {ai} Weeks)
-
-The address is in our submission. No login is needed. Please use the example letters only, never a real one.
-
-- **Location.** This shared demo runs on AWS in Frankfurt (EU). In a real deployment the gateway runs in the commune's own environment in Switzerland.
-- **Shared state.** If services are broken when you arrive, another visitor broke them. *Demo controls → Repair all and reset counters* fixes that.
-- **Timing.** The "Public AI" service is the real Public AI API, and a real answer takes 10 to 60 seconds. If Public AI times out (we have seen 504s after 60 seconds under load), the gateway moves on to a Swiss service within the rule. That answer is simulated and labelled as such, and the journey shows what happened.
-
-**To see the consent dialog:**
-1. Choose the example *"Second payment reminder"*. It sets *The letter is from: Another office*, the only office whose rule allows consent.
-2. Open *Demo controls* and press *Break Swiss and EU services*.
-3. Press *Explain my letter*. After about 20 seconds the page says *Your letter is waiting, safely* and offers *Send it to the United States instead…*.
-4. Open it, tick *I understand*, and press *Send it to the United States*. The journey records your agreement, and the US host's counter in *Demo controls* goes to 1.
-
-For the social services and the school the offer never appears: their rules do not allow consent.
-
-## The short version
+**With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes.**
 
 [![The short version in 25 seconds: when the Swiss host fails, Apertus can fall back to other models abroad; the rule is checked before every send; the request waits in the gateway and resumes by itself; every request leaves a trace; the routing guard is ready as a pull request for the Public AI Utility](docs/video/teaser.gif)](docs/video/teaser.mp4)
+
+When a provider fails, the gateway in front of a public AI service retries and falls back on its own, and a fallback can send citizen data to another model in another country. Our layer works where that happens, in the gateway. Each office of a commune has a rule about where its data may go. The gateway checks it before every attempt, and when no allowed service is up, the request waits in Switzerland instead of leaving.
+
+**The example service** is *Help with letters*, for the fictional commune of Musterstadt. A resident pastes an official letter, and Apertus, through the Public AI API, explains it in simple words, in German, French, Italian, Romansh, Swiss German or English. A letter from the social services carries health, money and children's details: exactly the data a rule has to protect.
+
+Built in 24 hours at the Swiss {ai} Weeks (Zurich, September 2026) for the Public AI challenge "Build a public AI service". Apache 2.0.
+
+## The short version
 
 **The problem is in production today.** The Public AI Utility routes requests through LiteLLM with automatic fallbacks. In its own configuration, when the Swiss host for Apertus fails, requests fall back to *other models hosted in other countries* (SEA-LION in Singapore, Bielik in Poland). We ran that configuration offline, in the image production runs. With the Swiss host down, a normal request was answered by the Singapore mock.
 
 **What we built:**
-- a civic service, *"Understand a letter from your commune"*;
-- a gateway that enforces the commune's rule on every attempt, including LiteLLM retries and cross-model fallbacks;
-- a queue inside that gateway: if no allowed service can answer, the letter waits there, in Switzerland, and completes by itself later, even across a gateway restart. No application has to implement waiting.
+- **the sovereignty layer:** a gateway on LiteLLM v1.98.0, the version the Utility runs, that enforces each office's rule on every attempt, including LiteLLM retries and cross-model fallbacks;
+- **a queue inside that gateway:** if no allowed service can answer, the request waits there, in Switzerland, and completes by itself later, even across a gateway restart. No application has to implement waiting;
+- **an example service,** *Help with letters*: a thin client of the gateway that knows nothing about routing.
 
 **Three offices, three rules.** Each rule is bound to the office's API key, never to the request:
 
@@ -49,11 +35,31 @@ For the social services and the school the offer never appears: their rules do n
 
 ## See it
 
+**The example service.** A real answer from Apertus: the explanation in Italian with the deadline highlighted, and on the right where the letter went.
+
+![A real answer from Apertus: explanation in Italian with the deadline highlighted, and where the letter went](docs/img/answer.png)
+
 | The letter waits; the backup model in Singapore is ruled out | Marco decides; his choice is recorded | The demo controls: excluded services stay at 0 |
 |---|---|---|
 | ![Journey: Swiss services tried, the SEA-LION fallback in Singapore blocked before send, waiting](docs/img/waiting.png) | ![Consent dialog: keep waiting in Switzerland, or send to the United States](docs/img/consent.png) | ![Demo controls with per-service counters](docs/img/drawer.png) |
 
-## Try it (5 minutes)
+## Try it online (during the Swiss {ai} Weeks)
+
+The address is in our submission. No login is needed. Please use the example letters only, never a real one.
+
+- **Location.** This shared demo runs on AWS in Frankfurt (EU). In a real deployment the gateway runs in the commune's own environment in Switzerland.
+- **Shared state.** If services are broken when you arrive, another visitor broke them. *Demo controls → Repair all and reset counters* fixes that.
+- **Timing.** The "Public AI" service is the real Public AI API, and a real answer takes 10 to 60 seconds. If Public AI times out (we have seen 504s after 60 seconds under load), the gateway moves on to a Swiss service within the rule. That answer is simulated and labelled as such, and the journey shows what happened.
+
+**To see the consent dialog:**
+1. Choose the example *"Second payment reminder"*. It sets *The letter is from: Another office*, the only office whose rule allows consent.
+2. Open *Demo controls* and press *Break Swiss and EU services*.
+3. Press *Explain my letter*. After about 20 seconds the page says *Your letter is waiting, safely* and offers *Send it to the United States instead…*.
+4. Open it, tick *I understand*, and press *Send it to the United States*. The journey records your agreement, and the US host's counter in *Demo controls* goes to 1.
+
+For the social services and the school the offer never appears: their rules do not allow consent.
+
+## Try it on your machine (5 minutes)
 
 You need Docker with Compose. A Public AI key is optional.
 
@@ -199,7 +205,7 @@ The open questions are listed in [docs/findings.md](docs/findings.md#12-open-que
 gateway/     LiteLLM config, policy.py (the 3 checks), deferred.py + store.py (queue, journey, consent),
              custom_auth.py, communes.yaml (one key and rule per office)
 endpoints/   faultbox.py: OpenAI-compatible mock and relay with working, broken and hanging modes and counters
-app/         the citizen app: a thin client of the gateway, JSON validation, the journey view
+app/         the example service, Help with letters: a thin client of the gateway, the journey view
 samples/     four fictional letters (social services x2, school, finance office)
 tests/       the test bench, plus restart_check.sh
 upstream/    the proposal for chat.publicai.co, tested on its production config
