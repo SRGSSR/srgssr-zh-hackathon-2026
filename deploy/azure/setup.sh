@@ -25,10 +25,26 @@ cd "$DIR"
 KEY=$(printf %s "$KEY_B64" | base64 -d)
 # No key given: keep the one already on the VM, so a redeploy never falls back to simulated answers.
 [ -n "$KEY" ] || [ ! -f .env ] || KEY=$(sed -n 's/^PUBLICAI_API_KEY=//p' .env | tail -1)
+# Never run without a working key: the demo would quietly answer with simulated responses. Both checks
+# stop before .env and the stack are touched, so the demo that is up keeps running as it is.
+if [ -z "$KEY" ]; then
+  echo "NO_PUBLICAI_KEY: no Public AI API key given and none on the VM; nothing was changed." >&2
+  exit 1
+fi
+CODE=$(curl -s -o /dev/null -w '%{http_code}' -m 30 https://api.publicai.co/v1/chat/completions \
+  -H "Authorization: Bearer $KEY" -H 'Content-Type: application/json' \
+  -H 'User-Agent: commune-letter-helper/0.1 (hackathon prototype)' \
+  -d '{"model":"swiss-ai/apertus-v1.5-70b","messages":[{"role":"user","content":"ok"}],"max_tokens":1}' || true)
+case "$CODE" in
+  401|403) echo "PUBLICAI_KEY_REJECTED: Public AI answered $CODE to the key; nothing was changed." >&2; exit 1 ;;
+  200) echo "Public AI accepted the key." ;;
+  *) echo "warning: could not confirm the key (Public AI answered $CODE, it can be slow under load); deploying anyway." ;;
+esac
 PASS=$(printf %s "$PASS_B64" | base64 -d)
 umask 077
 mkdir -p "$CONF"
-printf 'PUBLICAI_API_KEY=%s\nSIMULATE_WITHOUT_KEY=1\n' "$KEY" > .env
+# SIMULATE_WITHOUT_KEY=0: should the key ever go missing, the relay fails instead of faking answers.
+printf 'PUBLICAI_API_KEY=%s\nSIMULATE_WITHOUT_KEY=0\n' "$KEY" > .env
 
 # Caddy terminates HTTPS (Let's Encrypt on the VM's cloudapp.azure.com name). Only Caddy is reachable
 # from outside; every other service stays bound to 127.0.0.1 or the internal network.
