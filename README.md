@@ -79,6 +79,11 @@ The real Public AI API can be slow under load. If it does not answer, the gatewa
 
 ## How it works
 
+![How a letter travels: the citizen app sends the letter with its office key to the gateway. The gateway checks the office rule once per request, before every attempt and before each send. Swiss services are allowed for every rule, the EU only if the rule allows it, the US only with the resident's consent, the Singapore host and the host of unknown origin never.](docs/img/architecture.png)
+
+<details>
+<summary>Same diagram as text (Mermaid)</summary>
+
 ```mermaid
 flowchart LR
   R[Resident's browser] -->|letter| APP
@@ -103,6 +108,10 @@ flowchart LR
   GW -.-x|never| SG
   PUB --> PAPI[(Public AI API<br/>Apertus 1.5)]
 ```
+
+</details>
+
+Source of the image: [`docs/diagram/architecture.html`](docs/diagram/architecture.html) (export with `node docs/diagram/export.js`).
 
 **The rule is checked three times, in one LiteLLM callback** ([`gateway/policy.py`](gateway/policy.py)):
 
@@ -195,6 +204,8 @@ samples/     four fictional letters (social services x2, school, finance office)
 tests/       the test bench, plus restart_check.sh
 upstream/    the proposal for chat.publicai.co, tested on its production config
 docs/        findings.md (how LiteLLM really behaves, open questions), pitch.md, plan-example-app.md
+             diagram/: source of the architecture picture
+deploy/aws/  the shared online demo: one CloudFormation stack, deploy.sh and teardown.sh
 ```
 
-Apache 2.0, see [LICENSE](LICENSE). Fonts: Atkinson Hyperlegible Next and Shantell Sans (SIL Open Font License). Hand-drawn marks: [rough-notation](https://github.com/rough-stuff/rough-notation) (MIT).
+Apache 2.0, see [LICENSE](LICENSE). Fonts: Atkinson Hyperlegible Next and Shantell Sans (SIL Open Font License). Hand-drawn marks: [rough-notation](https://github.com/rough-stuff/rough-notation) and [rough.js](https://github.com/rough-stuff/rough) (MIT).

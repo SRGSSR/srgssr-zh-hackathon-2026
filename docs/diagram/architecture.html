@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How a letter travels</title>
+<!-- Source of docs/img/architecture.png. Same visual language as the app: paper for the gateway,
+     one zone per jurisdiction, hand-drawn arrows (rough.js). Export to docs/img/architecture.png: node docs/diagram/export.js -->
+<style>
+  @font-face { font-family: "Atkinson"; font-weight: 400 700; src: url("../../app/civic/static/fonts/atkinson-hyperlegible-next-latin.woff2") format("woff2"); }
+  @font-face { font-family: "Shantell"; font-weight: 500; src: url("../../app/civic/static/fonts/shantell-sans-latin.woff2") format("woff2"); }
+  :root {
+    --desk: #eef1f4; --paper: #fff; --ink: #1b2433; --ink-2: #475163; --ink-3: #6f7889; --rule: #d6dbe2;
+    --pen: #2b44c9; --swiss: #1e7a4c; --swiss-wash: #e2f1e8; --eu-wash: #e9edfb; --cross: #b5362c; --cross-wash: #fbeceb;
+    --wait: #9c6500; --wait-wash: #fff3d4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--desk); font-family: "Atkinson", system-ui, sans-serif; color: var(--ink); }
+  #diagram { position: relative; width: 1600px; height: 930px; padding: 44px 48px; background: var(--desk); overflow: hidden; }
+  h1 { margin: 0; font-size: 34px; letter-spacing: -0.01em; }
+  .sub { margin: 8px 0 0; color: var(--ink-2); font-size: 19px; }
+  .hand { font-family: "Shantell", "Atkinson", sans-serif; color: var(--pen); }
+
+  .box { position: absolute; }
+  .card { background: var(--paper); border-radius: 4px; box-shadow: 0 1px 1px rgba(27,36,51,.05), 0 14px 34px -14px rgba(27,36,51,.28); padding: 18px 20px; }
+  .card h2 { margin: 0; font-size: 20px; }
+  .card p { margin: 6px 0 0; color: var(--ink-2); font-size: 15px; line-height: 1.45; }
+
+  /* left column */
+  #resident { left: 48px; top: 200px; width: 250px; }
+  #app { left: 48px; top: 430px; width: 250px; }
+
+  /* gateway */
+  #gateway { left: 410px; top: 150px; width: 510px; padding: 24px 26px; }
+  #gateway h2 { font-size: 24px; }
+  .gw-sub { margin: 4px 0 18px !important; font-size: 14px !important; color: var(--ink-3) !important; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .steps li { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+  .n { width: 30px; height: 30px; border-radius: 50%; background: var(--pen); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 15px; }
+  .steps b { font-size: 17px; }
+  .steps .d { display: block; color: var(--ink-2); font-size: 14.5px; line-height: 1.4; margin-top: 2px; }
+  .rules { margin-top: 22px; border-top: 1px solid var(--rule); padding-top: 16px; }
+  .rules-title { font-size: 14px; color: var(--ink-3); margin-bottom: 10px; }
+  .rule { display: grid; grid-template-columns: 150px 1fr; gap: 10px; font-size: 15px; padding: 5px 0; }
+  .rule .office { font-weight: 700; }
+  .rule .what { color: var(--ink-2); }
+  .store { margin-top: 18px; display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: center; background: #f6f7f9; border-radius: 6px; padding: 12px 14px; }
+  .store svg { width: 30px; height: 30px; }
+  .store b { font-size: 15.5px; }
+  .store span { display: block; color: var(--ink-2); font-size: 14px; }
+
+  /* zones */
+  .zone { position: absolute; left: 1070px; width: 482px; border-radius: 14px; padding: 14px 18px 12px; }
+  .zone-name { font-weight: 700; font-size: 17px; display: flex; justify-content: space-between; align-items: baseline; }
+  .zone-name small { font-weight: 400; font-size: 14px; }
+  .ep { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; background: rgba(255,255,255,.8); border-radius: 6px; padding: 8px 12px; margin-top: 8px; font-size: 15px; }
+  .ep b { font-weight: 700; }
+  .ep em { font-style: normal; color: var(--ink-3); font-size: 13px; }
+  .tag { font-size: 12px; padding: 1px 7px; border-radius: 5px; white-space: nowrap; }
+  .real { background: var(--ink); color: #fff; }
+  .sim { border: 1px dashed var(--ink-3); color: var(--ink-2); }
+  #ch { top: 150px; background: var(--swiss-wash); } #ch .zone-name { color: var(--swiss); }
+  #eu { top: 392px; background: var(--eu-wash); } #eu .zone-name { color: var(--pen); }
+  #us { top: 508px; background: var(--wait-wash); } #us .zone-name { color: var(--wait); }
+  #never { top: 624px; background: var(--cross-wash); } #never .zone-name { color: var(--cross); }
+  #never .ep b { text-decoration: line-through; text-decoration-color: var(--cross); text-decoration-thickness: 2px; }
+
+  .note { position: absolute; font-size: 15px; color: var(--ink-2); }
+  #proof { left: 48px; top: 820px; width: 1500px; display: flex; gap: 34px; align-items: center; border-top: 1px solid var(--rule); padding-top: 16px; }
+  #proof div { max-width: 460px; }
+  #proof b { color: var(--ink); }
+  #arrows { position: absolute; inset: 0; width: 1600px; height: 930px; pointer-events: none; }
+  .label { position: absolute; font-size: 14px; background: var(--desk); padding: 0 6px; }
+</style>
+</head>
+<body>
+<div id="diagram">
+  <h1>How a letter travels</h1>
+  <p class="sub">The rule belongs to the office that wrote the letter. The gateway checks it before every attempt, and every service counts what it receives.</p>
+
+  <div class="box card" id="resident">
+    <h2>Resident</h2>
+    <p>Pastes an official letter and picks a language: German, French, Italian, Romansh, Swiss German or English.</p>
+  </div>
+
+  <div class="box card" id="app">
+    <h2>Citizen app</h2>
+    <p>Explains the letter in simple words and shows its journey. No queue and no routing: it only asks the gateway.</p>
+  </div>
+
+  <div class="box card" id="gateway">
+    <h2>Gateway</h2>
+    <p class="gw-sub">LiteLLM v1.98.0, the same image as the Public AI Utility, with our policy and queue loaded as callbacks</p>
+    <ol class="steps">
+      <li><span class="n">1</span><div><b>Request check, once</b><span class="d">Rejects client fallbacks, tags, api_base and spoofed metadata.</span></div></li>
+      <li><span class="n">2</span><div><b>Filter, before every attempt</b><span class="d">First try, retries and LiteLLM fallbacks: only what the office's rule allows, in its order. Missing metadata means excluded.</span></div></li>
+      <li><span class="n">3</span><div><b>Last check, before each send</b><span class="d">The exact URL must be the approved one.</span></div></li>
+    </ol>
+    <div class="rules">
+      <div class="rules-title">Rules, bound to each office's key (never to the request)</div>
+      <div class="rule"><span class="office">Social services</span><span class="what">Switzerland only, not even with consent</span></div>
+      <div class="rule"><span class="office">School</span><span class="what">Switzerland, then the EU</span></div>
+      <div class="rule"><span class="office">Other offices</span><span class="what">Switzerland and the EU; the US only if the resident agrees</span></div>
+    </div>
+    <div class="store">
+      <svg viewBox="0 0 30 30" aria-hidden="true"><ellipse cx="15" cy="7" rx="11" ry="4" fill="none" stroke="#2b44c9" stroke-width="2"/><path d="M4 7v16c0 2.2 4.9 4 11 4s11-1.8 11-4V7" fill="none" stroke="#2b44c9" stroke-width="2"/><path d="M4 15c0 2.2 4.9 4 11 4s11-1.8 11-4" fill="none" stroke="#2b44c9" stroke-width="2"/></svg>
+      <div><b>No allowed service up? The letter waits here.</b><span>Gateway store: waiting letters, their journey, the resident's consent. Survives restarts; the letter's text is deleted when the job ends.</span></div>
+    </div>
+  </div>
+
+  <div class="zone" id="ch">
+    <div class="zone-name">Switzerland <small>every rule</small></div>
+    <div class="ep"><span><b>Public AI</b> <em>Apertus 1.5 through the Public AI API; it routes internally</em></span><span class="tag real">real</span></div>
+    <div class="ep"><span><b>Swiss host 1</b></span><span class="tag sim">simulated</span></div>
+    <div class="ep"><span><b>Swiss host 2</b></span><span class="tag sim">simulated</span></div>
+  </div>
+  <div class="zone" id="eu">
+    <div class="zone-name">European Union <small>school and other offices</small></div>
+    <div class="ep"><span><b>EU host</b></span><span class="tag sim">simulated</span></div>
+  </div>
+  <div class="zone" id="us">
+    <div class="zone-name">United States <small>only with the resident's consent</small></div>
+    <div class="ep"><span><b>US host</b> <em>one letter, recorded</em></span><span class="tag sim">simulated</span></div>
+  </div>
+  <div class="zone" id="never">
+    <div class="zone-name">Never <small>blocked before anything is sent</small></div>
+    <div class="ep"><span><b>Singapore host</b> <em>LiteLLM's backup model (SEA-LION)</em></span><span class="tag sim">simulated</span></div>
+    <div class="ep"><span><b>Host of unknown origin</b> <em>no jurisdiction metadata</em></span><span class="tag sim">simulated</span></div>
+  </div>
+
+  <div id="proof" class="note">
+    <div><b>48 automated checks</b> assert zero requests to the services each rule excludes, using the services' own counters.</div>
+    <div><b>10 of 10 checks</b> on the Public AI Utility's own production config, with our patch.</div>
+    <div class="hand">We show where our gateway sends the data. Where a provider computes needs provider-side evidence.</div>
+  </div>
+
+  <svg id="arrows"></svg>
+  <span class="label hand" id="l-app">office key</span>
+  <span class="label" id="l-ch" style="color:#1e7a4c">allowed</span>
+  <span class="label" id="l-eu" style="color:#2b44c9">if the rule allows</span>
+  <span class="label" id="l-us" style="color:#9c6500">with consent</span>
+  <span class="label" id="l-never" style="color:#b5362c">never</span>
+</div>
+<script src="rough.js"></script><!-- roughjs 4.6.6, MIT -->
+<script>
+  const svg = document.getElementById("arrows");
+  const rc = rough.svg(svg);
+  const R = (id) => { const r = document.getElementById(id).getBoundingClientRect(); const d = document.getElementById("diagram").getBoundingClientRect(); return { x: r.left - d.left, y: r.top - d.top, w: r.width, h: r.height }; };
+  const place = (id, x, y) => { const l = document.getElementById(id); l.style.left = `${x}px`; l.style.top = `${y}px`; };
+
+  function arrow(x1, y1, x2, y2, color, opts = {}) {
+    svg.appendChild(rc.line(x1, y1, x2, y2, { stroke: color, strokeWidth: 2.4, roughness: 1.1, bowing: 1.2, seed: opts.seed || 3, strokeLineDash: opts.dash }));
+    const a = Math.atan2(y2 - y1, x2 - x1), s = 13;
+    const p1 = [x2 - s * Math.cos(a - 0.45), y2 - s * Math.sin(a - 0.45)];
+    const p2 = [x2 - s * Math.cos(a + 0.45), y2 - s * Math.sin(a + 0.45)];
+    svg.appendChild(rc.linearPath([p1, [x2, y2], p2], { stroke: color, strokeWidth: 2.4, roughness: 0.8, seed: (opts.seed || 3) + 1 }));
+  }
+  function cross(x, y, color) {
+    svg.appendChild(rc.line(x - 11, y - 11, x + 11, y + 11, { stroke: color, strokeWidth: 3, roughness: 1.3, seed: 9 }));
+    svg.appendChild(rc.line(x + 11, y - 11, x - 11, y + 11, { stroke: color, strokeWidth: 3, roughness: 1.3, seed: 10 }));
+  }
+
+  document.fonts.ready.then(() => {
+    const res = R("resident"), app = R("app"), gw = R("gateway");
+    const ch = R("ch"), eu = R("eu"), us = R("us"), nv = R("never");
+    // resident -> app
+    arrow(res.x + res.w / 2, res.y + res.h + 8, app.x + app.w / 2, app.y - 10, "#2b44c9", { seed: 2 });
+    // app -> gateway
+    const ay = app.y + app.h / 2;
+    arrow(app.x + app.w + 8, ay, gw.x - 10, ay, "#2b44c9", { seed: 4 });
+    place("l-app", app.x + app.w + 10, ay - 32);
+    // gateway -> zones: nearly horizontal arrows, one per jurisdiction
+    const gx = gw.x + gw.w + 10;
+    const targets = [
+      [ch, "#1e7a4c", null, "l-ch", 5],
+      [eu, "#2b44c9", [10, 7], "l-eu", 7],
+      [us, "#9c6500", [3, 7], "l-us", 11],
+      [nv, "#b5362c", [10, 7], "l-never", 13],
+    ];
+    targets.forEach(([z, color, dash, label, seed]) => {
+      const y2 = z.y + 24;
+      const y1 = Math.min(Math.max(y2, gw.y + 30), gw.y + gw.h - 40);
+      const never = label === "l-never";
+      const x2 = z.x - (never ? 50 : 12);
+      arrow(gx, y1, x2, y2, color, { dash, seed });
+      place(label, gx + 8, Math.min(y1, y2) - 26);
+      if (never) cross(z.x - 26, y2, color);
+    });
+    document.body.dataset.ready = "1";
+  });
+</script>
+</body>
+</html>
