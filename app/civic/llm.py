@@ -10,15 +10,12 @@ from typing import List, Optional
 from pydantic import BaseModel, ValidationError
 
 LANGUAGES = {
-    "it": "Italian",
+    "de": "German",
     "fr": "French",
-    "pt": "Portuguese",
-    "sq": "Albanian",
+    "it": "Italian",
+    "rm": "Romansh (Rumantsch Grischun)",
+    "gsw": "Swiss German (Schwiizerdütsch), written the way people speak it in Zurich",
     "en": "English",
-    "es": "Spanish",
-    "tr": "Turkish",
-    "uk": "Ukrainian",
-    "de": "German (plain language)",
 }
 
 
@@ -51,8 +48,10 @@ def build_messages(letter: str, language: str) -> list:
         "include every document to send, every appointment (with its date) and anything the reader must report or pay;\n"
         '  "draft_reply": a short, polite reply letter to the commune written in German (formal "Sie"), '
         "that the reader can adapt; use placeholders like [Name] and [Datum] instead of inventing personal data;\n"
-        f'  "output_language": the ISO 639-1 code of the language of summary and actions ("{language}").\n'
+        f'  "output_language": the language code of summary and actions ("{language}").\n'
         "Only use facts from the letter. If something is unclear, say so in the summary. Do not add markdown.\n"
+        "Write the summary and the actions in easy language, whatever the language: short sentences, everyday words, "
+        "one idea per sentence, and explain any official term in brackets the first time you use it.\n"
         "Keep it short, so that people can read it quickly: the summary in at most 120 words, "
         "at most 6 actions of one sentence each, and a reply of at most 150 words."
     )

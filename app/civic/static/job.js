@@ -177,7 +177,8 @@
   function formatDate(iso, lang) {
     const d = new Date(`${iso}T12:00:00`);
     if (Number.isNaN(d.getTime())) return iso;
-    try { return new Intl.DateTimeFormat(lang, { day: "numeric", month: "long", year: "numeric" }).format(d); }
+    const locale = { gsw: "de-CH", de: "de-CH", fr: "fr-CH", it: "it-CH", rm: "rm-CH" }[lang] || lang;
+    try { return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric" }).format(d); }
     catch (e) { return iso; }
   }
 

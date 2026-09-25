@@ -2,7 +2,7 @@
 
 **A public AI service that keeps its promise about citizens' data, even when providers fail.**
 
-It explains an official letter in the resident's language, with Apertus through the Public AI API. It sends the letter only where the commune's rule allows, on every retry and every fallback. When no allowed service is up, the letter waits in Switzerland until one is back. Built in 24 hours at the Swiss {ai} Weeks (Zurich, September 2026) for the Public AI challenge "Build a public AI service". Apache 2.0.
+It explains an official letter in simple words, in German, French, Italian, Romansh, Swiss German or English, with Apertus through the Public AI API. It sends the letter only where the commune's rule allows, on every retry and every fallback. When no allowed service is up, the letter waits in Switzerland until one is back. Built in 24 hours at the Swiss {ai} Weeks (Zurich, September 2026) for the Public AI challenge "Build a public AI service". Apache 2.0.
 
 ![A real answer from Apertus: explanation in Italian with the deadlines highlighted, and the journey of the letter](docs/img/answer.png)
 

@@ -129,7 +129,7 @@ Roles: **speaker** (tells the story, never touches the laptop), **driver** (clic
 | "Where does the waiting request live?" | "In the gateway's local store, a volume in the same authorized environment. The request body is deleted as soon as the job ends." |
 | "Is the legal part right?" | "We use hedged wording and are not lawyers. The legal basis differs by canton; we name what we checked." (Only say what the team has verified.) |
 | "Does it scale?" | "One replica today. For the Utility's autoscaling it needs a shared store and row locking: it's on our open-questions list." |
-| "Why Apertus?" | "Open weights, trained with Swiss data governance, multilingual: it covers the languages of the people who most need this." |
+| "Why Apertus?" | "Open weights, trained with Swiss data governance, and truly multilingual: our service explains letters in simple words in German, French, Italian, Romansh, Swiss German and English, and Apertus writes all of them." (Show a Romansh or Swiss German answer if there is time; a native speaker should still check the wording.) |
 | "Does this only work with Apertus?" | "No, the layer is model-agnostic. Apertus makes the whole chain open: open model, public API, open gateway." |
 | "What would you do next?" | "Upstream the metadata and the policy, add evidence for each provider, turn TLS verification on, and move the queue to a shared store so it works with autoscaling." |
 | "Is the answer correct / legal advice?" | "It's an explanation, not legal advice. The UI says so, and the resident checks the draft." |

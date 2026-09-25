@@ -5,15 +5,12 @@ import re
 
 # Language names in their own language, so people find theirs.
 LANGUAGE_NAMES = {
-    "it": "Italiano",
+    "de": "Deutsch",
     "fr": "Français",
-    "pt": "Português",
-    "sq": "Shqip",
+    "it": "Italiano",
+    "rm": "Rumantsch",
+    "gsw": "Schwiizerdütsch",
     "en": "English",
-    "es": "Español",
-    "tr": "Türkçe",
-    "uk": "Українська",
-    "de": "Deutsch, einfach",
 }
 
 # file -> (sender, subject, service whose rule applies)
