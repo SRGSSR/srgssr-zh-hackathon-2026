@@ -1,113 +1,176 @@
-"""Turns raw gateway + app events into timeline rows for the citizen and the jury."""
+"""Turns raw gateway and app events into the "journey of your letter": stops written for
+the resident, with the technical detail kept separately for the jury."""
 
 import datetime as dt
+import os
 from typing import Dict, List
+from zoneinfo import ZoneInfo
 
-KIND_LABEL = {"real": "REAL", "simulated": "SIMULATED"}
-
-
-def _t(ts: float) -> str:
-    return dt.datetime.fromtimestamp(ts).strftime("%H:%M:%S.%f")[:-3]
+from .endpoints import GROUPS, place
 
 
-def _ep(e: Dict, eps: Dict) -> Dict:
-    info = eps.get(e.get("deployment_id") or "", {})
+LOCAL_TZ = ZoneInfo(os.environ.get("DISPLAY_TZ", "Europe/Zurich"))
+
+
+def _time(ts: float) -> str:
+    return dt.datetime.fromtimestamp(ts, LOCAL_TZ).strftime("%H:%M:%S")
+
+
+def _name(dep_id, eps: Dict) -> str:
+    return (eps.get(dep_id or "") or {}).get("name") or dep_id or "an unknown service"
+
+
+def _reason(ev: Dict) -> str:
+    if "missing metadata" in (ev.get("reason") or ""):
+        return "its location is unknown"
+    where = place(ev.get("jurisdiction"))
+    return f"it is in {where}" if where else f"it is outside the rule ({ev.get('jurisdiction')})"
+
+
+def _ruled_out_item(ev: Dict, eps: Dict) -> Dict:
+    return {"id": ev.get("deployment_id"), "name": _name(ev.get("deployment_id"), eps), "reason": _reason(ev)}
+
+
+def journey(events: List[Dict], eps: Dict) -> List[Dict]:
+    stops: List[Dict] = []
+    finished_by = {e.get("deployment_id") for e in events if e.get("type") == "job_done"}
+    shown_ruled_out, shown_fallbacks = set(), set()
+    primary_group, last_empty_group = None, None
+    pending: List[Dict] = []
+
+    for e in events:
+        t = e.get("type")
+        key = f"{e.get('_source')}:{e.get('gateway_job') or ''}:{e.get('_id') or e.get('ts')}:{t}"
+
+        def add(kind, tone, title, text="", tech="", crossed=None):
+            stops.append({"key": key, "kind": kind, "tone": tone, "title": title, "text": text, "tech": tech,
+                          "crossed": crossed or [], "time": _time(e["ts"]), "ts": e["ts"]})
+
+        if t == "letter_stored":
+            stops.append({"key": "letter", "kind": "letter", "tone": "calm", "title": "Your letter arrived",
+                          "text": "This service keeps it, in Switzerland.", "tech": f"language {e.get('language')}",
+                          "crossed": [], "time": _time(e["ts"]), "ts": e["ts"]})
+        elif t == "job_created":
+            add("gateway", "calm", "Handed to the commune's gateway",
+                "The gateway keeps it until a service allowed by the rule can answer.", f"deferred job {e.get('gateway_job')}")
+        elif t == "request_accepted":
+            add("rule", "calm", "Your commune's rule applies",
+                "Only services in Switzerland may read your letter. Services whose location is unknown are never used.",
+                f"policy {e.get('policy_id')}, bound to the key {e.get('key_alias')}")
+        elif t == "routing_decision":
+            group = e.get("model_group")
+            primary_group = primary_group or group
+            blocked = [ev for ev in e.get("evaluated") or [] if ev.get("decision") == "blocked_before_send"]
+            if e.get("selected"):
+                last_empty_group = None
+                fresh = [ev for ev in blocked if ev.get("deployment_id") not in shown_ruled_out]
+                shown_ruled_out.update(ev.get("deployment_id") for ev in fresh)
+                pending = [_ruled_out_item(ev, eps) for ev in fresh]
+            elif group != primary_group:
+                if group in shown_fallbacks:
+                    continue
+                shown_fallbacks.add(group)
+                where = sorted({place(ev.get("jurisdiction")) or "an unknown place" for ev in blocked})
+                add("fallback", "bad", f"The backup plan wanted to use {GROUPS.get(group, group)}",
+                    f"It runs in {', '.join(where)}. Your commune's rule does not allow that, so nothing was sent.",
+                    f"LiteLLM fallback to the model group {group}, blocked before send",
+                    [_ruled_out_item(ev, eps) for ev in blocked])
+            else:
+                if last_empty_group == group:
+                    continue
+                last_empty_group = group
+                add("empty", "warn", "Every Swiss service has been tried", "None of them could answer just now.",
+                    f"no allowed deployment left in {group}")
+        elif t == "dispatch":
+            dep = eps.get(e.get("deployment_id") or "", {})
+            where = place(dep.get("jurisdiction") or e.get("jurisdiction"))
+            kind = "A real service." if (e.get("endpoint_kind") or dep.get("kind")) == "real" else "A simulated service for this demo."
+            add("sent", "send", f"Sent to {_name(e.get('deployment_id'), eps)}",
+                f"In {where}. {kind}" if where else kind,
+                f"{e.get('deployment_id')} at {e.get('api_base')}", pending)
+            pending = []
+        elif t == "send_vetoed":
+            add("vetoed", "bad", f"Stopped at the last check before {_name(e.get('deployment_id'), eps)}",
+                "Nothing was sent.", e.get("reason", ""))
+        elif t == "attempt_result":
+            name, outcome = _name(e.get("deployment_id"), eps), e.get("outcome")
+            tech = " ".join(str(x) for x in (e.get("error_type"), e.get("status_code")) if x)
+            if outcome == "success":
+                if e.get("deployment_id") in finished_by:
+                    continue  # the "ready" stop already says who wrote the answer
+                add("answer", "good", f"{name} answered", "", f"model reported by the endpoint: {e.get('model_returned')}")
+            elif outcome == "timeout":
+                swiss = (eps.get(e.get("deployment_id") or "", {}).get("jurisdiction")) == "CH"
+                add("noanswer", "warn", f"{name} received your letter but never answered",
+                    "A copy may have reached it." + (" It is a Swiss service, so this is still within the rule." if swiss else ""),
+                    tech)
+            elif outcome == "connection_failed":
+                add("problem", "warn", f"Could not reach {name}", "Nothing was received there.", tech)
+            elif outcome == "error":
+                add("problem", "warn", f"{name} did not work", "It received the request and answered with an error.", tech)
+        elif t == "job_waiting":
+            add("waiting", "wait", "Waiting for a Swiss service",
+                f"Your letter stays here, in Switzerland, and is not sent anywhere else. Next try in {int(e.get('retry_in_s', 0))} seconds.",
+                (e.get("gateway_error") or "")[:160])
+        elif t in ("job_started", "job_resumed"):
+            if t == "job_started" and (e.get("run") or 1) == 1:
+                continue
+            add("retry", "calm", "Trying again", "", f"run {e.get('run')}")
+        elif t == "retry_requested":
+            add("retry", "calm", "Trying again now, as you asked")
+        elif t == "job_resumed_after_restart":
+            add("restart", "calm", "The gateway restarted", "Your letter was still there, and the work continues.")
+        elif t == "output_invalid_retrying":
+            add("retry", "warn", "The answer was not in the right form, so we asked once more", "", (e.get("error") or "")[:160])
+        elif t == "job_done":
+            dep = eps.get(e.get("deployment_id") or "", {})
+            where = place(dep.get("jurisdiction"))
+            model = next((x.get("model_returned") for x in events if x.get("type") == "attempt_result"
+                          and x.get("outcome") == "success" and x.get("deployment_id") == e.get("deployment_id")), None)
+            add("done", "good", "Your explanation is ready",
+                f"Written by {_name(e.get('deployment_id'), eps)}" + (f", in {where}." if where else "."),
+                f"served by {e.get('deployment_id')}" + (f", model reported by the endpoint: {model}" if model else ""))
+        elif t == "job_failed":
+            add("failed", "bad", "This did not work", "", (e.get("error") or "")[:200])
+        elif t == "job_cancelled":
+            add("cancelled", "muted", "Cancelled")
+        elif t == "job_expired":
+            add("expired", "bad", "No Swiss service for too long", "The request was dropped. Please try again later.")
+        elif t == "gateway_unreachable":
+            add("problem", "warn", "The commune's gateway could not be reached", "Your letter is still kept here.")
+    return stops
+
+
+def receipt(events: List[Dict], eps: Dict) -> Dict:
+    """What happened to the letter, in one place: where it went and what was ruled out."""
+    sent, ruled, fallbacks, timeouts = [], {}, {}, []
+    primary = None
+    for e in events:
+        t = e.get("type")
+        if t == "dispatch" and e.get("deployment_id") not in sent:
+            sent.append(e.get("deployment_id"))
+        elif t == "routing_decision":
+            primary = primary or e.get("model_group")
+            for ev in e.get("evaluated") or []:
+                if ev.get("decision") == "blocked_before_send":
+                    ruled.setdefault(ev.get("deployment_id"), _ruled_out_item(ev, eps))
+                    if e.get("model_group") != primary:
+                        fallbacks.setdefault(e.get("model_group"), set()).add(place(ev.get("jurisdiction")) or "an unknown place")
+        elif t == "attempt_result" and e.get("outcome") == "timeout" and e.get("deployment_id") not in timeouts:
+            timeouts.append(e.get("deployment_id"))
+    sent_to = [{"id": i, "name": _name(i, eps), "place": place((eps.get(i) or {}).get("jurisdiction")),
+                "kind": (eps.get(i) or {}).get("kind")} for i in sent if i]
     return {
-        "id": e.get("deployment_id"),
-        "provider": e.get("provider") or info.get("provider"),
-        "jurisdiction": e.get("jurisdiction") or info.get("jurisdiction"),
-        "kind": KIND_LABEL.get(e.get("endpoint_kind") or info.get("kind"), "?"),
+        "sent_to": sent_to,
+        "all_swiss": bool(sent_to) and all(s["place"] == "Switzerland" for s in sent_to),
+        "ruled_out": list(ruled.values()),
+        "fallbacks_blocked": [{"group": GROUPS.get(g, g), "places": sorted(p)} for g, p in fallbacks.items()],
+        "timeouts": [_name(i, eps) for i in timeouts],
     }
 
 
-def rows(events: List[Dict], eps: Dict) -> List[Dict]:
-    out = []
-    last_empty_group = None
-    for e in events:
-        t, typ = e.get("type"), _t(e["ts"])
-        # LiteLLM retries an exhausted group a few times; show "nothing approved left" once per group
-        if t == "routing_decision" and not e.get("selected"):
-            if last_empty_group == e.get("model_group"):
-                continue
-            last_empty_group = e.get("model_group")
-        elif t in ("routing_decision", "job_started", "job_resumed"):
-            last_empty_group = None
-        row = {"ts": typ, "type": t, "tone": "info", "title": t, "detail": "", "entries": []}
-        if t == "letter_stored":
-            row.update(title="Letter received", detail=f"Stored in this service. Output language: {e.get('language')}")
-        elif t == "job_created":
-            row.update(title="Handed to the gateway", detail=f"Deferred request {e.get('gateway_job')}: the gateway keeps it until it can be served within the rule.")
-        elif t in ("job_started", "job_resumed"):
-            row.update(title="Gateway retries the request" if t == "job_resumed" else "Gateway starts the request",
-                       detail=f"Run {e.get('run')}", tone="info" if t == "job_started" else "good")
-        elif t == "retry_requested":
-            row.update(title="Retry requested", tone="muted")
-        elif t == "request_accepted":
-            row.update(title=f"Rule applied: {e.get('policy_id')}", detail=f"Bound to API key '{e.get('key_alias')}', not to the request. {e.get('rule') or ''}")
-        elif t == "request_rejected":
-            row.update(title="Request rejected by the routing policy", tone="bad", entries=e.get("reasons") or [])
-        elif t == "routing_decision":
-            sel = e.get("selected")
-            row.update(
-                title=f"Attempt {e.get('attempt')} · {e.get('model_group')}: " + (f"selected {sel}" if sel else "no approved endpoint left"),
-                tone="info" if sel else "warn",
-            )
-            for ev in e.get("evaluated") or []:
-                dec = ev.get("decision")
-                label = {"selected": "selected", "standby": "standby", "skipped": "skipped", "blocked_before_send": "blocked by rule, nothing sent"}.get(dec, dec)
-                row["entries"].append(
-                    {
-                        "text": f"{ev.get('deployment_id')} ({KIND_LABEL.get(ev.get('endpoint_kind'), '?')}, jurisdiction {ev.get('jurisdiction') or '—'})",
-                        "tag": label,
-                        "tone": {"selected": "good", "standby": "muted", "skipped": "muted", "blocked_before_send": "bad"}.get(dec, "muted"),
-                        "reason": ev.get("reason"),
-                    }
-                )
-        elif t == "dispatch":
-            ep = _ep(e, eps)
-            row.update(title=f"Sent to {ep['id']}", detail=f"{ep['provider']} · jurisdiction {ep['jurisdiction']} · {ep['kind']} endpoint", tone="send")
-        elif t == "send_vetoed":
-            row.update(title=f"Send vetoed at the last check: {e.get('deployment_id')}", detail=e.get("reason", ""), tone="bad")
-        elif t == "attempt_result":
-            o = e.get("outcome")
-            ep = _ep(e, eps)
-            if o == "success":
-                row.update(title=f"Answer from {ep['id']}", detail=f"Model reported by the endpoint: {e.get('model_returned')}", tone="good")
-            elif o == "timeout":
-                row.update(title=f"{ep['id']}: data received, no response", detail=e.get("meaning", ""), tone="warn")
-            elif o == "connection_failed":
-                row.update(title=f"{ep['id']}: connection failed", detail=e.get("meaning", ""), tone="warn")
-            elif o == "error":
-                row.update(title=f"{ep['id']}: error {e.get('status_code') or ''}".strip(), detail=e.get("meaning", ""), tone="warn")
-            elif o in ("no_deployment", "rejected", "blocked"):
-                continue  # already shown by routing_decision / request_rejected
-            else:
-                row.update(title=f"Attempt outcome: {o}", detail=e.get("meaning", ""))
-        elif t == "output_invalid_retrying":
-            row.update(title="Answer was not valid JSON, asking once more", detail=e.get("error", "")[:200], tone="warn")
-        elif t == "job_waiting":
-            row.update(
-                title="Waiting: no approved endpoint available",
-                detail=f"The request stays in the gateway's local store, nothing is sent elsewhere. Next try in {int(e.get('retry_in_s', 0))} s.",
-                tone="warn",
-            )
-        elif t == "job_resumed_after_restart":
-            row.update(title="Gateway restarted: request recovered from its store", tone="good")
-        elif t == "job_expired":
-            row.update(title="Expired before an approved endpoint was available", tone="bad")
-        elif t == "gateway_unreachable":
-            row.update(title="Gateway not reachable right now", tone="warn")
-        elif t == "job_done":
-            row.update(title="Done", detail=f"Answered by {e.get('deployment_id')} ({e.get('llm_calls')} model call(s))", tone="good")
-        elif t == "job_cancelled":
-            row.update(title="Cancelled by the user", tone="muted")
-        elif t == "job_failed":
-            row.update(title="Failed", detail=e.get("error", "")[:300], tone="bad")
-        out.append(row)
-    return out
-
-
 def summary(events: List[Dict]) -> Dict:
+    """Machine-readable summary used by the test bench."""
     sent, blocked, received_no_answer = set(), set(), set()
     for e in events:
         if e.get("type") == "dispatch":

@@ -93,5 +93,7 @@ See `docs/findings.md`, section 12.
 
 ## Also noticed while testing (unrelated to the patch)
 
+- **TLS verification is off.** The config sets `ssl_verify: false`. A jurisdiction policy decides on provider *names*, and only certificate verification ties a name to the real provider's server. We saw what happens without that binding in our own demo: a stale DNS cache sent a request to a different container than the one named. We suggest turning verification on (and pinning a CA bundle where needed, e.g. for CSCS) before relying on any routing policy.
+
 - **Stale image tag in the chart.** `values.yaml` pins `litellm-database:v1.92.0`, while `argo/environments/{prod,staging}` deploy `v1.98.0`.
 - **Cost values read as strings.** The rendered costs such as `1e-07` (no decimal point) are read as **strings** by PyYAML, 15 values in prod. It is worth checking that cost tracking and Lago billing still work for those models. Writing them as `1.0e-07` would make them floats.

@@ -1,41 +1,61 @@
 {% extends "base.html" %}
+{% block bodyclass %}page-home{% endblock %}
 {% block content %}
-<section class="grid2">
-  <div class="card">
-    <h1>Understand a letter from your commune</h1>
-    <p class="muted">Paste an official letter (for example a tax assessment or a payment reminder). You get a plain-language explanation in your language, the actions and deadlines, and a draft reply in German.</p>
-    <form method="post" action="/jobs">
-      {% if samples %}
-      <label>Try a sample letter
-        <select id="sample" onchange="if(this.value){fetch('/samples/'+this.value).then(r=>r.text()).then(t=>document.getElementById('letter').value=t)}">
-          <option value="">choose…</option>
-          {% for s in samples %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
-        </select>
+<div class="home-grid">
+  <section class="intro" aria-labelledby="intro-title">
+    <h1 id="intro-title">A letter from the commune you don't understand?</h1>
+    <p class="lead">Paste it below. We explain it in your language, tell you what to do and by when, and write a reply in German that you can check and send.</p>
+
+    <form class="letter-form" method="post" action="/jobs">
+      <label class="sheet sheet--input" for="letter">
+        <span class="visually-hidden">Your letter</span>
+        <textarea id="letter" name="letter" rows="17" required spellcheck="false"
+          placeholder="Gemeinde Musterstadt&#10;Soziale Dienste&#10;&#10;Sehr geehrte Frau …&#10;&#10;Paste the text of your letter here, or pick an example on the right."></textarea>
       </label>
-      {% endif %}
-      <label>Letter
-        <textarea id="letter" name="letter" rows="16" required placeholder="Gemeinde Musterstadt, Steueramt …"></textarea>
-      </label>
-      <label>Explain it to me in
-        <select name="language">
-          {% for code, name in languages.items() %}<option value="{{ code }}" {% if code == 'it' %}selected{% endif %}>{{ name }}</option>{% endfor %}
-        </select>
-      </label>
-      <button class="primary" type="submit">Explain this letter</button>
+      <div class="form-row">
+        <label class="lang">
+          <span>Explain it to me in</span>
+          <select name="language">
+            {% for code, name in languages.items() %}<option value="{{ code }}" {% if code == 'it' %}selected{% endif %}>{{ name }}</option>{% endfor %}
+          </select>
+        </label>
+        <button class="btn-primary" type="submit">Explain my letter</button>
+      </div>
+      <p class="fine">This is an explanation, not legal advice. You decide what to send.</p>
     </form>
-  </div>
-  <div class="card">
-    <h2>What happens to your letter</h2>
-    <ol class="steps">
-      <li>It is stored in this service. If no approved endpoint is available, the commune's gateway keeps the request in its own local store, in the same authorized environment, and completes it later. No app has to do this itself.</li>
-      <li>The commune's rule is <b>CH-only</b>: only endpoints declared in Swiss jurisdiction may receive it. The rule is bound to the commune's key and checked before <b>every</b> attempt, including retries and fallbacks.</li>
-      <li>The timeline shows every endpoint that was contacted, every endpoint that was excluded before any data was sent, and what happened.</li>
-    </ol>
-    <p class="muted small">We can show which endpoints our gateway contacted. We cannot prove where a provider physically processes data. The real endpoint (Public AI API) routes internally to its partners, which we cannot observe.</p>
-    {% if jobs %}
-    <h3>Recent jobs</h3>
-    <ul class="jobs">{% for j in jobs %}<li><a href="/jobs/{{ j.id }}">{{ j.id }}</a> <span class="pill {{ j.status }}">{{ j.status }}</span></li>{% endfor %}</ul>
+  </section>
+
+  <aside class="side">
+    {% if samples %}
+    <section aria-labelledby="examples-title">
+      <h2 id="examples-title">Try an example</h2>
+      <ul class="examples">
+        {% for s in samples %}
+        <li><button type="button" class="example" data-sample="{{ s.file }}">
+          <span class="example-from">{{ s.sender }}</span>
+          <span class="example-subject">{{ s.subject }}</span>
+        </button></li>
+        {% endfor %}
+      </ul>
+    </section>
     {% endif %}
-  </div>
-</section>
+
+    <section class="promise" aria-labelledby="promise-title">
+      <h2 id="promise-title">Our promise about your letter</h2>
+      <p class="promise-note"><span data-promise-key>Only services in Switzerland</span> read your letter. If none is available, it waits here, safely, until one is.</p>
+      <p class="promise-sign">Gemeinde Musterstadt</p>
+      <p class="promise-why">Letters from the social services talk about your support, your health and your children. The law protects this information more strongly than almost anything else, and the people who help you at the counter are bound by official secrecy.</p>
+    </section>
+
+    {% if jobs %}
+    <section aria-labelledby="recent-title">
+      <h2 id="recent-title">Your recent letters</h2>
+      <ul class="recent">
+        {% for j in jobs %}<li><a href="/jobs/{{ j.id }}">Letter of {{ j.created_at | when }}</a><span class="state state--{{ j.status }}">{{ {'done': 'explained', 'waiting': 'waiting', 'queued': 'in progress', 'running': 'in progress', 'failed': 'did not work', 'cancelled': 'cancelled', 'expired': 'expired'}.get(j.status, j.status) }}</span></li>{% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+  </aside>
+</div>
 {% endblock %}
+{% block scripts %}<script src="/static/home.js" defer></script>{% endblock %}

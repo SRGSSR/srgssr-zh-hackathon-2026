@@ -49,6 +49,10 @@ services:
       MUSTERSTADT_API_KEY: ${MUSTERSTADT_API_KEY:-sk-musterstadt-demo}
       NOPOLICY_API_KEY: ${NOPOLICY_API_KEY:-sk-nopolicy-test}
       DEFERRED_RETRY_MAX_SECONDS: ${RETRY_MAX_SECONDS:-20}
+      # LiteLLM caches DNS answers for 300 s by default. When endpoint containers are recreated,
+      # their IPs can swap and a cached answer then points a name at a different container.
+      # The policy checks names, not network destinations, so always resolve fresh here.
+      AIOHTTP_TTL_DNS_CACHE: "0"
       LITELLM_LOG: ERROR
     volumes:
       # The gateway's local store: deferred requests wait here (authorized environment).

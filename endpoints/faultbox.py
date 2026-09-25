@@ -51,22 +51,24 @@ log = logging.getLogger("faultbox")
 logging.basicConfig(level=logging.INFO, format=f"%(asctime)s [{NAME}] %(message)s")
 
 app = FastAPI(title=f"faultbox {NAME}")
-state = {"mode": os.environ.get("MODE", "up"), "received": 0, "answered": 0, "errors": 0}
+state = {"mode": os.environ.get("MODE", "up"), "received": 0, "answered": 0, "errors": 0,
+         # relay only: answer like a simulated endpoint even if a key is set (the test bench uses this)
+         "simulate": False}
 recent = deque(maxlen=50)
 
 
 def _simulated_content(body: dict, note: str) -> str:
     wants_json = "json" in json.dumps(body.get("messages", [])).lower() or body.get("response_format")
     if not wants_json:
-        return f"[SIMULATED response from {NAME}] {note}"
+        return f"Simulated answer from {NAME}. {note}"
     return json.dumps(
         {
             "summary": (
-                f"[SIMULATED response from {NAME}] {note} This text was not written by a language model. "
-                "It only shows that the request was routed to this endpoint."
+                f"This is a simulated answer from {NAME}, a demo service with no language model behind it. "
+                f"{note} It only shows that your letter was routed here. A real service would explain your letter in this place."
             ),
-            "actions": [{"action": f"[SIMULATED] Check the letter yourself ({NAME}).", "deadline": None}],
-            "draft_reply": f"[SIMULIERT von {NAME}] Sehr geehrte Damen und Herren, ...",
+            "actions": [{"action": "Nothing to do: this is a demo answer.", "deadline": None}],
+            "draft_reply": f"(Simulierte Antwort von {NAME}. Hier würde ein echter Dienst Ihre Antwort auf Deutsch entwerfen.)",
             "output_language": "en",
         }
     )
@@ -115,14 +117,14 @@ async def chat(req: Request):
         await asyncio.sleep(SLOW_SECONDS)
 
     if KIND == "relay":
-        if UPSTREAM_KEY:
+        if UPSTREAM_KEY and not state["simulate"]:
             return await _relay(body)
         if not SIMULATE_WITHOUT_KEY:
             state["errors"] += 1
             return JSONResponse({"error": {"message": f"{NAME}: no upstream API key configured"}}, 503)
-        content = _simulated_content(body, "Real endpoint relay has no API key configured, so this answer is simulated.")
+        content = _simulated_content(body, "The relay to the real service is switched to simulation (no API key, or test mode).")
     else:
-        content = _simulated_content(body, "Simulated endpoint.")
+        content = _simulated_content(body, "")
     state["answered"] += 1
     return _completion(body, content)
 
@@ -159,17 +161,19 @@ async def get_control():
 @app.post("/control")
 async def set_control(req: Request):
     body = await req.json()
-    mode = body.get("mode")
+    if "simulate" in body:
+        state["simulate"] = bool(body["simulate"])
+    mode = body.get("mode", state["mode"])
     if mode not in ("up", "down", "slow", "timeout"):
         return JSONResponse({"error": "mode must be up|down|slow|timeout"}, 400)
     state["mode"] = mode
-    log.info("mode -> %s", mode)
+    log.info("mode -> %s simulate -> %s", mode, state["simulate"])
     return await get_control()
 
 
 @app.post("/control/reset")
 async def reset():
-    state.update({"mode": "up", "received": 0, "answered": 0, "errors": 0})
+    state.update({"mode": "up", "received": 0, "answered": 0, "errors": 0, "simulate": False})
     recent.clear()
     return await get_control()
 

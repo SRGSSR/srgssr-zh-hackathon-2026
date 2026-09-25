@@ -12,6 +12,13 @@ GATEWAY_CONFIG = os.environ.get("GATEWAY_CONFIG", "/config/gateway.yaml")
 # Display only. The gateway enforces the real rule from the key-bound policy.
 DISPLAY_ALLOWED_JURISDICTIONS = os.environ.get("DISPLAY_ALLOWED_JURISDICTIONS", "CH").split(",")
 REQUIRED = ("provider", "country", "jurisdiction")
+PLACES = {"CH": "Switzerland", "US": "the United States", "SG": "Singapore", "PL": "Poland", "DE": "Germany"}
+GROUPS = {"swiss-ai/apertus-v1.5-70b": "Apertus", "aisingapore/Qwen-SEA-LION-v4-32B-IT": "SEA-LION, a different model"}
+
+
+def place(code):
+    """Human name of a jurisdiction code, or None if unknown."""
+    return PLACES.get(code) if code else None
 
 
 def load() -> List[Dict]:
@@ -30,10 +37,19 @@ def load() -> List[Dict]:
             rule = "approved"
         else:
             rule = f"excluded: jurisdiction {mi['jurisdiction']}"
+        if missing:
+            why = "Never used: its location is unknown"
+        elif rule == "approved":
+            why = f"Allowed: in {place(mi['jurisdiction'])}"
+        else:
+            why = f"Never used: it is in {place(mi['jurisdiction']) or mi['jurisdiction']}"
         out.append(
             {
+                "why": why,
                 "id": mi.get("id"),
                 "label": mi.get("label", mi.get("id")),
+                "name": mi.get("display_name") or mi.get("id"),
+                "place": place(mi.get("jurisdiction")),
                 "model_group": d["model_name"],
                 "provider": mi.get("provider"),
                 "country": mi.get("country"),

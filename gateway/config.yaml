@@ -10,7 +10,7 @@
 #   endpoint_kind                     "real" or "simulated", shown in the UI
 #   priority                          lower = preferred (1.92.0 has no deployment order)
 #   control_url                       fault-injection control API (demo panel, tests)
-#   label, note                       human-readable text for the UI
+#   label, display_name               human-readable names for the UI
 
 model_list:
   # --- Apertus v1.5 70B -------------------------------------------------------------
@@ -22,6 +22,7 @@ model_list:
       timeout: 120
     model_info:
       id: publicai-apertus
+      display_name: Public AI
       label: Public AI API (real Apertus 1.5)
       provider: Public AI (api.publicai.co)
       country: CH
@@ -41,6 +42,7 @@ model_list:
       timeout: 6
     model_info:
       id: mock-ch-1
+      display_name: Swiss host 1
       label: Swiss host 1 (simulated)
       provider: Mock provider CH-1
       country: CH
@@ -57,6 +59,7 @@ model_list:
       timeout: 6
     model_info:
       id: mock-ch-2
+      display_name: Swiss host 2
       label: Swiss host 2 (simulated)
       provider: Mock provider CH-2
       country: CH
@@ -74,6 +77,7 @@ model_list:
       timeout: 6
     model_info:
       id: mock-us-1
+      display_name: US host
       label: US host (simulated)
       provider: Mock provider US-1
       country: US
@@ -91,6 +95,7 @@ model_list:
       timeout: 6
     model_info:
       id: mock-nometa
+      display_name: Host of unknown origin
       label: Host without metadata (simulated)
       provider: Mock provider without metadata
       endpoint_kind: simulated
@@ -106,6 +111,7 @@ model_list:
       timeout: 6
     model_info:
       id: mock-sg-1
+      display_name: Singapore host
       label: Singapore host, other model (simulated)
       provider: Mock provider SG-1
       country: SG

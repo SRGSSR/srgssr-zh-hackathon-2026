@@ -1,9 +1,19 @@
 {% extends "base.html" %}
+{% block title %}Demo controls, Gemeinde Musterstadt{% endblock %}
+{% block bodyclass %}page-demo{% endblock %}
 {% block content %}
-<section class="card">
-  <h1>Demo control panel</h1>
-  <p class="muted">Break providers on purpose and watch the rule hold. Open a job in another tab to see its timeline.</p>
-  {% include "_endpoints.html" %}
-  {% if jobs %}<h3>Recent jobs</h3><ul class="jobs">{% for j in jobs %}<li><a href="/jobs/{{ j.id }}">{{ j.id }}</a> <span class="pill {{ j.status }}">{{ j.status }}</span></li>{% endfor %}</ul>{% endif %}
-</section>
+<div class="demo-page">
+  <h1>Demo controls</h1>
+  <p class="lead">Open a letter in another window, then break services here and watch its journey.</p>
+  <div class="drawer-bulk">
+    <button type="button" data-bulk="break-approved" class="btn-quiet danger">Break every Swiss service</button>
+    <button type="button" data-bulk="restore-all" class="btn-quiet">Repair all</button>
+    <button type="button" data-bulk="reset" class="btn-quiet">Reset counters</button>
+  </div>
+  <div class="endpoints endpoints--wide" data-endpoints></div>
+  {% if jobs %}
+  <h2>Recent letters</h2>
+  <ul class="recent">{% for j in jobs %}<li><a href="/jobs/{{ j.id }}">Letter of {{ j.created_at | when }}</a><span class="state state--{{ j.status }}">{{ j.status }}</span></li>{% endfor %}</ul>
+  {% endif %}
+</div>
 {% endblock %}

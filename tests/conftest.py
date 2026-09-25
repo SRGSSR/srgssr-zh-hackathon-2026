@@ -40,9 +40,13 @@ class Bench:
     def mode(self, endpoint_id: str, mode: str):
         self.http.post(f"{CONTROL[endpoint_id]}/control", json={"mode": mode}).raise_for_status()
 
-    def reset(self):
+    def reset(self, simulate=True):
+        """All endpoints up, counters at zero. The relay to the real Public AI API is switched to
+        simulation, so the bench never calls the real service and stays deterministic."""
         for url in CONTROL.values():
             self.http.post(f"{url}/control/reset").raise_for_status()
+        if simulate:
+            self.http.post(f"{CONTROL['publicai-apertus']}/control", json={"simulate": True}).raise_for_status()
 
     def counts(self) -> dict:
         return {i: self.http.get(f"{u}/control").json()["received"] for i, u in CONTROL.items()}
@@ -128,4 +132,4 @@ def bench():
     b.reset()
     yield b
     b.cancel_pending()
-    b.reset()
+    b.reset(simulate=False)  # leave the real relay on for the demo

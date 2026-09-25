@@ -105,6 +105,6 @@ def events(letter_id: str) -> List[Dict[str, Any]]:
     out = []
     for r in rows:
         d = json.loads(r["data"])
-        d.update({"ts": r["ts"], "_source": "app"})
+        d.update({"ts": r["ts"], "_source": "app", "_id": r["id"]})
         out.append(d)
     return out

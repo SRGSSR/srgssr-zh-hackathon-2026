@@ -135,6 +135,8 @@ docs/        findings.md (how LiteLLM really behaves, open questions), pitch.md,
 
 **In scope:** a request, or a misconfigured deployment, must not cause citizen data to reach an endpoint outside the rule. That covers retries, fallbacks, cross-model fallbacks, client-side routing parameters and missing metadata.
 
+**What the policy checks, and what it cannot.** The policy decides on endpoint names and configured URLs. Where packets actually go depends on DNS and the network. During the build, a stale DNS cache in the gateway sent one demo letter to the wrong container, although every gateway event named the right one. The endpoints' own counters caught it (details in [docs/findings.md](docs/findings.md), section 11). We fixed the demo, and the bench now recreates the endpoints to test for it. In production, TLS certificate verification and an egress allowlist must back the policy.
+
 **Out of scope:**
 - A compromised gateway host.
 - A malicious operator editing `gateway/config.yaml` or `communes.yaml`.

@@ -47,7 +47,8 @@ def build_messages(letter: str, language: str) -> list:
         '  "summary": a short plain-language explanation of what the letter says and what it means for the reader, '
         f"written in {lang};\n"
         '  "actions": a list of objects {"action": what the reader has to do, written in ' + lang + ', '
-        '"deadline": the date by which it must be done as YYYY-MM-DD, or null if the letter gives none};\n'
+        '"deadline": the date by which it must be done as YYYY-MM-DD, or null if the letter gives none}; '
+        "include every document to send, every appointment (with its date) and anything the reader must report or pay;\n"
         '  "draft_reply": a short, polite reply letter to the commune written in German (formal "Sie"), '
         "that the reader can adapt; use placeholders like [Name] and [Datum] instead of inventing personal data;\n"
         f'  "output_language": the ISO 639-1 code of the language of summary and actions ("{language}").\n'

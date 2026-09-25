@@ -134,6 +134,9 @@ Added after Phase 0: `gateway/deferred.py` moves the queue out of the app and in
 - **LiteLLM re-executes callback modules.** `get_instance_fn` has no cache and executes the module every time it resolves it. In our setup the module ran once, but worker state is kept in one process-wide object anyway.
 - **Timeline injection (found and fixed).** A client could file events under someone else's job id by putting it in the metadata of a request that is then rejected. LiteLLM's failure callback still sees that metadata. Job ids attached by the worker are now HMAC-signed with a per-process secret, and events are filed only under a verified id. `tests/test_deferred.py` covers it.
 - **Data minimisation.** The request body is deleted as soon as a job ends (done, failed, cancelled, expired). The result and the timeline stay for the caller to fetch.
+- **Names are not network destinations (found in our own demo, fixed).** LiteLLM caches DNS answers for 300 s (`AIOHTTP_TTL_DNS_CACHE`). We recreated the endpoint containers without restarting the gateway, and Docker gave them new IPs. For a few minutes the gateway's cached address for `ep-publicai` then belonged to `ep-us-1`. One demo letter reached the US mock, while every gateway event (and the policy's own checks) said "Public AI": the policy verifies endpoint *names* and `api_base` strings, not where packets go. The endpoints' own counters caught it. This also explains an earlier flaky test.
+  - The fix for the demo: `AIOHTTP_TTL_DNS_CACHE=0` on the gateway. `tests/restart_check.sh` now recreates the endpoint containers and asserts that requests reach exactly the named endpoint.
+  - The general lesson: name-level policy needs a binding between name and server. With real providers that binding is TLS certificate verification. The Utility's config sets `ssl_verify: false` globally, which removes it. Network egress controls (only the approved provider IPs are reachable) are the second barrier.
 - **Restart.** `tests/restart_check.sh` restarts the gateway while a job waits. The job is still there after the restart and completes as soon as an approved endpoint returns, without any client action.
 
 ## 12. Open questions to verify
@@ -151,6 +154,7 @@ Grouped by what they would change. Nothing here is claimed as working in the REA
 - [ ] **Not implemented.** Streaming for deferred requests, a completion webhook (callers poll today), and priorities between jobs.
 
 **Routing and policy**
+- [ ] **Binding names to servers.** Test that TLS verification is on for every real provider (the Utility sets `ssl_verify: false`), and design the egress allowlist that should back the policy at network level.
 - [ ] **`RoutingPlugin`.** Evaluate v1.98's official routing-plugin API as the home of the policy filter (layer 2).
 - [ ] **Streaming.** Hook behavior with streaming, `/v1/responses` and embeddings. Our keys are restricted to chat completions.
 - [ ] **Independent re-runs** of the Phase 0 experiments by a second person.

@@ -3,17 +3,52 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Commune letter helper{% endblock %}</title>
+  <title>{% block title %}Help with letters, Gemeinde Musterstadt{% endblock %}</title>
+  <link rel="stylesheet" href="/static/fonts/fonts.css">
   <link rel="stylesheet" href="/static/style.css">
-  <script src="/static/htmx.min.js"></script>
+  <script src="/static/vendor/rough-notation.iife.js" defer></script>
+  <script src="/static/marks.js" defer></script>
 </head>
-<body>
-  <header class="top">
-    <a class="brand" href="/">Commune letter helper <span class="sub">Gemeinde Musterstadt · prototype</span></a>
-    <nav><a href="/">New letter</a><a href="/demo">Demo control panel</a></nav>
+<body class="{% block bodyclass %}{% endblock %}">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="masthead">
+    <a class="home" href="/">
+      <svg class="crest" viewBox="0 0 32 38" aria-hidden="true">
+        <path d="M2 2h28v17c0 9-6.5 14.5-14 17C8.5 33.5 2 28 2 19z" fill="var(--pen)"/>
+        <path d="M5 22c3-2.5 5.5-2.5 8 0s5 2.5 8 0 5-2.5 6 0" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <circle cx="16" cy="11" r="3.2" fill="#fff"/>
+      </svg>
+      <span class="home-name">Gemeinde Musterstadt</span>
+      <span class="home-service">Help with letters</span>
+    </a>
+    <nav class="masthead-nav">
+      <a href="/">New letter</a>
+      <button type="button" class="demo-toggle" aria-controls="demo-drawer" aria-expanded="false">Demo controls</button>
+    </nav>
   </header>
-  <div class="banner">Fictional commune and fictional data only. The explanation is not legal advice; check every draft yourself before sending it.</div>
-  <main>{% block content %}{% endblock %}</main>
-  <footer>Runs on Apertus via the Public AI API, through a gateway that enforces the commune's rule "CH-only" on every attempt. Open source, Apache 2.0.</footer>
+
+  <main id="main">{% block content %}{% endblock %}</main>
+
+  <footer class="footer">
+    <p>A prototype for the Swiss {ai} Weeks. The commune and every letter here are fictional. Explanations are not legal advice.</p>
+    <p><a href="https://github.com/SRGSSR/srgssr-zh-hackathon-2026/tree/public-ai-service">Source code</a>, Apache 2.0.</p>
+  </footer>
+
+  <aside id="demo-drawer" class="drawer" aria-label="Demo controls" hidden>
+    <div class="drawer-head">
+      <h2>Demo controls</h2>
+      <button type="button" class="drawer-close" aria-label="Close demo controls">Close</button>
+    </div>
+    <p class="drawer-intro">Break the services on purpose and watch what happens to the letter. Real means the Public AI API, behind a local switch. Simulated services only show where a request went.</p>
+    <div class="drawer-bulk">
+      <button type="button" data-bulk="break-approved" class="btn-quiet danger">Break every Swiss service</button>
+      <button type="button" data-bulk="restore-all" class="btn-quiet">Repair all</button>
+      <button type="button" data-bulk="reset" class="btn-quiet">Reset counters</button>
+    </div>
+    <div class="endpoints" data-endpoints></div>
+    <p class="drawer-foot">"Received" counts what actually reached each service. The ones the rule excludes must stay at zero.</p>
+  </aside>
+  <script src="/static/demo.js" defer></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

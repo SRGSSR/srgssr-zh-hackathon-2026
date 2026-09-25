@@ -1,12 +1,66 @@
 {% extends "base.html" %}
-{% block title %}{{ job.id }} · Commune letter helper{% endblock %}
+{% block title %}Your letter, Gemeinde Musterstadt{% endblock %}
+{% block bodyclass %}page-job{% endblock %}
 {% block content %}
-<section class="grid-job">
-  {% include "_job_panel.html" %}
-  <aside class="card">
-    <h2>Demo control panel</h2>
-    <p class="muted small">Break or restore endpoints while the job runs. REAL = the Public AI API (through a local relay that can simulate failures). SIMULATED = local mock endpoints.</p>
-    {% include "_endpoints.html" %}
-  </aside>
-</section>
+<div class="job" data-job="{{ job.id }}" data-status="{{ job.status }}">
+  <header class="job-head">
+    <div class="job-head-text">
+      <h1 class="job-title" data-title aria-live="polite">Reading your letter</h1>
+      <p class="job-promise" data-promise></p>
+      {% if topics %}
+      <p class="job-topics">This letter mentions {{ topics | join(', ') }}. The law protects this kind of information strongly, which is why your commune keeps it in Switzerland.</p>
+      {% endif %}
+    </div>
+    <form method="post" action="/jobs/{{ job.id }}/again" class="job-again">
+      <button class="btn-quiet" type="submit">Explain it again</button>
+    </form>
+  </header>
+
+  <div class="job-grid">
+    <section class="reading" aria-label="Explanation">
+      <div class="pending" data-pending>
+        <p class="pending-title" data-pending-title>We are reading your letter with you.</p>
+        <p class="pending-text" data-pending-text>This usually takes less than a minute.</p>
+        <div class="pending-actions" data-pending-actions hidden>
+          <button type="button" class="btn-quiet" data-action="wake">Try again now</button>
+          <button type="button" class="btn-quiet" data-action="cancel">Cancel</button>
+        </div>
+      </div>
+
+      <div class="answer" data-answer hidden>
+        <section class="answer-part">
+          <h2>What the letter says</h2>
+          <p class="simulated-note" data-simulated hidden>This answer comes from a simulated demo service, not from a language model.</p>
+          <p class="explanation" data-summary lang="{{ job.language }}"></p>
+        </section>
+        <section class="answer-part">
+          <h2>What you need to do</h2>
+          <ol class="todo" data-actions lang="{{ job.language }}"></ol>
+        </section>
+        <section class="answer-part">
+          <div class="reply-head">
+            <h2>Your reply, in German</h2>
+            <button type="button" class="btn-quiet" data-copy>Copy the reply</button>
+          </div>
+          <div class="sheet sheet--reply"><pre class="reply" data-reply lang="de"></pre></div>
+          <p class="fine">Check the reply and every date against the original letter before you send it. If something is unclear, call the number in the letter.</p>
+        </section>
+      </div>
+
+      <details class="original">
+        <summary>The original letter</summary>
+        <div class="sheet sheet--original"><pre lang="de">{{ job.letter }}</pre></div>
+      </details>
+    </section>
+
+    <section class="trail" aria-labelledby="trail-title">
+      <div class="trail-head">
+        <h2 id="trail-title">Where your letter went</h2>
+        <label class="tech-switch"><input type="checkbox" data-tech-toggle> Technical details</label>
+      </div>
+      <ol class="journey" data-journey aria-live="polite" data-tech="off"></ol>
+    </section>
+  </div>
+</div>
 {% endblock %}
+{% block scripts %}<script src="/static/job.js" defer></script>{% endblock %}
