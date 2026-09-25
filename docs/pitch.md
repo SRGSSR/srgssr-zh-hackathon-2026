@@ -63,18 +63,18 @@ The jury took the letter app for the product. They asked:
 
 | Question | Answer (and where it is now) |
 |---|---|
-| "Did you build something?" | "Yes: a plugin for LiteLLM, about a thousand lines of Python, running at promisekept.ch, with 48 tests and a ready pull request for the Public AI Utility. The letter service is the example that uses it." Slides 4 and 7; Q&A tab "What's in the repo". |
-| "Did you use Apertus?" | "Yes. Every real answer comes from Apertus 1.5 through the Public AI API. The simulated hosts exist so we can break things on purpose, and the page labels them." Slide 5; Q&A tab "Apertus". |
+| "Did you build something?" | "Yes: a plugin for LiteLLM, about a thousand lines of Python, running at promisekept.ch, with 48 tests and a ready pull request for the Public AI Utility. The letter service is the example that uses it." Slide 4; Q&A tab "What's in the repo". |
+| "Did you use Apertus?" | "Yes. Every real answer comes from Apertus 1.5 through the Public AI API. The simulated hosts exist so we can break things on purpose, and the page labels them." Said in the demo; Q&A tab "Apertus". |
 | "Can it process images?" | "The prototype reads text: Apertus is a text model, and the photo upload is a mock. The layer never reads the content: text or images, the rule decides where a request may go." Q&A tab "Images". |
 
 ### What changed from version 1, and why
 
-- **Ana opens and closes.** Slides 1 to 3 are version 1's, for empathy. The last slide comes back to her: she got her answer, and her letter never left Switzerland.
-- **The layer is named as what we built** (slide 4), right after her problem. The app appears only as the example (slide 5).
+- **Ana opens and closes.** Slides 1 to 3 are version 1's, for empathy. The last slide comes back to her: she got her answer, and her data never left Switzerland.
+- **The layer is named as what we built** (slide 4), right after her problem. The app appears only as the example, in the demo.
 - **Few words on the slides.** The slides support the speaker; the speaker tells the story.
-- **Apertus is named on screen** (slide 5), with a real answer.
+- **Apertus is named** in the demo, on a real answer.
 - **One demo path, three moments:** Ana waits, Marco chooses, Ana's letter completes.
-- **One number to remember:** zero (slide 6). Then "anyone can use it" (slide 7).
+- **One number to remember:** zero, on the counters in the demo controls.
 - **The problem sentence is exact:** Singapore when the Apertus *hosts* are down (both), not "the Swiss host".
 - **The repair uses Swiss host 1,** which answers in seconds; Public AI would take up to a minute on stage.
 
@@ -86,13 +86,13 @@ The jury took the letter app for the product. They asked:
 | 0:03 | Slide 2: her letter | "A letter from her social services: her bank statements, her medical certificate, her children, a deadline. In bureaucratic German. Ana speaks Italian." |
 | 0:13 | Slide 3: her doubt | "An AI could explain it. But where does her letter go? Public AI's gateway falls back on its own: if the Apertus hosts are down, it goes to another model, in Singapore. It's in their configuration today. We ran it." |
 | 0:30 | Slide 4: what we built | "So we built a sovereignty layer, in the gateway: a plugin for LiteLLM, the gateway Public AI runs. Ana's office sets the rule: Switzerland only. It's checked on every retry and every fallback. And if no Swiss service is up, her letter waits." |
-| 0:47 | Slide 5, then Tab 1 | "Here it is, with Apertus. Ana's letter, explained in Italian. Only Switzerland: three services ruled out before anything was sent." |
+| 0:47 | Tab 1 | "Here it is, with Apertus. Ana's letter, explained in Italian. Only Switzerland: three services ruled out before anything was sent." |
 | 0:58 | Tab 2 | "Every Swiss service broken: the backup plan wants Singapore. Blocked. The letter waits." |
 | 1:06 | Tab 3, demo controls open | "Marco's office allows the US, but only if he agrees. He agrees, for this letter only: the US counter goes to one." |
 | 1:18 | Tab 2 | "A Swiss service is back: Ana's letter completes by itself." |
-| 1:24 | Slide 6: zero | "Every service counts what it receives. In 48 tests, zero requests reached a place a rule excludes." |
-| 1:33 | Slide 7: anyone can use it | "Any LiteLLM gateway can switch it on, and a pull request is ready for the Public AI Utility. With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes." |
-| 1:48 | Slide 8: Ana, promise kept | "And Ana? She got her answer, in Italian. Her letter never left Switzerland, even when a provider failed. Promise kept." |
+| 1:24 | Tab 2, demo controls open: the excluded services show 0 | "Every service counts what it receives. In 48 tests, zero requests reached a place a rule excludes." |
+| 1:33 | Slide 5: Promise kept, to the end | "Any LiteLLM gateway can switch it on, and a pull request is ready for the Public AI Utility. With Apertus and our sovereignty layer, a commune can check, request by request, where citizen data goes." |
+| 1:48 | Slide 5 | "And Ana? She got her answer, in Italian. Her data never left Switzerland, even when a provider failed. Promise kept." |
 
 If a rehearsal runs over 2:00, cut the Tab 1 sentence about the ruled-out services first. Keep the last sentence, whatever happens.
 
