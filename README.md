@@ -26,8 +26,6 @@ For the social services and the school the offer never appears: their rules do n
 
 [![The short version in 25 seconds: when the Swiss host fails, Apertus can fall back to other models abroad; the rule is checked before every send; the request waits in the gateway and resumes by itself; every request leaves a trace; the routing guard is ready as a pull request for the Public AI Utility](docs/video/teaser.gif)](docs/video/teaser.mp4)
 
-*The same story in 25 seconds. The preview is silent; [the video](docs/video/teaser.mp4) has sound.*
-
 **The problem is in production today.** The Public AI Utility routes requests through LiteLLM with automatic fallbacks. In its own configuration, when the Swiss host for Apertus fails, requests fall back to *other models hosted in other countries* (SEA-LION in Singapore, Bielik in Poland). We ran that configuration offline, in the image production runs. With the Swiss host down, a normal request was answered by the Singapore mock.
 
 **What we built:**
