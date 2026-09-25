@@ -2,7 +2,8 @@
 # Deploy or update the demo on Azure. Usage: deploy/azure/deploy.sh [subscription] [resource-group] [location]
 # PUBLICAI_API_KEY comes from the environment or the repository's .env (empty: simulated answers).
 # DEMO_PASSWORD=... protects the demo with one shared password (user jury); without it the demo is open.
-# DOMAINS=promisekept.ch,www.promisekept.ch serves the demo on own domains (DNS first, on every deploy).
+# The demo is served at promisekept.ch (www and the Azure name redirect there). DOMAINS=other.ch,... serves
+# other domains (their DNS first); DOMAINS= serves only the Azure name.
 # BRANCH=... deploys another branch. Re-run to deploy the branch's latest commit.
 set -e
 SUB="${1:-z231-as-technology-playground-dev}"; RG="${2:-rg-commune-letter-demo}"; LOCATION="${3:-switzerlandnorth}"
@@ -16,7 +17,7 @@ SSH_KEY="$HOME/.ssh/commune-letter-azure"
 
 # Secrets go through a private parameters file, not the command line.
 PARAMS=$(mktemp); trap 'rm -f "$PARAMS"' EXIT
-KEY="$KEY" LOCATION="$LOCATION" PASS="${DEMO_PASSWORD:-}" BRANCH="${BRANCH:-public-ai-service}" DOMAINS="${DOMAINS:-}" PUB="$(cat "$SSH_KEY.pub")" python3 -c '
+KEY="$KEY" LOCATION="$LOCATION" PASS="${DEMO_PASSWORD:-}" BRANCH="${BRANCH:-public-ai-service}" DOMAINS="${DOMAINS-promisekept.ch,www.promisekept.ch}" PUB="$(cat "$SSH_KEY.pub")" python3 -c '
 import json, os
 p = {"publicAiApiKey": os.environ["KEY"], "demoPassword": os.environ["PASS"], "location": os.environ["LOCATION"],
      "branch": os.environ["BRANCH"], "domains": os.environ["DOMAINS"], "adminPublicKey": os.environ["PUB"]}
