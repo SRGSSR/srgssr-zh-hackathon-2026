@@ -50,13 +50,15 @@ Before: `docker compose up -d`, open `http://localhost:8080`, "Reset counters", 
 
 | Step | Click | What the jury should see | Say |
 |---|---|---|---|
-| 1 | Sample "Sozialhilfe", language Italian, "Explain" | Result, timeline: rule "CH-only", **US and no-metadata endpoints blocked before send**, answered by Public AI | "The rule is applied before anything is sent." |
-| 2 | Panel: **Break** `publicai-apertus`, submit again | Switches to `mock-ch-1`. Counters: US / SG / no-metadata **0** | "A retry, still within the rule." |
-| 3 | **Break all approved**, submit | Status *waiting*: "stays in the gateway, not sent anywhere else". Timeline: LiteLLM tried the SEA-LION fallback, **blocked before send** | "This is where the Utility would have gone to Singapore." |
-| 4 | **Restore** `mock-ch-2` | The job resumes by itself and completes; the timeline shows the whole outage | "The promise held, and nobody had to click retry." |
-| (5) | Optional: **Hang** `mock-ch-1` | "data received, no response" | "We even tell you when a provider got the data but never answered." |
+| 1 | Example "Documents needed for your support", Italiano, "Explain my letter" | Explanation in Italian with the deadlines highlighted; journey: rule applied, **US host and unknown-origin host struck through**, answered by Public AI | "The rule is applied before anything is sent." |
+| 2 | Demo controls: Public AI **Broken**, then "Explain it again" | Goes to Swiss host 1. Counters for US, unknown origin and Singapore stay **0** | "A retry, still within the rule." |
+| 3 | **Break every Swiss service**, "Explain it again" | "Your letter is waiting, safely." Journey: **the backup plan wanted SEA-LION in Singapore, nothing was sent** | "This is where the Utility would have gone to Singapore." |
+| 4 | **Repair all** | The letter resumes by itself and completes; the journey shows the whole outage | "The promise held, and nobody had to click retry." |
+| (5) | Optional: Swiss host 1 **Hangs** | "received your letter but never answered" | "We even tell you when a provider got the data but never answered." |
 
 Fallback if the live demo fails: a pre-recorded 60-second video of the same steps (record it at 10:00).
+
+The real Public AI API can be slow under load (once a 504 after 60 s during testing). Run one real request a few minutes before the pitch. If it is slow on stage, say so: "the real service is slow right now, so the gateway will move on to a Swiss host, and you can watch it do that."
 
 Roles: **speaker** (tells the story, never touches the laptop), **driver** (clicks), **backup** (video ready, watches the time).
 

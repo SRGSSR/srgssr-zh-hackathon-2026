@@ -81,11 +81,13 @@ open http://localhost:8080
 Without `PUBLICAI_API_KEY`, the "real" endpoint's relay answers with a clearly labelled **SIMULATED** response. Everything else works the same.
 
 **Demo script** (about 3 minutes):
-1. Pick a sample letter and a language, then "Explain this letter". The timeline shows the rule applied, the endpoints excluded before any send (US, missing metadata), the send to Public AI, and the answer.
-2. In the side panel, **Break** `publicai-apertus` and submit again. The job switches to `mock-ch-1`. US, no-metadata and SG still show **0 received**.
-3. **Break all approved** and submit. The job waits. The resident sees that the request stays in the gateway and is not sent anywhere else. The timeline shows the fallback to the SEA-LION group, blocked before send.
-4. **Restore** any CH endpoint. The gateway resumes the job by itself and completes it, and the timeline shows the whole outage.
-5. Optional: **Hang** `mock-ch-1`. The timeline marks "data received, no response" for that endpoint, then continues on `mock-ch-2`.
+1. Pick the example "Social services: Documents needed for your support", choose Italiano, then "Explain my letter". The journey on the right shows the rule applied, the places ruled out before any send (US host, host of unknown origin, struck through by hand), the send to Public AI, and the answer. Deadlines are highlighted in the explanation.
+2. Open **Demo controls**, set Public AI to **Broken**, then "Explain it again". The letter goes to Swiss host 1. The US, unknown-origin and Singapore hosts still show **0 received**.
+3. **Break every Swiss service** and explain again. The letter waits, and the page says so. The journey shows the backup plan (SEA-LION, in Singapore) ruled out before anything was sent.
+4. **Repair all** (or set one Swiss host back to **Working**). The gateway resumes the letter by itself and completes it; the journey shows the whole outage.
+5. Optional: set Swiss host 1 to **Hangs**. The journey says it "received your letter but never answered", then continues on Swiss host 2.
+
+Note: the real Public AI API can be slow under load. During testing it once answered with a 504 after 60 seconds, and the gateway moved on to a Swiss mock. That is the rule working, but for a smooth demo run the first request a few minutes before.
 
 ## Run the tests
 
