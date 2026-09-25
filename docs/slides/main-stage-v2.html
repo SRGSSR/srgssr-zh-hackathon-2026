@@ -174,55 +174,37 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
   @keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
 }
 
-/* ---- version 2: the layer is the product ---- */
-.slide.title{gap:24px}
-.title h1{font-size:clamp(60px,10vw,132px)}
-.title .lede{font-size:clamp(20px,2.3vw,30px);color:var(--ink);max-width:36ch;line-height:1.3}
-.title .by{font-size:15px;color:var(--muted)}
-.layer-map{display:grid;grid-template-columns:minmax(0,.75fr) auto minmax(0,1.75fr) auto minmax(0,1.2fr);gap:12px;align-items:center}
-@media (max-width:900px){.layer-map{grid-template-columns:1fr}.layer-map .to{transform:rotate(90deg);justify-self:center}}
-.layer-map .to{font-family:var(--mono);color:var(--muted);font-size:22px}
-.app-box{background:var(--paper);border:1px dashed var(--muted);border-radius:6px;padding:16px 18px;display:grid;gap:4px;color:var(--muted);font-size:15px}
-.app-box b{color:var(--ink);font-family:var(--display);font-size:19px;font-weight:700}
-.layer{background:var(--swiss-soft);border:2px solid var(--swiss);border-radius:8px;padding:20px 22px;display:grid;gap:10px}
-.layer h3{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.4vw,28px);margin:0;color:var(--swiss);line-height:1.1}
-.layer .sub{font-size:15px;color:var(--ink)}
-.layer ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15.5px}
-.dest{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.dest li{display:flex;justify-content:space-between;gap:10px;align-items:baseline;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:7px 12px;font-size:14.5px}
-.dest i{font-style:normal;font-size:12.5px;font-weight:600;border-radius:10px;padding:2px 8px;white-space:nowrap}
+/* ---- version 2: few words, the speaker tells the rest ---- */
+.lane{display:grid;grid-template-columns:minmax(0,.7fr) auto minmax(0,1.6fr) auto minmax(0,.9fr);gap:16px;align-items:center}
+@media (max-width:900px){.lane{grid-template-columns:1fr}.lane .to{transform:rotate(90deg);justify-self:center}}
+.lane .to{font-family:var(--mono);color:var(--muted);font-size:28px}
+.lane-from{background:var(--paper);border:1px solid var(--rule);border-radius:3px;box-shadow:var(--shadow);padding:26px 16px;font-family:var(--display);font-weight:700;font-size:21px;text-align:center;transform:rotate(-1.5deg)}
+.layer{background:var(--swiss-soft);border:2px solid var(--swiss);border-radius:8px;padding:28px;display:grid;gap:12px}
+.layer h3{font-family:var(--display);font-weight:800;font-size:clamp(28px,3.2vw,40px);margin:0;color:var(--swiss);line-height:1.05}
+.layer .sub{font-family:var(--mono);font-size:14px;color:var(--ink);letter-spacing:.02em}
+.chips{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.chips li{background:var(--paper);border:1px solid var(--swiss);color:var(--swiss);border-radius:999px;padding:7px 14px;font-size:16px;font-weight:600}
+.dest{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.dest li{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:14px 16px;font-size:19px;font-weight:600}
+.dest i{font-style:normal;font-size:14px;font-weight:600;border-radius:10px;padding:3px 10px;white-space:nowrap}
 .dest .ok{background:var(--swiss-soft);color:var(--swiss)}
 .dest .no{background:var(--red-soft);color:var(--red)}
-.dest .ask{background:var(--ground);color:var(--ink);border:1px dashed var(--muted)}
-.code{font-family:var(--mono);font-size:clamp(13px,1.35vw,15.5px);line-height:1.55;background:var(--ink);color:var(--slide);border-radius:6px;padding:14px 18px;margin:0;overflow-x:auto;white-space:pre}
-.code .c{opacity:.62}
-.slide.dense{gap:20px}
-.dense h2{font-size:clamp(26px,3.4vw,40px)}
-.built-row{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:20px;align-items:center}
-.dense .code{font-size:14px}
-@media (max-width:760px){.built-row{grid-template-columns:1fr}}
-.built{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:15.5px;color:var(--muted)}
-.built b{color:var(--ink)}
-.shot{margin:0;background:var(--paper);border:1px solid var(--rule);border-radius:6px;box-shadow:var(--shadow);overflow:hidden}
-.shot img{display:block;width:100%;height:auto}
-.shot figcaption{font-size:13px;color:var(--muted);padding:8px 12px;border-top:1px solid var(--rule)}
-.facts{margin:0;padding-left:18px;display:grid;gap:10px;font-size:clamp(16px,1.6vw,19px)}
-.zero{display:grid;grid-template-columns:auto 1fr;gap:20px 40px;align-items:center}
+.shot{margin:0;background:var(--paper);border:1px solid var(--rule);border-radius:6px;box-shadow:var(--shadow);overflow:hidden;justify-self:center;max-width:100%}
+.shot img{display:block;height:min(440px,calc(100vh - 330px));width:auto;max-width:100%;object-fit:contain}
+.zero{display:grid;grid-template-columns:auto 1fr;gap:20px 44px;align-items:center}
 @media (max-width:760px){.zero{grid-template-columns:1fr}}
-.zero .big{font-family:var(--display);font-weight:800;font-size:clamp(130px,19vw,240px);line-height:.8;color:var(--swiss);font-variant-numeric:tabular-nums}
-.zero .what{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.6vw,32px);line-height:1.2;max-width:26ch;text-wrap:balance}
-.zero .how{font-size:16px;color:var(--muted);margin-top:12px;max-width:52ch}
-.side-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.checks.steps p code{font-size:13.5px}
-.slide.close{gap:24px}
-.close-grid{display:grid;grid-template-columns:1fr auto;gap:clamp(24px,4vw,56px);align-items:center}
-@media (max-width:760px){.close-grid{grid-template-columns:1fr}}
-.close-grid .qr{width:min(100%,280px)}
-.close-grid .links{font-family:var(--mono);font-size:15px;color:var(--muted);display:grid;gap:6px;margin-top:18px}
-.mini-letter{background:var(--paper);border:1px solid var(--rule);box-shadow:var(--shadow);border-radius:2px;padding:18px 20px;font-size:15px;display:grid;gap:6px;transform:rotate(-.6deg)}
-.mini-letter .sender{font-weight:600}
-.mini-letter .meta{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
-.ana-row{display:grid;grid-template-columns:110px 1fr;gap:18px;align-items:center}
+.zero .big{font-family:var(--display);font-weight:800;font-size:clamp(150px,22vw,280px);line-height:.8;color:var(--swiss);font-variant-numeric:tabular-nums}
+.zero .what{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.2vw,40px);line-height:1.15;max-width:18ch;text-wrap:balance}
+.zero .how{font-size:17px;color:var(--muted);margin-top:14px}
+.code{font-family:var(--mono);font-size:clamp(18px,2.2vw,26px);background:var(--ink);color:var(--slide);border-radius:6px;padding:22px 28px;margin:0;overflow-x:auto;white-space:pre;justify-self:start}
+.close-ana{display:grid;grid-template-columns:minmax(0,360px) 1fr;gap:clamp(24px,5vw,64px);align-items:center}
+@media (max-width:760px){.close-ana{grid-template-columns:1fr}}
+.close-ana .portrait{width:100%}
+.close-ana h1{font-size:clamp(56px,8.5vw,112px)}
+.close-ana .lede{color:var(--ink);font-size:clamp(20px,2.3vw,28px);margin-top:18px;max-width:24ch}
+.close-ana .end{display:flex;gap:16px;align-items:center;margin-top:28px}
+.close-ana .qr{width:112px;padding:8px}
+.close-ana .url{font-family:var(--mono);font-size:18px;color:var(--muted)}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
@@ -231,23 +213,15 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
 <div class="deck is-deck" id="deck">
 
   <!-- 1 -->
-  <section class="slide active title" aria-label="Slide 1: Promise kept">
-    <div class="eyebrow">Swiss {ai} Weeks, Public AI challenge</div>
-    <h1>Promise kept.</h1>
-    <p class="lede">A data-sovereignty layer for public AI. It keeps a commune’s promise about citizen data on every retry and every fallback, and shows where every request went.</p>
-  </section>
-
-  <!-- 2 -->
-  <section class="slide" aria-label="Slide 2: The problem">
-    <div class="eyebrow">The problem</div>
+  <section class="slide active" aria-label="Slide 1: Meet Ana">
+    <div class="eyebrow">Meet Ana</div>
     <div class="two">
-      <div style="display:grid;gap:22px">
-        <h2>When a provider fails, where does citizen data go?</h2>
-        <div class="ana-row">
-          <figure class="portrait sm" style="width:110px"><svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <h1>This is Ana.</h1>
+      <figure class="portrait">
+        <svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of Ana, a woman with dark curly hair, looking worried, holding an envelope">
           <circle cx="160" cy="170" r="160" fill="var(--swiss-soft)"/>
-          <clipPath id="pc3"><circle cx="160" cy="170" r="160"/></clipPath>
-          <g clip-path="url(#pc3)">
+          <clipPath id="pc"><circle cx="160" cy="170" r="160"/></clipPath>
+          <g clip-path="url(#pc)">
             <!-- hair, back -->
             <path d="M92 150 C 78 70, 128 38, 164 40 C 212 40, 246 78, 236 152 C 250 190, 244 238, 226 262 L 100 262 C 80 236, 76 190, 92 150 Z" fill="#2B1B14"/>
             <!-- body -->
@@ -290,15 +264,120 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
             <ellipse cx="96" cy="318" rx="16" ry="12" fill="#CC9270"/>
             <ellipse cx="224" cy="312" rx="16" ry="12" fill="#CC9270"/>
           </g>
-        </svg></figure>
-          <div class="mini-letter">
-            <div class="sender">Gemeinde Musterstadt, Soziale Dienste</div>
-            <div class="meta">Frau Ana Exemplo, AHV-Nr. 756.0000.0000.00</div>
-            <div>Bank statements, a medical certificate, her children’s allowances. By 15 October, or her support can be cut.</div>
-          </div>
+        </svg>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide" aria-label="Slide 2: A letter from the social services">
+    <div class="eyebrow">A letter arrives</div>
+    <div class="letter solo show-marks" aria-label="Confidential letter from the social services of the City of Zurich, with sensitive details marked">
+      <div class="overstamp" role="img" aria-label="Stamp: Vertraulich, confidential">
+        <svg viewBox="0 0 520 190" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
+              <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="7" result="grain"/>
+              <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.2 0 0 0 1.95" result="holes"/>
+              <feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="2" seed="3" result="blotch"/>
+              <feColorMatrix in="blotch" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.3 0 0 0 1.55" result="fade"/>
+              <feComposite in="holes" in2="fade" operator="arithmetic" k1="1" result="mask"/>
+              <feComposite in="SourceGraphic" in2="mask" operator="in" result="speckled"/>
+              <feTurbulence type="turbulence" baseFrequency=".05" numOctaves="2" seed="11" result="wobble"/>
+              <feDisplacementMap in="speckled" in2="wobble" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+          </defs>
+          <g filter="url(#ink)">
+            <rect x="8" y="8" width="504" height="174" rx="14" fill="none" stroke="var(--red)" stroke-width="9"/>
+            <rect x="24" y="24" width="472" height="142" rx="6" fill="none" stroke="var(--red)" stroke-width="3"/>
+            <text x="260" y="62" text-anchor="middle" font-size="17" font-weight="700" letter-spacing="7">★ Stadt Zürich ★</text>
+            <line x1="46" y1="76" x2="474" y2="76" stroke="var(--red)" stroke-width="3"/>
+            <text x="260" y="134" text-anchor="middle" font-size="60" font-weight="800" letter-spacing="5" textLength="420" lengthAdjust="spacingAndGlyphs">Vertraulich</text>
+            <line x1="46" y1="146" x2="474" y2="146" stroke="var(--red)" stroke-width="3"/>
+          </g>
+        </svg>
+      </div>
+      <div class="head">
+        <div><div class="sender">Stadt Zürich</div>Sozialdepartement · Soziale Dienste</div>
+        <div class="meta">Zürich, 21. September 2026</div>
+      </div>
+      <div><mark>Frau Ana Exemplo</mark><br><mark>Musterstrasse 7, 8004 Zürich</mark></div>
+      <div class="meta" style="margin-top:6px">Dossier-Nr.: <mark>SH-2026-0000</mark> · AHV-Nr.: <mark>756.0000.0000.00</mark></div>
+      <p class="subj">Wirtschaftliche Sozialhilfe: Überprüfung Ihres Unterstützungsbudgets</p>
+      <ol>
+        <li><mark>Kontoauszüge</mark> sämtlicher Bank- und Postkonten, Juni bis August 2026</li>
+        <li>Mietvertrag und Nebenkostenabrechnung 2025</li>
+        <li>das <mark>Arztzeugnis zu Ihrer Arbeitsunfähigkeit</mark>, mit Grad und Dauer</li>
+        <li>Kinderzulagen für <mark>Luca (geb. 2015) und Sara (geb. 2019)</mark></li>
+      </ol>
+      <p>Bitte bis spätestens 15. Oktober 2026 einreichen. Sonst kann die <mark>Unterstützung gekürzt oder eingestellt</mark> werden.</p>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide" aria-label="Slide 3: Ana does not trust the AI">
+    <div class="eyebrow">“I could ask an AI…”</div>
+    <div class="two">
+      <div style="display:grid;gap:22px">
+        <h2>An AI could explain it. But she doesn’t trust it with this.</h2>
+        <div class="doubter">
+          <figure class="portrait sm">
+            <svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="160" cy="170" r="160" fill="var(--swiss-soft)"/>
+          <clipPath id="pc2"><circle cx="160" cy="170" r="160"/></clipPath>
+          <g clip-path="url(#pc2)">
+            <!-- hair, back -->
+            <path d="M92 150 C 78 70, 128 38, 164 40 C 212 40, 246 78, 236 152 C 250 190, 244 238, 226 262 L 100 262 C 80 236, 76 190, 92 150 Z" fill="#2B1B14"/>
+            <!-- body -->
+            <path d="M40 360 C 44 290, 96 262, 160 262 C 224 262, 276 290, 280 360 Z" fill="#3E6A8A"/>
+            <path d="M132 262 L160 300 L188 262 Z" fill="#2F5470"/>
+            <!-- neck -->
+            <path d="M140 214 L140 268 C 150 282, 170 282, 180 268 L180 214 Z" fill="#B97F5C"/>
+            <!-- face -->
+            <ellipse cx="160" cy="160" rx="58" ry="70" fill="#CC9270"/>
+            <!-- ears and earrings -->
+            <ellipse cx="102" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <ellipse cx="218" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <circle cx="102" cy="186" r="4" fill="#E2B64B"/>
+            <circle cx="218" cy="186" r="4" fill="#E2B64B"/>
+            <!-- hair, front -->
+            <path d="M98 150 C 96 92, 132 70, 166 72 C 196 74, 222 94, 224 140 C 206 118, 186 104, 160 100 C 140 110, 118 126, 98 150 Z" fill="#2B1B14"/>
+            <circle cx="112" cy="104" r="16" fill="#2B1B14"/>
+            <circle cx="138" cy="84" r="16" fill="#2B1B14"/>
+            <circle cx="170" cy="78" r="17" fill="#2B1B14"/>
+            <circle cx="200" cy="88" r="16" fill="#2B1B14"/>
+            <circle cx="220" cy="112" r="14" fill="#2B1B14"/>
+            <!-- brows, worried: inner ends raised -->
+            <path d="M124 142 Q 138 138 151 127" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M169 127 Q 182 138 196 142" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <!-- eyes -->
+            <ellipse cx="139" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="141" cy="155" r="2" fill="#FFFFFF"/>
+            <ellipse cx="181" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="183" cy="155" r="2" fill="#FFFFFF"/>
+            <!-- sweat drop --><path d="M206 146 Q 200 158 206 162 Q 212 158 206 146 Z" fill="#8EC3E6"/>
+            <!-- nose, cheeks, mouth -->
+            <path d="M160 162 Q 156 180 162 186" stroke="#A86F4F" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="128" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <circle cx="192" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <path d="M146 208 Q 153 202 160 207 Q 167 212 174 206" stroke="#8A4A3A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <!-- hands and envelope -->
+            <g transform="rotate(-6 160 318)">
+              <rect x="96" y="286" width="128" height="80" rx="3" fill="#FFFFFF" stroke="#C9CFD8" stroke-width="2"/>
+              <path d="M96 288 L160 330 L224 288" fill="none" stroke="#C9CFD8" stroke-width="2"/>
+              <rect x="190" y="296" width="22" height="16" fill="#C8281C"/>
+            </g>
+            <ellipse cx="96" cy="318" rx="16" ry="12" fill="#CC9270"/>
+            <ellipse cx="224" cy="312" rx="16" ry="12" fill="#CC9270"/>
+          </g>
+        </svg>
+          </figure>
+          <ul class="doubts">
+            <li>Where does my data go?</li>
+            <li>Which country? Whose computer?</li>
+            <li>And if that service is down, where does it go next?</li>
+          </ul>
         </div>
       </div>
-      <div class="route" role="img" aria-label="Diagram: the request goes to Apertus. If its hosts are down, an automatic fallback sends it to another model in Singapore.">
+      <div class="route" role="img" aria-label="Diagram: Ana's data goes to Apertus. If its hosts are down, an automatic fallback sends it to another model in Singapore.">
         <svg viewBox="0 0 440 300" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker>
@@ -323,108 +402,113 @@ code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-rad
           <text x="280" y="250" class="sm">OTHER MODEL, SINGAPORE</text>
           <path d="M344 98 L344 200" fill="none" stroke="var(--red)" stroke-width="1.4" stroke-dasharray="3 4" marker-end="url(#arr)"/>
         </svg>
+        <p style="font-size:13px;color:var(--muted);margin-top:10px">This fallback is in the Public AI Utility’s own configuration today.</p>
       </div>
-    </div>
-  </section>
-
-  <!-- 3 -->
-  <section class="slide dense" aria-label="Slide 3: What we built">
-    <div class="eyebrow">What we built</div>
-    <h2>The missing piece: a sovereignty layer in the gateway.</h2>
-    <div class="layer-map">
-      <div class="app-box"><b>Any app</b><span>Our example, <i>Help with letters</i>, knows nothing about routing.</span></div>
-      <div class="to" aria-hidden="true">→</div>
-      <div class="layer">
-        <h3>Sovereignty layer</h3>
-        <p class="sub">A plugin for LiteLLM, the gateway the Public AI Utility runs</p>
-        <ul>
-          <li>Each office’s rule, bound to its key</li>
-          <li>Checked before every attempt, retries and fallbacks included</li>
-          <li>No allowed service? The request waits in Switzerland</li>
-          <li>Every request leaves a trace</li>
-        </ul>
-      </div>
-      <div class="to" aria-hidden="true">→</div>
-      <ul class="dest" aria-label="Where a request may go, for the strictest rule and the others">
-        <li>Apertus via Public AI, CH <i class="ok">allowed</i></li>
-        <li>Swiss hosts <i class="ok">allowed</i></li>
-        <li>EU host <i class="ask">if the rule allows</i></li>
-        <li>US host <i class="ask">only with consent</i></li>
-        <li>SEA-LION, Singapore <i class="no">never</i></li>
-        <li>Host of unknown origin <i class="no">never</i></li>
-      </ul>
-    </div>
-    <div class="built-row">
-      <pre class="code"><span class="c"># all LiteLLM needs to load it</span>
-litellm_settings:
-  callbacks: ["policy.policy_hook", "deferred.deferred_plugin"]</pre>
-      <ul class="built"><li><b>No fork</b> of LiteLLM</li><li><b>About 1,000 lines</b> of Python, Apache 2.0</li><li><b>48 tests</b> with broken services</li><li><b>Running</b> at promisekept.ch</li></ul>
     </div>
   </section>
 
   <!-- 4 -->
-  <section class="slide" aria-label="Slide 4: The example, with Apertus">
-    <div class="eyebrow">Shown with Apertus</div>
-    <div class="two">
-      <div style="display:grid;gap:20px">
-        <h2>Our example service: help with official letters</h2>
-        <ul class="facts">
-          <li>A resident pastes a letter from the commune.</li>
-          <li><b>Apertus 1.5</b>, through the Public AI API, explains it in simple words, lists what to do by when, and drafts the reply.</li>
-          <li>In German, French, Italian, Romansh, Swiss German or English.</li>
-          <li>Every real answer comes from Apertus. The simulated hosts exist so we can break things on stage, and the page labels them.</li>
-        </ul>
+  <section class="slide" aria-label="Slide 4: What we built">
+    <div class="eyebrow">What we built</div>
+    <h2>A sovereignty layer, in the gateway.</h2>
+    <div class="lane">
+      <div class="lane-from">Ana’s letter</div>
+      <div class="to" aria-hidden="true">→</div>
+      <div class="layer">
+        <h3>Sovereignty layer</h3>
+        <p class="sub">a plugin for LiteLLM</p>
+        <ul class="chips"><li>Her office’s rule</li><li>Every retry, every fallback</li><li>Or it waits</li></ul>
       </div>
-      <figure class="shot"><img src="../img/answer.png" alt="A real answer from Apertus: the letter explained in Italian with the deadline highlighted, and on the right where the letter went"><figcaption>A real Apertus answer. On the right: only Switzerland, three services ruled out before anything was sent.</figcaption></figure>
+      <div class="to" aria-hidden="true">→</div>
+      <ul class="dest">
+        <li>Switzerland <i class="ok">yes</i></li>
+        <li>Singapore <i class="no">never</i></li>
+      </ul>
     </div>
   </section>
 
   <!-- 5 -->
-  <section class="slide" aria-label="Slide 5: Proof">
+  <section class="slide" aria-label="Slide 5: Shown with Apertus">
+    <div class="eyebrow">Shown with Apertus</div>
+    <h2>Explained by Apertus, in Italian.</h2>
+    <figure class="shot"><img src="../img/answer.png" alt="A real answer from Apertus: Ana's letter explained in Italian with the deadline highlighted, and on the right where the letter went: only Switzerland"></figure>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide" aria-label="Slide 6: Zero">
     <div class="eyebrow">What we can prove</div>
     <div class="zero">
       <div class="big" aria-hidden="true">0</div>
       <div>
         <p class="what"><span class="visually-hidden">Zero </span>requests reached a place a rule excludes.</p>
-        <p class="how">Every service counts what it receives, and 48 tests assert on those counters, with services broken, hanging or missing their location. Not on our logs.</p>
-      </div>
-    </div>
-    <div class="side-stats">
-      <div class="stat"><b>17</b><span>ways to override the rule (parameters, tags, headers, a key without a rule), all rejected</span></div>
-      <div class="stat"><b>10/10</b><span>checks of our pull request on the Public AI Utility’s own production config</span></div>
-    </div>
-  </section>
-
-  <!-- 6 -->
-  <section class="slide" aria-label="Slide 6: Anyone can use it">
-    <div class="eyebrow">Anyone can use it</div>
-    <h2>Any LiteLLM gateway can switch it on.</h2>
-    <div class="t-two">
-      <ol class="checks steps">
-        <li><span class="when">Load the plugin</span><p><code>callbacks: ["policy.policy_hook"]</code></p></li>
-        <li><span class="when">Say where each deployment runs</span><p><code>model_info: {jurisdiction: CH, provider: …, country: …}</code>. Missing means never used.</p></li>
-        <li><span class="when">Give each office a rule</span><p><code>routing_policy: {allowed_jurisdictions: ["CH"]}</code> on its key or team.</p></li>
-      </ol>
-      <div class="t-box">
-        <h3>For the Public AI Utility</h3>
-        <ul>
-          <li>A ready pull request for <code>forpublicai/chat.publicai.co</code>.</li>
-          <li>It adds jurisdiction metadata to the Apertus deployments and fixes the template that drops it today.</li>
-          <li>Off by default, opt-in per key or team. Keys without a rule behave as today.</li>
-          <li>10 of 10 checks on its production config, in the image production runs.</li>
-        </ul>
+        <p class="how">48 tests with broken services. 10 of 10 on the Public AI Utility’s production config.</p>
       </div>
     </div>
   </section>
 
   <!-- 7 -->
-  <section class="slide close" aria-label="Slide 7: Try it">
-    <div class="close-grid">
+  <section class="slide" aria-label="Slide 7: Anyone can use it">
+    <div class="eyebrow">Anyone can use it</div>
+    <h2>Any LiteLLM gateway can switch it on.</h2>
+    <pre class="code">callbacks: ["policy.policy_hook"]</pre>
+    <p class="lede">A pull request is ready for the Public AI Utility.</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide" aria-label="Slide 8: Promise kept">
+    <div class="close-ana">
+      <figure class="portrait"><svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of Ana, smiling, holding her letter with a green check">
+          <circle cx="160" cy="170" r="160" fill="var(--swiss-soft)"/>
+          <clipPath id="pc5"><circle cx="160" cy="170" r="160"/></clipPath>
+          <g clip-path="url(#pc5)">
+            <!-- hair, back -->
+            <path d="M92 150 C 78 70, 128 38, 164 40 C 212 40, 246 78, 236 152 C 250 190, 244 238, 226 262 L 100 262 C 80 236, 76 190, 92 150 Z" fill="#2B1B14"/>
+            <!-- body -->
+            <path d="M40 360 C 44 290, 96 262, 160 262 C 224 262, 276 290, 280 360 Z" fill="#3E6A8A"/>
+            <path d="M132 262 L160 300 L188 262 Z" fill="#2F5470"/>
+            <!-- neck -->
+            <path d="M140 214 L140 268 C 150 282, 170 282, 180 268 L180 214 Z" fill="#B97F5C"/>
+            <!-- face -->
+            <ellipse cx="160" cy="160" rx="58" ry="70" fill="#CC9270"/>
+            <!-- ears and earrings -->
+            <ellipse cx="102" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <ellipse cx="218" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <circle cx="102" cy="186" r="4" fill="#E2B64B"/>
+            <circle cx="218" cy="186" r="4" fill="#E2B64B"/>
+            <!-- hair, front -->
+            <path d="M98 150 C 96 92, 132 70, 166 72 C 196 74, 222 94, 224 140 C 206 118, 186 104, 160 100 C 140 110, 118 126, 98 150 Z" fill="#2B1B14"/>
+            <circle cx="112" cy="104" r="16" fill="#2B1B14"/>
+            <circle cx="138" cy="84" r="16" fill="#2B1B14"/>
+            <circle cx="170" cy="78" r="17" fill="#2B1B14"/>
+            <circle cx="200" cy="88" r="16" fill="#2B1B14"/>
+            <circle cx="220" cy="112" r="14" fill="#2B1B14"/>
+            <!-- brows, worried: inner ends raised -->
+            <path d="M124 134 Q 137 126 151 131" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M169 131 Q 183 126 196 134" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <!-- eyes -->
+            <ellipse cx="139" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="141" cy="155" r="2" fill="#FFFFFF"/>
+            <ellipse cx="181" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="183" cy="155" r="2" fill="#FFFFFF"/>
+            
+            <!-- nose, cheeks, mouth -->
+            <path d="M160 162 Q 156 180 162 186" stroke="#A86F4F" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="128" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <circle cx="192" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <path d="M142 201 Q 160 220 178 201" stroke="#8A4A3A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <!-- hands and envelope -->
+            <g transform="rotate(-6 160 318)">
+              <rect x="96" y="286" width="128" height="80" rx="3" fill="#FFFFFF" stroke="#C9CFD8" stroke-width="2"/>
+              <path d="M96 288 L160 330 L224 288" fill="none" stroke="#C9CFD8" stroke-width="2"/>
+              <circle cx="201" cy="306" r="15" fill="var(--swiss)"/><path d="M194 306 L199 311 L208 300" stroke="#fff" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <ellipse cx="96" cy="318" rx="16" ry="12" fill="#CC9270"/>
+            <ellipse cx="224" cy="312" rx="16" ry="12" fill="#CC9270"/>
+          </g>
+        </svg></figure>
       <div>
-        <p class="closing">With Apertus and our sovereignty layer, a commune can check, request by request, <em>where citizen data goes</em>.</p>
-        <div class="links"><span>promisekept.ch</span><span>github.com/SRGSSR/srgssr-zh-hackathon-2026</span></div>
+        <h1>Promise kept.</h1>
+        <p class="lede">Ana got her answer. Her letter never left Switzerland.</p>
+        <div class="end"><a class="qr" href="https://promisekept.ch"><svg role="img" aria-label="QR code to the online demo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path stroke="#000" d="M0 0.5h7m2 0h1m1 0h1m3 0h1m2 0h7m-25 1h1m5 0h1m1 0h2m2 0h2m1 0h2m1 0h1m5 0h1m-25 1h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h1m3 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m1 0h3m1 0h1m-25 1h1m5 0h1m2 0h1m1 0h1m1 0h4m1 0h1m5 0h1m-25 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-16 1h2m1 0h2m-14 1h1m1 0h1m1 0h1m1 0h1m6 0h4m3 0h1m2 0h1m-24 1h2m2 0h1m2 0h5m4 0h1m1 0h1m5 0h1m-19 1h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h1m1 0h3m-25 1h1m3 0h1m2 0h1m2 0h2m1 0h1m1 0h5m3 0h1m-23 1h2m2 0h4m1 0h1m1 0h2m2 0h4m1 0h1m1 0h2m-24 1h4m4 0h5m2 0h3m2 0h1m2 0h1m-25 1h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h4m2 0h1m1 0h1m2 0h3m-24 1h1m6 0h2m2 0h3m3 0h1m1 0h1m2 0h1m-24 1h1m1 0h1m1 0h3m1 0h4m1 0h1m2 0h6m-14 1h1m1 0h2m4 0h1m3 0h2m1 0h2m-25 1h7m7 0h3m1 0h1m1 0h2m1 0h2m-25 1h1m5 0h1m4 0h1m1 0h1m2 0h1m3 0h2m1 0h2m-25 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h1m1 0h6m1 0h2m-25 1h1m1 0h3m1 0h1m4 0h3m5 0h4m-23 1h1m1 0h3m1 0h1m1 0h5m1 0h1m5 0h1m3 0h1m-25 1h1m5 0h1m2 0h1m2 0h2m1 0h2m1 0h1m1 0h2m1 0h1m-24 1h7m1 0h2m1 0h2m1 0h6m3 0h2"/></svg></a><span class="url">promisekept.ch</span></div>
       </div>
-      <a class="qr" href="https://promisekept.ch"><svg role="img" aria-label="QR code to the online demo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25"><path stroke="#000" d="M0 0.5h7m2 0h1m1 0h1m3 0h1m2 0h7m-25 1h1m5 0h1m1 0h2m2 0h2m1 0h2m1 0h1m5 0h1m-25 1h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h1m3 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h2m2 0h1m1 0h3m1 0h1m-25 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m1 0h3m1 0h1m-25 1h1m5 0h1m2 0h1m1 0h1m1 0h4m1 0h1m5 0h1m-25 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-16 1h2m1 0h2m-14 1h1m1 0h1m1 0h1m1 0h1m6 0h4m3 0h1m2 0h1m-24 1h2m2 0h1m2 0h5m4 0h1m1 0h1m5 0h1m-19 1h1m1 0h1m1 0h1m1 0h2m4 0h1m1 0h1m1 0h3m-25 1h1m3 0h1m2 0h1m2 0h2m1 0h1m1 0h5m3 0h1m-23 1h2m2 0h4m1 0h1m1 0h2m2 0h4m1 0h1m1 0h2m-24 1h4m4 0h5m2 0h3m2 0h1m2 0h1m-25 1h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h4m2 0h1m1 0h1m2 0h3m-24 1h1m6 0h2m2 0h3m3 0h1m1 0h1m2 0h1m-24 1h1m1 0h1m1 0h3m1 0h4m1 0h1m2 0h6m-14 1h1m1 0h2m4 0h1m3 0h2m1 0h2m-25 1h7m7 0h3m1 0h1m1 0h2m1 0h2m-25 1h1m5 0h1m4 0h1m1 0h1m2 0h1m3 0h2m1 0h2m-25 1h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h1m1 0h6m1 0h2m-25 1h1m1 0h3m1 0h1m4 0h3m5 0h4m-23 1h1m1 0h3m1 0h1m1 0h5m1 0h1m5 0h1m3 0h1m-25 1h1m5 0h1m2 0h1m2 0h2m1 0h2m1 0h1m1 0h2m1 0h1m-24 1h7m1 0h2m1 0h2m1 0h6m3 0h2"/></svg></a>
     </div>
   </section>
 
