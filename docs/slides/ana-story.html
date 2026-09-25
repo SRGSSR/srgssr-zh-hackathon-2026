@@ -103,6 +103,56 @@ mark{background:none;color:inherit}
 .closing{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.8vw,32px);letter-spacing:-.01em;text-wrap:balance;max-width:34ch}
 .closing em{font-style:normal;color:var(--swiss)}
 
+/* Q&A slides */
+.slide.tech{align-content:start;gap:22px}
+.tech h2{font-size:clamp(26px,3.4vw,40px)}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tabs .lbl{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+.tabs button{font-family:var(--mono);font-size:12px;color:var(--muted);background:none;border:1px solid var(--rule);border-radius:4px;padding:5px 10px;cursor:pointer}
+.tabs button:hover{color:var(--ink);border-color:var(--muted)}
+.tabs button[aria-current="true"]{color:var(--slide);background:var(--ink);border-color:var(--ink)}
+.tabs button:focus-visible{outline:2px solid var(--swiss);outline-offset:2px}
+code{font-family:var(--mono);font-size:.88em;background:var(--ground);border-radius:3px;padding:1px 4px}
+.note{font-size:14px;color:var(--muted);max-width:none}
+.t-two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,40px);align-items:start}
+.t-three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.t-two,.t-three{grid-template-columns:1fr}}
+.t-stack{display:grid;gap:14px}
+.t-box{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:18px 20px}
+.t-box h3{font-family:var(--display);font-weight:700;font-size:18px;margin:0 0 8px}
+.t-box ul,.plain,.findings{margin:0;padding-left:18px;display:grid;gap:6px;font-size:15px}
+.plain{gap:12px;font-size:16px}
+.findings{gap:12px;font-size:16.5px;max-width:92ch}
+.flow{display:grid;gap:6px}
+.node{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:12px 16px;display:grid;gap:2px}
+.node b{font-weight:600}
+.node span{font-size:14px;color:var(--muted)}
+.node.gw{border-color:var(--swiss);background:var(--swiss-soft)}
+.node ul{margin:6px 0 0;padding-left:18px;font-size:14px;display:grid;gap:3px}
+.arrow{font-family:var(--mono);font-size:12px;color:var(--muted);padding-left:16px}
+.t-scroll{overflow-x:auto;display:grid;gap:10px}
+.matrix{border-collapse:collapse;width:100%;font-size:14px;background:var(--paper);border:1px solid var(--rule)}
+.matrix caption{text-align:left;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-bottom:8px}
+.matrix th,.matrix td{border-bottom:1px solid var(--rule);padding:8px 10px;text-align:left;vertical-align:top}
+.matrix thead th{font-weight:600;font-size:13.5px}
+.matrix small{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:400}
+.matrix tbody th{font-weight:600}
+.matrix i{font-style:normal;font-size:12.5px;font-weight:600;border-radius:10px;padding:2px 8px;white-space:nowrap}
+.matrix .ok{background:var(--swiss-soft);color:var(--swiss)}
+.matrix .no{background:var(--red-soft);color:var(--red)}
+.matrix .ask{background:var(--ground);color:var(--ink);border:1px dashed var(--muted)}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:c}
+.checks li{counter-increment:c;display:grid;grid-template-columns:34px 1fr;gap:4px 14px;background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:14px 16px}
+.checks li::before{content:counter(c);grid-row:span 2;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--slide);font-family:var(--mono);font-size:13px;display:grid;place-items:center}
+.checks .when{font-family:var(--display);font-weight:700;font-size:18px}
+.checks p{font-size:15px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:16px 18px;display:grid;gap:4px;align-content:start}
+.stat b{font-family:var(--display);font-weight:800;font-size:clamp(34px,4vw,48px);line-height:1;font-variant-numeric:tabular-nums}
+.stat:first-child b{color:var(--swiss)}
+.stat span{font-size:14px;color:var(--muted)}
+
 /* Deck mode on wide screens */
 .nav{display:none}
 @media (min-width:900px){
@@ -276,13 +326,13 @@ mark{background:none;color:inherit}
         </svg>
           </figure>
           <ul class="doubts">
-            <li>Where does my letter go?</li>
+            <li>Where does my data go?</li>
             <li>Which country? Whose computer?</li>
             <li>And if that service is down, where does it go next?</li>
           </ul>
         </div>
       </div>
-      <div class="route" role="img" aria-label="Diagram: Ana's letter goes to Apertus in Switzerland. If that host fails, an automatic fallback can send it to another model in Singapore.">
+      <div class="route" role="img" aria-label="Diagram: Ana's data goes to Apertus in Switzerland. If that host fails, an automatic fallback can send it to another model in Singapore.">
         <svg viewBox="0 0 440 300" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker>
@@ -291,7 +341,7 @@ mark{background:none;color:inherit}
           <!-- Ana's letter -->
           <rect x="16" y="112" width="96" height="76" rx="4" fill="var(--slide)" stroke="var(--rule)"/>
           <text x="64" y="146" text-anchor="middle" font-size="14" font-weight="600">Ana’s</text>
-          <text x="64" y="164" text-anchor="middle" font-size="14" font-weight="600">letter</text>
+          <text x="64" y="164" text-anchor="middle" font-size="14" font-weight="600">data</text>
           <!-- to CH -->
           <path d="M112 136 C 170 110, 200 72, 262 66" fill="none" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#ar)"/>
           <rect x="264" y="36" width="160" height="62" rx="4" fill="var(--swiss-soft)" stroke="var(--swiss)"/>
@@ -315,17 +365,17 @@ mark{background:none;color:inherit}
   <!-- 4 -->
   <section class="slide" aria-label="Slide 4: A service Ana can trust">
     <div class="eyebrow">What Ana wants</div>
-    <h2>A service she can trust with her letter.</h2>
+    <h2>A service she can trust with her data.</h2>
     <div class="wants">
       <div class="want">
         <div class="k">Stays home</div>
         <h3><span class="cross" aria-hidden="true"></span>Switzerland only</h3>
-        <p>The social services decide the rule. Her letter never leaves the country, not even when a provider fails.</p>
+        <p>The social services decide the rule. Her data never leaves Switzerland, not even when a provider fails.</p>
       </div>
       <div class="want">
         <div class="k">Waits instead</div>
         <h3>No Swiss service? It waits.</h3>
-        <p>Her letter stays in Switzerland until a Swiss service is back, then completes by itself.</p>
+        <p>Her request waits in Switzerland until a Swiss service is back, then completes by itself.</p>
       </div>
       <div class="want">
         <div class="k">Shows its work</div>
@@ -336,6 +386,144 @@ mark{background:none;color:inherit}
     <p class="closing">In her language, with Apertus. And with a promise about her data that <em>holds on every retry and every fallback</em>.</p>
   </section>
 
+  <!-- Q&A 1 -->
+  <section class="slide tech" data-tab="How it works" aria-label="Q&A: How it works">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>How it works</h2>
+    <div class="t-two">
+      <div class="flow">
+        <div class="node"><b>Resident’s browser</b><span>pastes the text of the letter; German, French, Italian, Romansh, Swiss German or English, in simple words</span></div>
+        <div class="arrow" aria-hidden="true">↓ request</div>
+        <div class="node"><b>Citizen app</b><span>FastAPI, Jinja · thin client, no routing logic</span></div>
+        <div class="arrow" aria-hidden="true">↓ office API key · <code>/v1/deferred/*</code></div>
+        <div class="node gw"><b>Gateway · LiteLLM v1.98.0</b><span>the same image as the Public AI Utility</span>
+          <ul>
+            <li><code>custom_auth.py</code> key → office rule</li>
+            <li><code>policy.py</code> the three checks</li>
+            <li><code>deferred.py</code> queue, journey, consent</li>
+          </ul>
+        </div>
+      </div>
+      <div class="t-scroll">
+        <table class="matrix">
+          <caption>Where each office’s rule lets the request go</caption>
+          <thead><tr><th scope="col">Endpoint</th><th scope="col">Social services<small>CH only</small></th><th scope="col">School<small>CH, then EU</small></th><th scope="col">Other offices<small>CH, EU; US with consent</small></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Public AI → Apertus 1.5<small>CH</small></th><td><i class="ok">yes</i></td><td><i class="ok">yes</i></td><td><i class="ok">yes</i></td></tr>
+            <tr><th scope="row">Swiss hosts 1, 2<small>CH</small></th><td><i class="ok">yes</i></td><td><i class="ok">yes</i></td><td><i class="ok">yes</i></td></tr>
+            <tr><th scope="row">EU host<small>EU</small></th><td><i class="no">never</i></td><td><i class="ok">if CH is down</i></td><td><i class="ok">if CH is down</i></td></tr>
+            <tr><th scope="row">US host<small>US</small></th><td><i class="no">never</i></td><td><i class="no">never</i></td><td><i class="ask">with consent</i></td></tr>
+            <tr><th scope="row">Host without metadata<small>unknown</small></th><td><i class="no">never</i></td><td><i class="no">never</i></td><td><i class="no">never</i></td></tr>
+            <tr><th scope="row">SEA-LION fallback<small>SG · other model</small></th><td><i class="no">never</i></td><td><i class="no">never</i></td><td><i class="no">never</i></td></tr>
+          </tbody>
+        </table>
+        <p class="note">The rule is in <code>gateway/communes.yaml</code>, bound to the office’s key. Nothing in a request can change it. If Public AI times out (we saw 504s under load), the gateway moves on to a Swiss host within the rule.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q&A 2 -->
+  <section class="slide tech" data-tab="Three checks" aria-label="Q&A: The three checks">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>The rule is checked three times</h2>
+    <div class="t-two">
+      <ol class="checks">
+        <li><span class="when">Once per request</span><p>Rejects anything that tries to steer routing: client <code>fallbacks</code>, <code>tags</code> in body, metadata or header, <code>api_base</code>, a deployment id as <code>model</code>, spoofed metadata, a key without a rule.</p></li>
+        <li><span class="when">Before every attempt</span><p>First try, retries, fallbacks. Keeps only deployments whose jurisdiction the rule allows, in the rule’s order. Missing metadata is excluded (fail closed).</p></li>
+        <li><span class="when">Right before each send</span><p>Re-checks the deployment and the exact URL about to be used.</p></li>
+      </ol>
+      <div class="t-stack">
+        <div class="t-box">
+          <h3>The queue lives in the gateway</h3>
+          <ul>
+            <li>No allowed service up: the request waits, in Switzerland.</li>
+            <li>A job is visible only to the key that submitted it.</li>
+            <li>Its text is deleted as soon as the job ends.</li>
+            <li>A waiting job survives a gateway restart.</li>
+          </ul>
+        </div>
+        <div class="t-box">
+          <h3>Consent is not a request parameter</h3>
+          <ul>
+            <li>Only a rule with <code>consent_can_add</code> accepts it. Social services refuse it.</li>
+            <li>Given in a dialog, recorded, valid for one request.</li>
+            <li>Swiss and EU services are still tried first.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q&A 3 -->
+  <section class="slide tech" data-tab="Proof" aria-label="Q&A: What we can prove">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>What we can prove</h2>
+    <div class="stats">
+      <div class="stat"><b>0</b><span>requests reached an endpoint a rule excludes, in any test</span></div>
+      <div class="stat"><b>48</b><span>pytest checks, plus a gateway restart and recreated endpoints</span></div>
+      <div class="stat"><b>17</b><span>override attempts (params, tags, headers, key without rule), all rejected</span></div>
+      <div class="stat"><b>10/10</b><span>checks of our upstream patch on the Utility’s own production config</span></div>
+    </div>
+    <div class="t-two">
+      <ul class="plain">
+        <li><b>Ground truth:</b> each endpoint counts what it receives. The tests assert on those counters, not on the gateway’s logs.</li>
+        <li><b>Covered:</b> primary down, all allowed down, the SEA-LION fallback, a deployment without metadata, a timeout after the provider got the data, recovery, restart.</li>
+      </ul>
+      <ul class="plain">
+        <li><b>Run it:</b> <code>make test</code> starts the stack and runs the whole bench. Online demo: <code>343bd0c9.sslip.io</code>, example letters only.</li>
+        <li><b>Upstream:</b> <code>upstream/</code> adds jurisdiction metadata, the same policy (opt-in per key or team) and attribution headers to chat.publicai.co.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Q&A 4 -->
+  <section class="slide tech" data-tab="Findings" aria-label="Q&A: What we found">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>What we found in the Utility’s setup</h2>
+    <ul class="findings">
+      <li><b>Fallbacks cross borders and model families.</b> Every Apertus group falls back to SEA-LION (Singapore) and Bielik (Poland). We ran their config against test hosts: with both Apertus 70B hosts down, a normal request was answered by the Singapore one.</li>
+      <li><b>Not every Apertus host has a stated country.</b> Apertus 70B runs at Infomaniak (CH) and Featherless (country not stated); the 8B models run only at Featherless.</li>
+      <li><b>The Public AI API doesn’t say who served a request.</b> It routes to “inference partners worldwide”, and no response header names the partner. Issues #33 and #35 on their repo ask for exactly this.</li>
+      <li><b>Tag routing can’t enforce “Switzerland only”.</b> Retries and fallbacks widen the tag set; <code>litellm_metadata.tags</code> in the body sent 10 of 10 requests to the US deployment; a deployment id as <code>model</code> skips the filter (tested on v1.92.0).</li>
+      <li><b>Jurisdiction metadata can’t reach LiteLLM today.</b> The Helm template keeps only two cost fields of <code>model_info</code> and drops the rest. Our <code>upstream/</code> patch fixes that.</li>
+      <li><b>TLS verification is off</b> (<code>ssl_verify: false</code>), so nothing binds a provider name to the real server. We saw why it matters: a stale DNS cache sent one demo request to another container while every log named the right one. Only the counters caught it.</li>
+    </ul>
+    <p class="note">Details and evidence in <code>docs/findings.md</code>.</p>
+  </section>
+
+  <!-- Q&A 5 -->
+  <section class="slide tech" data-tab="Limits and next" aria-label="Q&A: Limits and next steps">
+    <div class="tabs" role="navigation" aria-label="Q&A topics"></div>
+    <h2>What we don’t claim, and what’s next</h2>
+    <div class="t-three">
+      <div class="t-box">
+        <h3>We can’t prove</h3>
+        <ul>
+          <li>Where a provider physically computes. That needs contracts, audits or attestation.</li>
+          <li>What the Public AI API does internally with its inference partners.</li>
+          <li>That consent is legally enough. That is for each office’s data protection officer.</li>
+        </ul>
+      </div>
+      <div class="t-box">
+        <h3>Out of scope</h3>
+        <ul>
+          <li>A compromised gateway host or a malicious operator.</li>
+          <li>The shared online demo runs on AWS in Frankfurt (EU). A real gateway runs in the commune’s environment in Switzerland.</li>
+          <li>Network egress controls. In production they back the policy.</li>
+          <li>The gateway and its logs are in the data path; events carry routing data only.</li>
+        </ul>
+      </div>
+      <div class="t-box">
+        <h3>Next</h3>
+        <ul>
+          <li>Upstream the metadata and the policy to the Utility.</li>
+          <li>Turn TLS verification on; add evidence per provider.</li>
+          <li>Move the queue from one SQLite replica to a shared store for autoscaling.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">Model-agnostic: the layer works with any model. Apertus makes the whole chain open.</p>
+  </section>
 </div>
 
 <nav class="nav" aria-label="Slide navigation">
@@ -377,6 +565,19 @@ mark{background:none;color:inherit}
   document.addEventListener('keydown',function(e){
     if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();fwd();}
     if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();back();}
+  });
+  var techs=slides.filter(function(s){return s.classList.contains('tech');});
+  var first=slides.indexOf(techs[0]);
+  [].forEach.call(document.querySelectorAll('.tabs'),function(bar){
+    var own=slides.indexOf(bar.closest('.slide'));
+    var l=document.createElement('span'); l.className='lbl'; l.textContent='Q&A'; bar.appendChild(l);
+    techs.forEach(function(t,k){
+      var b=document.createElement('button'); b.type='button';
+      b.textContent=t.getAttribute('data-tab');
+      if(first+k===own) b.setAttribute('aria-current','true');
+      b.addEventListener('click',function(){show(first+k);});
+      bar.appendChild(b);
+    });
   });
   show(0);
 })();

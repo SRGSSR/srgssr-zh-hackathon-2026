@@ -1,34 +1,44 @@
 # Phase 0 findings: LiteLLM routing in the Public AI Utility
 
-Status: 2026-09-24, about 20:00, corrected about 21:15 (version, see section 1). The research was cut short on purpose. Results come from experiments run in the exact image the Utility uses, plus reading its source. They have **not** been re-checked by independent verifiers yet. Evidence lives in `research/phase0-lab/`: `./run.sh <script>` runs a script inside `ghcr.io/forpublicai/litellm-database:v1.92.0` against mock endpoints that count every request they receive.
+Status: 2026-09-24, about 20:00, corrected about 21:15 (version, see section 1); reordered 2026-09-25 by relevance. The research was cut short on purpose. Results come from experiments run in the exact image the Utility uses, plus reading its source. They have **not** been re-checked by independent verifiers yet. Evidence lives in `research/phase0-lab/`: `./run.sh <script>` runs a script inside `ghcr.io/forpublicai/litellm-database:v1.92.0` against mock endpoints that count every request they receive.
 
 ## TL;DR
 
-1. **Version (corrected).** Prod and staging run `ghcr.io/forpublicai/litellm-database:v1.98.0`: `argo/environments/{prod,staging}/platform-values.yaml` override the chart default `v1.92.0` in `values.yaml`. Phase 0 first read only the chart default. Most experiments below ran on v1.92.0; the key ones were re-run on v1.98.0 and are marked. At v1.92.0 the fork is upstream (`b3086ccd`) plus a spend-logs fix and a CI workflow.
-2. **The Utility's own config shows the problem.** `swiss-ai/apertus-v1.5-70b` is served by Infomaniak (CH) and Featherless (country not stated). Its fallbacks are `aisingapore/Qwen-SEA-LION-v4-32B-IT` (api.sea-lion.ai, SG) and `speakleash/Bielik-11B-v3.0-Instruct` (llmlab.plgrid.pl, PL). Every Apertus group can reach non-CH hosts and other model families through fallbacks.
-3. **Tag routing cannot enforce "CH-only".** It is unsafe in five ways:
-   - The router merges the tags of each deployment it tries into the request's tags, so retries and fallbacks use a wider tag set.
-   - `litellm_metadata.tags` in the request body overrides the tags bound to the key.
+The findings are ordered by what matters for the promise "citizen data goes only where the office's rule allows". Implementation details come next, and side notes that do not change where data goes are at the end.
+
+**Where the data can go today**
+
+1. **The Utility's own config shows the problem.** `swiss-ai/apertus-v1.5-70b` is served by Infomaniak (CH) and Featherless (country not stated); the 8B models are served only by Featherless. Its fallbacks are `aisingapore/Qwen-SEA-LION-v4-32B-IT` (api.sea-lion.ai, SG) and `speakleash/Bielik-11B-v3.0-Instruct` (llmlab.plgrid.pl, PL). Every Apertus group can reach non-CH hosts and other model families through fallbacks. Running the rendered prod config against mocks (on v1.92.0, the chart default), with both hosts of `apertus-v1.5-70b` down (Infomaniak and Featherless), a normal request was answered by the SEA-LION mock (`utility/proxy/run-current/results.txt`, T3). On v1.98.0, with only Infomaniak down, a request without a policy is still served (`upstream/test`).
+2. **The Public AI API does not say who served a request.** It routes to "inference partners worldwide", and no response header names the partner. Its issues #33 and #35 ask for exactly this (section 8).
+3. **Tag routing cannot enforce "CH-only".** It is unsafe in five ways (section 3):
+   - The router merges the tags of each deployment it tries into the request's tags, so retries and fallbacks use a wider tag set. Still present in v1.98.0.
+   - `litellm_metadata.tags` in the request body overrides the tags bound to the key (10 of 10 requests routed to the US deployment, on v1.92.0).
    - `model=<deployment id>` skips the tag filter.
    - The sync `completion()` path and `usage-based-routing` v1 do not filter by tags at all.
    - Cooldown runs before the tag filter, so the error message is misleading.
-4. **Security issue in v1.92.0, fixed by v1.98.0 (re-tested).** A client-supplied `fallbacks=[{"model": ..., "api_base": <attacker host>}]` makes the proxy send the citizen's prompt **and the deployment's upstream API key** to an arbitrary host. The injected `api_base` then **persists**: later requests from *other* keys were partly routed to it (11 of 20). Root-level `api_base` is rejected; the nested one inside `fallbacks` is not. **On v1.98.0 the nested `api_base` is rejected too (401) and nothing persists**, so the Utility's production is not exposed. Anyone still on v1.92.0 is. Before any public write-up, check whether an advisory already exists for the fix.
-5. **The right hook.** `CustomLogger.async_filter_deployments` runs before **every** attempt: first try, each retry, each fallback group. It sees the proxy's key metadata. Deployments it drops receive **zero** requests. If it leaves nothing, the router raises `RouterRateLimitError: No deployments available`, which becomes an error response we can queue on.
-6. **Final safety check.** `async_pre_call_deployment_hook` runs once per attempt, right before the send, with the final `api_base`. That is where we check the endpoint URL against the approved list, which catches injected `api_base`s.
-7. **Callbacks.** In the Router SDK, per attempt: `async_filter_deployments` → `async_pre_call_check` → `async_pre_call_deployment_hook` → `log_pre_api_call` (sync only; the async version is never called) → send → `async_log_success_event` / `async_log_failure_event`. Custom `model_info` keys (`jurisdiction`, `country`, `provider`) arrive in callback kwargs unchanged.
-8. **Three kinds of failure are distinguishable:**
-   - Connection refused: the mock received 0 requests (`APIConnectionError`).
-   - HTTP 5xx: the provider received the request and answered with an error.
-   - Timeout: `litellm.Timeout` (408) after `log_pre_api_call`, and the mock counted the receipt. This is "data received, no response".
-9. **Response headers** (the final deployment only): `x-litellm-model-id`, `x-litellm-model-api-base`, `x-litellm-model-group`, `x-litellm-attempted-retries`, `x-litellm-attempted-fallbacks`, `x-litellm-call-id`, `x-litellm-version`, cost/duration headers, and `llm_provider-*` pass-through. The per-attempt history is **not** in the headers, so the timeline has to come from our callback.
-10. **Binding the policy to the key works without a DB.** `general_settings.custom_auth` (the same mechanism as the Utility's `custom_auth.py`) can return a `UserAPIKeyAuth` carrying metadata and team metadata. Every router hook sees it as `metadata.user_api_key_metadata` / `user_api_key_team_metadata`.
+4. **Jurisdiction metadata cannot reach LiteLLM today.** The Utility's ConfigMap template renders only the two cost keys of `model_info` and drops everything else, including `id`. LiteLLM itself would pass custom keys to callbacks. The template change is in `upstream/` (section 1).
+5. **Names are not network destinations.** The Utility sets `ssl_verify: false`, so nothing binds a provider name to the real server. In our own demo a stale DNS cache sent one letter to another container while every log named the right one; only the endpoints' counters caught it (section 11).
+6. **Security issue in v1.92.0, fixed by v1.98.0 (re-tested).** A client-supplied `fallbacks=[{"model": ..., "api_base": <attacker host>}]` makes the proxy send the citizen's prompt **and the deployment's upstream API key** to an arbitrary host. The injected `api_base` then **persists**: later requests from *other* keys were partly routed to it (11 of 20). Root-level `api_base` is rejected; the nested one inside `fallbacks` is not. **On v1.98.0 the nested `api_base` is rejected too (401) and nothing persists**, so the Utility's production is not exposed. Anyone still on v1.92.0 is. Before any public write-up, check whether an advisory already exists for the fix.
 
-11. **Found while building (v1.98.0 proxy).**
-    - `async_log_failure_event` fires only **once per proxy request**, not once per retry, because all attempts share one `litellm_call_id`. Per-attempt outcomes must be rebuilt from `metadata["previous_models"]`, the router's retry log (`gateway/policy.py`).
-    - v1.98.0 still has no deployment `order`, so a deterministic "primary, then second approved" order has to come from the filter hook.
-    - The Utility's ConfigMap template renders only the two cost keys of `model_info` and drops everything else, including `id`. Jurisdiction metadata needs the template change in `upstream/`.
-    - The rendered costs such as `1e-07` are read as strings by PyYAML, 15 values in prod. This is pre-existing.
-    - Tag pollution still leaks traffic to the wrong deployment on v1.98.0 (R1a/R1b). Per-group `model_info.enable_tag_filtering` is honored on v1.98.0 (R4 fixed).
+**How we enforce the rule**
+
+7. **The right hook.** `CustomLogger.async_filter_deployments` runs before **every** attempt: first try, each retry, each fallback group. It sees the proxy's key metadata. Deployments it drops receive **zero** requests. If it leaves nothing, the router raises `RouterRateLimitError: No deployments available`, which becomes an error response we can queue on.
+8. **Final safety check.** `async_pre_call_deployment_hook` runs once per attempt, right before the send, with the final `api_base`. That is where we check the endpoint URL against the approved list, which catches injected `api_base`s.
+9. **Binding the policy to the key works without a DB.** `general_settings.custom_auth` (the same mechanism as the Utility's `custom_auth.py`) can return a `UserAPIKeyAuth` carrying metadata and team metadata. Every router hook sees it as `metadata.user_api_key_metadata` / `user_api_key_team_metadata`.
+10. **Callbacks.** In the Router SDK, per attempt: `async_filter_deployments` → `async_pre_call_check` → `async_pre_call_deployment_hook` → `log_pre_api_call` (sync only; the async version is never called) → send → `async_log_success_event` / `async_log_failure_event`. Custom `model_info` keys (`jurisdiction`, `country`, `provider`) arrive in callback kwargs unchanged.
+    - On the v1.98.0 proxy, `async_log_failure_event` fires only **once per proxy request**, not once per retry, because all attempts share one `litellm_call_id`. Per-attempt outcomes must be rebuilt from `metadata["previous_models"]`, the router's retry log (`gateway/policy.py`).
+    - v1.98.0 has no deployment `order`, so a deterministic "primary, then second approved" order has to come from the filter hook.
+11. **Three kinds of failure are distinguishable:**
+    - Connection refused: the mock received 0 requests (`APIConnectionError`).
+    - HTTP 5xx: the provider received the request and answered with an error.
+    - Timeout: `litellm.Timeout` (408) after `log_pre_api_call`, and the mock counted the receipt. This is "data received, no response".
+12. **Response headers** (the final deployment only): `x-litellm-model-id`, `x-litellm-model-api-base`, `x-litellm-model-group`, `x-litellm-attempted-retries`, `x-litellm-attempted-fallbacks`, `x-litellm-call-id`, `x-litellm-version`, cost/duration headers, and `llm_provider-*` pass-through. The per-attempt history is **not** in the headers, so the timeline has to come from our callback.
+
+**Side notes** (they do not change where data goes)
+
+- **Version.** Prod and staging run `ghcr.io/forpublicai/litellm-database:v1.98.0`; the chart default is `v1.92.0`. Most experiments ran on v1.92.0, and the key ones were re-run on v1.98.0 and are marked (section 1).
+- **Cost values.** 15 rendered costs such as `1e-07` are read as strings by PyYAML. This is pre-existing.
+- **Per-group tag filtering.** `model_info.enable_tag_filtering` is honored on v1.98.0 (R4 fixed).
 
 ## 1. Version and config assembly
 - `charts/platform/charts/litellm/values.yaml` sets image `ghcr.io/forpublicai/litellm-database`, tag `v1.92.0`, but `argo/environments/prod/platform-values.yaml` and `.../staging/...` set `tag: v1.98.0`, and that is what Argo deploys (confirmed by rendering with helm: `upstream/test/render.sh`). `Chart.yaml` has `appVersion: "main-stable"`, which is only a label.
@@ -101,7 +111,7 @@ Instrumented sequence (`hooks/exp1_router_sequence.py`, `callbacks/exp_router.py
   - With the Utility's defaults (`allowed_fails` 3) a single 503 does not trigger cooldown. Our demo gateway disables cooldowns instead (`disable_cooldowns: true`); the policy hook skips deployments that already failed within the same request, and a restored endpoint is used again on the next request.
 
 ## 6. Response headers
-Listed in TL;DR 9 (`proxy/exp1_headers.py`, `out_exp1.txt`). After a fallback they describe the final deployment (e.g. `x-litellm-model-id: sg-1`, `attempted-fallbacks: 1`). `async_post_call_response_headers_hook` can add our own headers, e.g. `x-policy-id`.
+Listed in TL;DR 12 (`proxy/exp1_headers.py`, `out_exp1.txt`). After a fallback they describe the final deployment (e.g. `x-litellm-model-id: sg-1`, `attempted-fallbacks: 1`). `async_post_call_response_headers_hook` can add our own headers, e.g. `x-policy-id`.
 
 ## 7. Binding the policy to the key
 `proxy/custom_auth_commune.py` maps a static key to `metadata={policy_id: "CH-only", allowed_jurisdictions: ["CH"]}`, a team and a `models` allowlist. It needs no DB. The data appears server-side in `user_api_key_metadata`, and every hook sees it (`proxy/out_exp2.txt`). The client cannot overwrite those keys, because the proxy writes them after parsing the body.
