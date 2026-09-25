@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ana's Letter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#E9ECF1;
+  --slide:#F7F8FA;
+  --paper:#FFFFFF;
+  --ink:#18202D;
+  --muted:#5A6474;
+  --rule:#D3D8E0;
+  --red:#C8281C;
+  --red-soft:#F7DEDA;
+  --swiss:#1D5E4A;
+  --swiss-soft:#DCEBE5;
+  --shadow:0 1px 2px rgba(24,32,45,.06),0 8px 28px rgba(24,32,45,.10);
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#0E1218;--slide:#161B24;--paper:#1F2632;--ink:#E8ECF2;--muted:#9AA4B4;
+    --rule:#2E3644;--red:#FF6B5E;--red-soft:#3A1D1B;--swiss:#6FCBA9;--swiss-soft:#173129;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#0E1218;--slide:#161B24;--paper:#1F2632;--ink:#E8ECF2;--muted:#9AA4B4;
+  --rule:#2E3644;--red:#FF6B5E;--red-soft:#3A1D1B;--swiss:#6FCBA9;--swiss-soft:#173129;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 28px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;padding-inline:16px;padding-block:24px}
+.deck{max-width:1120px;margin:0 auto;display:grid;gap:24px}
+.slide{background:var(--slide);border:1px solid var(--rule);border-radius:6px;padding:clamp(24px,5vw,56px);display:grid;gap:28px;align-content:center;position:relative}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;gap:12px;align-items:center}
+.eyebrow b{color:var(--ink);font-weight:500}
+h1,h2{font-family:var(--display);font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(40px,7vw,84px)}
+h2{font-size:clamp(28px,4.4vw,52px)}
+p{margin:0;max-width:62ch}
+.lede{font-size:clamp(17px,1.8vw,21px);color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,56px);align-items:center}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+
+/* Slide 1: Ana */
+.portrait{margin:0;justify-self:center;width:min(100%,380px)}
+.portrait svg{display:block;width:100%;height:auto}
+.portrait.sm{width:120px;justify-self:start}
+.doubter{display:grid;grid-template-columns:120px 1fr;gap:24px;align-items:center}
+@media (max-width:480px){.doubter{grid-template-columns:1fr}}
+
+/* Slide 2 & 3: the letter */
+.letter{background:var(--paper);color:var(--ink);border:1px solid var(--rule);box-shadow:var(--shadow);padding:28px 32px;font-size:16px;line-height:1.5;border-radius:2px;position:relative;max-width:100%}
+.letter .head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.letter .sender{font-weight:600}
+.letter .meta{font-family:var(--mono);font-size:14px;color:var(--muted)}
+.letter .subj{font-weight:600;margin:14px 0 10px}
+.letter ol{margin:8px 0 10px;padding-left:22px;display:grid;gap:6px}
+.letter p{margin:0 0 8px}
+.stamp{align-self:start;transform:rotate(-8deg);border:2px solid var(--red);color:var(--red);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:4px 8px;border-radius:3px;text-transform:uppercase;opacity:.85}
+mark{background:none;color:inherit}
+.show-marks mark{background:var(--red-soft);box-shadow:inset 0 -2px 0 var(--red);padding:0 2px;border-radius:2px}
+.show-marks mark[data-n]::after{content:attr(data-n);font-family:var(--mono);font-size:12px;font-weight:500;color:var(--paper);background:var(--red);border-radius:9px;padding:1px 6px;margin-left:4px;vertical-align:2px}
+.de-note{font-size:14px;color:var(--muted);font-style:italic}
+.quote{font-family:var(--display);font-weight:700;font-size:clamp(22px,2.6vw,30px);line-height:1.2;letter-spacing:-.01em;max-width:24ch;text-wrap:balance}
+.quote small{display:block;font-family:var(--body);font-weight:400;font-size:15px;color:var(--muted);margin-top:8px;letter-spacing:0}
+
+.list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.list li{display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:start;font-size:19px;line-height:1.3}
+.list .n{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--paper);background:var(--red);border-radius:11px;height:22px;display:grid;place-items:center;margin-top:1px}
+.list b{display:block;font-weight:600}
+.list span{color:var(--muted);font-size:14.5px}
+
+/* Slide 4: doubt */
+.route{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:24px;box-shadow:var(--shadow);overflow-x:auto}
+.route svg{display:block;width:100%;min-width:420px;height:auto}
+.route text{font-family:var(--body);fill:var(--ink)}
+.route .sm{font-family:var(--mono);font-size:11px;fill:var(--muted);letter-spacing:.04em}
+.doubts{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.doubts li{font-family:var(--display);font-weight:700;font-size:clamp(19px,2vw,24px);line-height:1.25;padding-left:22px;position:relative;text-wrap:balance}
+.doubts li::before{content:"?";position:absolute;left:0;top:0;color:var(--red)}
+
+/* Slide 5: trust */
+.wants{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:760px){.wants{grid-template-columns:1fr}}
+.want{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px;display:grid;gap:8px;align-content:start}
+.want .k{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--swiss)}
+.want h3{font-family:var(--display);font-weight:700;font-size:21px;margin:0;line-height:1.2}
+.want p{color:var(--muted);font-size:15px}
+.cross{display:inline-block;width:22px;height:22px;background:var(--red);border-radius:3px;position:relative;vertical-align:-3px;margin-right:10px}
+.cross::before,.cross::after{content:"";position:absolute;background:#fff;left:50%;top:50%;transform:translate(-50%,-50%)}
+.cross::before{width:13px;height:4px}.cross::after{width:4px;height:13px}
+.closing{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.8vw,32px);letter-spacing:-.01em;text-wrap:balance;max-width:34ch}
+.closing em{font-style:normal;color:var(--swiss)}
+
+/* Deck mode on wide screens */
+.nav{display:none}
+@media (min-width:900px){
+  body{height:100%;min-height:100vh;display:grid;align-content:center}
+  .deck.is-deck .slide{display:none;min-height:min(630px,calc(100vh - 110px))}
+  .deck.is-deck .slide.active{display:grid}
+  .deck.is-deck + .nav{display:flex}
+}
+.nav{max-width:1120px;margin:16px auto 0;justify-content:space-between;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.nav .btns{display:flex;gap:8px}
+.nav button{font:inherit;color:var(--ink);background:var(--slide);border:1px solid var(--rule);border-radius:4px;padding:8px 14px;cursor:pointer}
+.nav button:hover{border-color:var(--muted)}
+.nav button:focus-visible{outline:2px solid var(--swiss);outline-offset:2px}
+.nav button:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion:no-preference){
+  .slide.active{animation:in .35s ease-out}
+  @keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+
+<div class="deck is-deck" id="deck">
+
+  <!-- 1 -->
+  <section class="slide active" aria-label="Slide 1: Meet Ana">
+    <div class="eyebrow">Meet Ana</div>
+    <div class="two">
+      <h1>This is Ana.</h1>
+      <figure class="portrait">
+        <svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of Ana, a woman with dark curly hair, looking worried, holding an envelope">
+          <circle cx="160" cy="170" r="160" fill="var(--swiss-soft)"/>
+          <clipPath id="pc"><circle cx="160" cy="170" r="160"/></clipPath>
+          <g clip-path="url(#pc)">
+            <!-- hair, back -->
+            <path d="M92 150 C 78 70, 128 38, 164 40 C 212 40, 246 78, 236 152 C 250 190, 244 238, 226 262 L 100 262 C 80 236, 76 190, 92 150 Z" fill="#2B1B14"/>
+            <!-- body -->
+            <path d="M40 360 C 44 290, 96 262, 160 262 C 224 262, 276 290, 280 360 Z" fill="#3E6A8A"/>
+            <path d="M132 262 L160 300 L188 262 Z" fill="#2F5470"/>
+            <!-- neck -->
+            <path d="M140 214 L140 268 C 150 282, 170 282, 180 268 L180 214 Z" fill="#B97F5C"/>
+            <!-- face -->
+            <ellipse cx="160" cy="160" rx="58" ry="70" fill="#CC9270"/>
+            <!-- ears and earrings -->
+            <ellipse cx="102" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <ellipse cx="218" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <circle cx="102" cy="186" r="4" fill="#E2B64B"/>
+            <circle cx="218" cy="186" r="4" fill="#E2B64B"/>
+            <!-- hair, front -->
+            <path d="M98 150 C 96 92, 132 70, 166 72 C 196 74, 222 94, 224 140 C 206 118, 186 104, 160 100 C 140 110, 118 126, 98 150 Z" fill="#2B1B14"/>
+            <circle cx="112" cy="104" r="16" fill="#2B1B14"/>
+            <circle cx="138" cy="84" r="16" fill="#2B1B14"/>
+            <circle cx="170" cy="78" r="17" fill="#2B1B14"/>
+            <circle cx="200" cy="88" r="16" fill="#2B1B14"/>
+            <circle cx="220" cy="112" r="14" fill="#2B1B14"/>
+            <!-- brows, worried: inner ends raised -->
+            <path d="M124 142 Q 138 138 151 127" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M169 127 Q 182 138 196 142" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <!-- eyes -->
+            <ellipse cx="139" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="141" cy="155" r="2" fill="#FFFFFF"/>
+            <ellipse cx="181" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="183" cy="155" r="2" fill="#FFFFFF"/>
+            <!-- sweat drop --><path d="M206 146 Q 200 158 206 162 Q 212 158 206 146 Z" fill="#8EC3E6"/>
+            <!-- nose, cheeks, mouth -->
+            <path d="M160 162 Q 156 180 162 186" stroke="#A86F4F" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="128" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <circle cx="192" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <path d="M146 208 Q 153 202 160 207 Q 167 212 174 206" stroke="#8A4A3A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <!-- hands and envelope -->
+            <g transform="rotate(-6 160 318)">
+              <rect x="96" y="286" width="128" height="80" rx="3" fill="#FFFFFF" stroke="#C9CFD8" stroke-width="2"/>
+              <path d="M96 288 L160 330 L224 288" fill="none" stroke="#C9CFD8" stroke-width="2"/>
+              <rect x="190" y="296" width="22" height="16" fill="#C8281C"/>
+            </g>
+            <ellipse cx="96" cy="318" rx="16" ry="12" fill="#CC9270"/>
+            <ellipse cx="224" cy="312" rx="16" ry="12" fill="#CC9270"/>
+          </g>
+        </svg>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide" aria-label="Slide 2: A letter from the social services">
+    <div class="eyebrow">A letter arrives</div>
+    <div class="two">
+      <div class="letter show-marks" aria-label="Letter from the social services, with sensitive details marked">
+        <div class="head">
+          <div><div class="sender">Gemeinde Musterstadt</div>Soziale Dienste</div>
+          <div style="display:grid;gap:14px;justify-items:end"><div class="meta">21. September 2026</div><div class="stamp">Vertraulich</div></div>
+        </div>
+        <div><mark data-n="1">Frau Ana Exemplo, Musterplatz 7</mark></div>
+        <div class="meta" style="margin-top:6px">Dossier-Nr.: <mark data-n="2">SH-2026-0000</mark> · AHV-Nr.: <mark data-n="2">756.0000.0000.00</mark></div>
+        <p class="subj">Wirtschaftliche Sozialhilfe: Überprüfung Ihres Unterstützungsbudgets</p>
+        <ol>
+          <li><mark data-n="3">Kontoauszüge</mark> sämtlicher Bank- und Postkonten, Juni bis August 2026</li>
+          <li>Mietvertrag und Nebenkostenabrechnung 2025</li>
+          <li>das <mark data-n="4">Arztzeugnis zu Ihrer Arbeitsunfähigkeit</mark>, mit Grad und Dauer</li>
+          <li>Kinderzulagen für <mark data-n="5">Luca (geb. 2015) und Sara (geb. 2019)</mark></li>
+        </ol>
+        <p>Bitte bis spätestens 15. Oktober 2026 einreichen. Sonst kann die <mark data-n="6">Unterstützung gekürzt oder eingestellt</mark> werden.</p>
+      </div>
+      <div style="display:grid;gap:20px">
+        <h2>A letter from the social services. Her whole life is in it.</h2>
+        <p class="quote">“Cosa vogliono da me?”<small>“What do they want from me?”</small></p>
+        <ul class="list">
+          <li><span class="n">1</span><div><b>Name and home address</b></div></li>
+          <li><span class="n">2</span><div><b>Case number and AHV number</b></div></li>
+          <li><span class="n">3</span><div><b>Her bank accounts</b></div></li>
+          <li><span class="n">4</span><div><b>Her health</b></div></li>
+          <li><span class="n">5</span><div><b>Her children</b></div></li>
+          <li><span class="n">6</span><div><b>That she depends on social assistance</b></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide" aria-label="Slide 3: Ana does not trust the AI">
+    <div class="eyebrow">“I could ask an AI…”</div>
+    <div class="two">
+      <div style="display:grid;gap:22px">
+        <h2>An AI could explain it. But she doesn’t trust it with this.</h2>
+        <div class="doubter">
+          <figure class="portrait sm">
+            <svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="160" cy="170" r="160" fill="var(--swiss-soft)"/>
+          <clipPath id="pc2"><circle cx="160" cy="170" r="160"/></clipPath>
+          <g clip-path="url(#pc2)">
+            <!-- hair, back -->
+            <path d="M92 150 C 78 70, 128 38, 164 40 C 212 40, 246 78, 236 152 C 250 190, 244 238, 226 262 L 100 262 C 80 236, 76 190, 92 150 Z" fill="#2B1B14"/>
+            <!-- body -->
+            <path d="M40 360 C 44 290, 96 262, 160 262 C 224 262, 276 290, 280 360 Z" fill="#3E6A8A"/>
+            <path d="M132 262 L160 300 L188 262 Z" fill="#2F5470"/>
+            <!-- neck -->
+            <path d="M140 214 L140 268 C 150 282, 170 282, 180 268 L180 214 Z" fill="#B97F5C"/>
+            <!-- face -->
+            <ellipse cx="160" cy="160" rx="58" ry="70" fill="#CC9270"/>
+            <!-- ears and earrings -->
+            <ellipse cx="102" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <ellipse cx="218" cy="166" rx="9" ry="14" fill="#BD8462"/>
+            <circle cx="102" cy="186" r="4" fill="#E2B64B"/>
+            <circle cx="218" cy="186" r="4" fill="#E2B64B"/>
+            <!-- hair, front -->
+            <path d="M98 150 C 96 92, 132 70, 166 72 C 196 74, 222 94, 224 140 C 206 118, 186 104, 160 100 C 140 110, 118 126, 98 150 Z" fill="#2B1B14"/>
+            <circle cx="112" cy="104" r="16" fill="#2B1B14"/>
+            <circle cx="138" cy="84" r="16" fill="#2B1B14"/>
+            <circle cx="170" cy="78" r="17" fill="#2B1B14"/>
+            <circle cx="200" cy="88" r="16" fill="#2B1B14"/>
+            <circle cx="220" cy="112" r="14" fill="#2B1B14"/>
+            <!-- brows, worried: inner ends raised -->
+            <path d="M124 142 Q 138 138 151 127" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <path d="M169 127 Q 182 138 196 142" stroke="#2B1B14" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <!-- eyes -->
+            <ellipse cx="139" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="141" cy="155" r="2" fill="#FFFFFF"/>
+            <ellipse cx="181" cy="158" rx="6" ry="8" fill="#2B1B14"/><circle cx="183" cy="155" r="2" fill="#FFFFFF"/>
+            <!-- sweat drop --><path d="M206 146 Q 200 158 206 162 Q 212 158 206 146 Z" fill="#8EC3E6"/>
+            <!-- nose, cheeks, mouth -->
+            <path d="M160 162 Q 156 180 162 186" stroke="#A86F4F" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="128" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <circle cx="192" cy="182" r="9" fill="#D98E7A" opacity=".5"/>
+            <path d="M146 208 Q 153 202 160 207 Q 167 212 174 206" stroke="#8A4A3A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <!-- hands and envelope -->
+            <g transform="rotate(-6 160 318)">
+              <rect x="96" y="286" width="128" height="80" rx="3" fill="#FFFFFF" stroke="#C9CFD8" stroke-width="2"/>
+              <path d="M96 288 L160 330 L224 288" fill="none" stroke="#C9CFD8" stroke-width="2"/>
+              <rect x="190" y="296" width="22" height="16" fill="#C8281C"/>
+            </g>
+            <ellipse cx="96" cy="318" rx="16" ry="12" fill="#CC9270"/>
+            <ellipse cx="224" cy="312" rx="16" ry="12" fill="#CC9270"/>
+          </g>
+        </svg>
+          </figure>
+          <ul class="doubts">
+            <li>Where does my letter go?</li>
+            <li>Which country? Whose computer?</li>
+            <li>And if that service is down, where does it go next?</li>
+          </ul>
+        </div>
+      </div>
+      <div class="route" role="img" aria-label="Diagram: Ana's letter goes to Apertus in Switzerland. If that host fails, an automatic fallback can send it to another model in Singapore.">
+        <svg viewBox="0 0 440 300" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--red)"/></marker>
+          </defs>
+          <!-- Ana's letter -->
+          <rect x="16" y="112" width="96" height="76" rx="4" fill="var(--slide)" stroke="var(--rule)"/>
+          <text x="64" y="146" text-anchor="middle" font-size="14" font-weight="600">Ana’s</text>
+          <text x="64" y="164" text-anchor="middle" font-size="14" font-weight="600">letter</text>
+          <!-- to CH -->
+          <path d="M112 136 C 170 110, 200 72, 262 66" fill="none" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <rect x="264" y="36" width="160" height="62" rx="4" fill="var(--swiss-soft)" stroke="var(--swiss)"/>
+          <text x="280" y="62" font-size="14" font-weight="600">Apertus</text>
+          <text x="280" y="82" class="sm">SWISS HOST</text>
+          <!-- fail mark -->
+          <g transform="translate(404 42)"><circle r="11" fill="var(--red)"/><path d="M-5 -5L5 5M5 -5L-5 5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></g>
+          <text x="264" y="118" class="sm">HOST DOWN → AUTOMATIC FALLBACK</text>
+          <!-- to SG -->
+          <path d="M112 166 C 170 196, 200 232, 262 236" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+          <rect x="264" y="204" width="160" height="62" rx="4" fill="var(--red-soft)" stroke="var(--red)"/>
+          <text x="280" y="230" font-size="14" font-weight="600">SEA-LION</text>
+          <text x="280" y="250" class="sm">ANOTHER MODEL · SINGAPORE</text>
+          <path d="M344 98 L344 200" fill="none" stroke="var(--red)" stroke-width="1.4" stroke-dasharray="3 4" marker-end="url(#arr)"/>
+        </svg>
+        <p style="font-size:13px;color:var(--muted);margin-top:10px">This fallback is in the Public AI Utility’s own configuration today.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide" aria-label="Slide 4: A service Ana can trust">
+    <div class="eyebrow">What Ana wants</div>
+    <h2>A service she can trust with her letter.</h2>
+    <div class="wants">
+      <div class="want">
+        <div class="k">Stays home</div>
+        <h3><span class="cross" aria-hidden="true"></span>Switzerland only</h3>
+        <p>The social services decide the rule. Her letter never leaves the country, not even when a provider fails.</p>
+      </div>
+      <div class="want">
+        <div class="k">Waits instead</div>
+        <h3>No Swiss service? It waits.</h3>
+        <p>Her letter stays in Switzerland until a Swiss service is back, then completes by itself.</p>
+      </div>
+      <div class="want">
+        <div class="k">Shows its work</div>
+        <h3>She can see where it went</h3>
+        <p>Every place that was tried, every place ruled out before sending, and who answered.</p>
+      </div>
+    </div>
+    <p class="closing">In her language, with Apertus. And with a promise about her data that <em>holds on every retry and every fallback</em>.</p>
+  </section>
+
+</div>
+
+<nav class="nav" aria-label="Slide navigation">
+  
+  <span>← → keys</span>
+  <div class="btns">
+    <button id="prev" type="button">← Back</button>
+    <button id="next" type="button">Next →</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  
+  var prev=document.getElementById('prev'), next=document.getElementById('next');
+  var i=0, step=0;
+  function steps(k){return +(slides[k].getAttribute('data-steps')||0);}
+  function paint(){
+    var s=slides[i], n=steps(i);
+    if(n){
+      s.classList.add('build');
+      [].forEach.call(s.querySelectorAll('mark[data-n]'),function(m){m.classList.toggle('on',+m.getAttribute('data-n')<=step);});
+      [].forEach.call(s.querySelectorAll('.list li'),function(li,k){li.classList.toggle('on',k<step);});
+    }
+    prev.disabled=i===0&&step===0;
+    next.disabled=i===slides.length-1&&step>=n;
+  }
+  function show(n,atEnd){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    step=atEnd?steps(i):0;
+    slides.forEach(function(s,k){s.classList.toggle('active',k===i);});
+    paint();
+  }
+  function fwd(){ if(step<steps(i)){step++;paint();} else if(i<slides.length-1){show(i+1);} }
+  function back(){ if(step>0){step--;paint();} else if(i>0){show(i-1,true);} }
+  prev.addEventListener('click',back);
+  next.addEventListener('click',fwd);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();fwd();}
+    if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();back();}
+  });
+  show(0);
+})();
+</script>
+</body>
+</html>
