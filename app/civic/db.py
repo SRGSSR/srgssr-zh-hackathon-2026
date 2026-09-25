@@ -28,7 +28,10 @@ CREATE TABLE IF NOT EXISTS letters (
     next_retry_at REAL,
     served_by TEXT,
     result_json TEXT,
-    error TEXT
+    error TEXT,
+    service TEXT NOT NULL DEFAULT 'social',   -- which office's rule (and key) applies
+    consent_options TEXT,                      -- places the resident could still agree to (from the gateway)
+    consent_json TEXT                          -- the agreement the resident gave, if any
 );
 CREATE TABLE IF NOT EXISTS app_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,15 +55,19 @@ def init() -> None:
     with _lock, _conn() as c:
         c.execute("PRAGMA journal_mode=WAL")
         c.executescript(SCHEMA)
+        cols = {r["name"] for r in c.execute("PRAGMA table_info(letters)").fetchall()}
+        for col, decl in (("service", "TEXT NOT NULL DEFAULT 'social'"), ("consent_options", "TEXT"), ("consent_json", "TEXT")):
+            if col not in cols:
+                c.execute(f"ALTER TABLE letters ADD COLUMN {col} {decl}")
 
 
-def create(letter: str, language: str) -> str:
+def create(letter: str, language: str, service: str = "social") -> str:
     letter_id = "job-" + uuid.uuid4().hex[:10]
     now = time.time()
     with _lock, _conn() as c:
         c.execute(
-            "INSERT INTO letters (id, created_at, updated_at, status, letter, language) VALUES (?,?,?,?,?,?)",
-            (letter_id, now, now, "queued", letter, language),
+            "INSERT INTO letters (id, created_at, updated_at, status, letter, language, service) VALUES (?,?,?,?,?,?,?)",
+            (letter_id, now, now, "queued", letter, language, service),
         )
     return letter_id
 
@@ -72,13 +79,18 @@ def get(letter_id: str) -> Optional[Dict[str, Any]]:
         return None
     job = dict(r)
     job["gateway_jobs"] = json.loads(job["gateway_jobs"] or "[]")
+    job["consent_options"] = json.loads(job.get("consent_options") or "[]")
+    job["consent"] = json.loads(job["consent_json"]) if job.get("consent_json") else None
     job["result"] = json.loads(job["result_json"]) if job.get("result_json") else None
     return job
 
 
 def update(letter_id: str, **fields: Any) -> None:
-    if "gateway_jobs" in fields:
-        fields["gateway_jobs"] = json.dumps(fields["gateway_jobs"])
+    for k in ("gateway_jobs", "consent_options"):
+        if k in fields:
+            fields[k] = json.dumps(fields[k])
+    if "consent" in fields:
+        fields["consent_json"] = json.dumps(fields.pop("consent")) if fields.get("consent") else None
     fields["updated_at"] = time.time()
     cols = ", ".join(f"{k}=?" for k in fields)
     with _lock, _conn() as c:

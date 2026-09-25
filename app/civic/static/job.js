@@ -81,7 +81,7 @@
     expired: "No Swiss service answered in time",
   };
 
-  function promiseFor(receipt, status) {
+  function promiseFor(receipt, status, service) {
     const ruled = receipt.ruled_out.length;
     const others = ruled === 1 ? "One other service was" : `${ruled} other services were`;
     const ruledText = ruled ? ` ${others} ruled out before anything was sent.` : "";
@@ -94,14 +94,23 @@
         : { lead: "", key: "", rest: "" };
     }
     if (receipt.all_swiss) return { lead: "It went ", key: "only to services in Switzerland", rest: `.${ruledText}${fallback}` };
-    return { lead: "It went to: ", key: "", rest: receipt.sent_to.map((s) => `${s.name} (${s.place || "unknown place"})`).join(", ") + "." };
+    const agreed = receipt.consented || [];
+    const within = receipt.places.filter((p) => !agreed.includes(p));
+    const withinText = within.length ? `services in ${within.join(" and ")}` : "";
+    if (agreed.length) {
+      return {
+        lead: withinText ? `It went to ${withinText} and, because you agreed, ` : "Because you agreed, it went ",
+        key: "", rest: `to a service in ${agreed.join(" and ")}.${ruledText}`,
+      };
+    }
+    return { lead: "It went ", key: `only to ${withinText}`, rest: `, as the rule of the ${service.office.toLowerCase()} allows.${ruledText}${fallback}` };
   }
 
   function renderHeader(data) {
     const status = data.job.status;
     root.dataset.status = status;
     $("[data-title]").textContent = TITLES[status] || "Your letter";
-    const p = promiseFor(data.receipt, status);
+    const p = promiseFor(data.receipt, status, data.service);
     const text = p.lead + p.key + p.rest;
     if (text === promiseText) return;
     promiseText = text;
@@ -128,8 +137,11 @@
     const title = $("[data-pending-title]");
     const text = $("[data-pending-text]");
     actions.hidden = status !== "waiting";
+    const offer = $("[data-consent-offer]");
+    const canAsk = (data.job.consent_options || []).includes("US") && !data.job.consent;
+    offer.hidden = !(status === "waiting" && canAsk);
     if (status === "waiting") {
-      title.textContent = "No Swiss service can answer right now.";
+      title.textContent = data.service.allowed.includes("EU") ? "No service in Switzerland or the EU can answer right now." : "No Swiss service can answer right now.";
       const tick = () => {
         const s = nextAt ? Math.max(0, Math.round(nextAt - Date.now() / 1000)) : 0;
         text.textContent = `Your letter stays here and is not sent anywhere else. ${s > 0 ? `Next try in ${s} seconds.` : "Trying again now."}`;
@@ -187,6 +199,30 @@
       poll();
     });
   });
+  // --- consent: only offered when this office's rule allows it, and only while waiting ----
+  const dialog = $("[data-consent-dialog]");
+  const check = $("[data-consent-check]");
+  const agree = $("[data-consent-agree]");
+  $("[data-consent-open]").addEventListener("click", () => {
+    check.checked = false;
+    agree.disabled = true;
+    dialog.showModal();
+  });
+  check.addEventListener("change", () => { agree.disabled = !check.checked; });
+  dialog.addEventListener("close", async () => {
+    if (dialog.returnValue !== "agree" || !check.checked) return;
+    const statement = [...dialog.querySelectorAll("h2, li, .consent-check")].map((n) => n.textContent.trim()).join(" | ");
+    const response = await fetch(`/api/jobs/${id}/consent`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jurisdictions: ["US"], statement }),
+    });
+    if (!response.ok) {
+      const offer = $("[data-consent-offer]");
+      offer.querySelector("p").textContent = "Your choice could not be recorded, so nothing was sent. The letter keeps waiting.";
+    }
+    poll();
+  });
+
   const copy = $("[data-copy]");
   copy.addEventListener("click", async () => {
     try {

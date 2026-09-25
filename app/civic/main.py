@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from . import db, endpoints, sync, timeline
-from .letters import LANGUAGE_NAMES, SAMPLES, sensitive_topics
+from .letters import LANGUAGE_NAMES, SAMPLES, SERVICES, sensitive_topics
 
 SAMPLES_DIR = Path(os.environ.get("SAMPLES_DIR", "/samples"))
 HERE = Path(__file__).parent
@@ -45,8 +45,8 @@ async def _view(letter_id: str):
     return job, evs
 
 
-async def _create(letter: str, language: str) -> str:
-    letter_id = db.create(letter, language)
+async def _create(letter: str, language: str, service: str = "social") -> str:
+    letter_id = db.create(letter, language, service if service in SERVICES else "social")
     await sync.submit(letter_id)
     return letter_id
 
@@ -58,15 +58,20 @@ async def index(request: Request):
     for j in jobs:
         if j["status"] not in db.TERMINAL:
             j["status"] = (await sync.refresh(j["id"]) or j)["status"]
-    samples = [{"file": f, "sender": SAMPLES.get(f, ("", f))[0], "subject": SAMPLES.get(f, ("", f))[1]} for f in _samples()]
-    return templates.TemplateResponse(request, "index.html", {"languages": LANGUAGE_NAMES, "samples": samples, "jobs": jobs})
+    samples = []
+    for f in _samples():
+        sender, subject, service = SAMPLES.get(f, ("", f, "social"))
+        samples.append({"file": f, "sender": sender, "subject": subject, "service": service})
+    return templates.TemplateResponse(
+        request, "index.html", {"languages": LANGUAGE_NAMES, "samples": samples, "jobs": jobs, "services": SERVICES}
+    )
 
 
 @app.post("/jobs")
-async def create_job_form(letter: str = Form(...), language: str = Form("it")):
+async def create_job_form(letter: str = Form(...), language: str = Form("it"), service: str = Form("social")):
     if not letter.strip():
         raise HTTPException(400, "empty letter")
-    return RedirectResponse(f"/jobs/{await _create(letter.strip(), language)}", status_code=303)
+    return RedirectResponse(f"/jobs/{await _create(letter.strip(), language, service)}", status_code=303)
 
 
 @app.get("/jobs/{letter_id}", response_class=HTMLResponse)
@@ -76,7 +81,8 @@ async def job_page(request: Request, letter_id: str):
         raise HTTPException(404, "job not found")
     return templates.TemplateResponse(
         request, "job.html",
-        {"job": job, "language_name": LANGUAGE_NAMES.get(job["language"], job["language"]), "topics": sensitive_topics(job["letter"])},
+        {"job": job, "language_name": LANGUAGE_NAMES.get(job["language"], job["language"]),
+         "topics": sensitive_topics(job["letter"]), "service": SERVICES.get(job["service"], SERVICES["social"])},
     )
 
 
@@ -85,7 +91,7 @@ async def again_form(letter_id: str):
     job = db.get(letter_id)
     if not job:
         raise HTTPException(404, "job not found")
-    return RedirectResponse(f"/jobs/{await _create(job['letter'], job['language'])}", status_code=303)
+    return RedirectResponse(f"/jobs/{await _create(job['letter'], job['language'], job['service'])}", status_code=303)
 
 
 @app.get("/demo", response_class=HTMLResponse)
@@ -102,6 +108,12 @@ async def demo_set(endpoint_id: str, mode: str):
 @app.post("/demo/break-approved")
 async def demo_break_approved():
     await endpoints.set_mode_many([e["id"] for e in endpoints.load() if e["approved"]], "down")
+    return {"ok": True}
+
+
+@app.post("/demo/break-swiss-eu")
+async def demo_break_swiss_eu():
+    await endpoints.set_mode_many([e["id"] for e in endpoints.load() if e["jurisdiction"] in ("CH", "EU")], "down")
     return {"ok": True}
 
 
@@ -128,11 +140,25 @@ async def sample(name: str):
 class JobIn(BaseModel):
     letter: str
     language: str = "it"
+    service: str = "social"
+
+
+class ConsentIn(BaseModel):
+    jurisdictions: list
+    statement: str
 
 
 @app.post("/api/jobs")
 async def api_create(job: JobIn):
-    return {"id": await _create(job.letter, job.language)}
+    return {"id": await _create(job.letter, job.language, job.service)}
+
+
+@app.post("/api/jobs/{letter_id}/consent")
+async def api_consent(letter_id: str, body: ConsentIn):
+    error = await sync.consent(letter_id, body.jurisdictions, body.statement)
+    if error:
+        raise HTTPException(409, error)
+    return {"ok": True}
 
 
 @app.get("/api/jobs/{letter_id}")
@@ -148,7 +174,9 @@ async def api_journey(letter_id: str):
     job, evs = await _view(letter_id)
     eps = endpoints.by_id()
     return {
-        "job": {k: job.get(k) for k in ("id", "status", "status_reason", "next_retry_at", "result", "language", "served_by", "runs")},
+        "job": {k: job.get(k) for k in ("id", "status", "status_reason", "next_retry_at", "result", "language", "served_by", "runs",
+                                          "service", "consent_options", "consent")},
+        "service": SERVICES.get(job["service"], SERVICES["social"]),
         "served_by_name": (eps.get(job.get("served_by") or "") or {}).get("name"),
         "served_by_kind": (eps.get(job.get("served_by") or "") or {}).get("kind"),
         "receipt": timeline.receipt(evs, eps),

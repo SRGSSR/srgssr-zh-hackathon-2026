@@ -12,7 +12,7 @@ GATEWAY_CONFIG = os.environ.get("GATEWAY_CONFIG", "/config/gateway.yaml")
 # Display only. The gateway enforces the real rule from the key-bound policy.
 DISPLAY_ALLOWED_JURISDICTIONS = os.environ.get("DISPLAY_ALLOWED_JURISDICTIONS", "CH").split(",")
 REQUIRED = ("provider", "country", "jurisdiction")
-PLACES = {"CH": "Switzerland", "US": "the United States", "SG": "Singapore", "PL": "Poland", "DE": "Germany"}
+PLACES = {"CH": "Switzerland", "EU": "the EU", "US": "the United States", "SG": "Singapore", "PL": "Poland", "DE": "Germany"}
 GROUPS = {"swiss-ai/apertus-v1.5-70b": "Apertus", "aisingapore/Qwen-SEA-LION-v4-32B-IT": "SEA-LION, a different model"}
 
 
@@ -37,15 +37,21 @@ def load() -> List[Dict]:
             rule = "approved"
         else:
             rule = f"excluded: jurisdiction {mi['jurisdiction']}"
+        j = mi.get("jurisdiction")
         if missing:
-            why = "Never used: its location is unknown"
-        elif rule == "approved":
-            why = f"Allowed: in {place(mi['jurisdiction'])}"
+            why, reach = "Never used: its location is unknown", "never"
+        elif j == "CH":
+            why, reach = "In Switzerland: allowed by every rule", "all"
+        elif j == "EU":
+            why, reach = "In the EU: school and other offices only", "some"
+        elif j == "US":
+            why, reach = "In the United States: only if a resident agrees", "consent"
         else:
-            why = f"Never used: it is in {place(mi['jurisdiction']) or mi['jurisdiction']}"
+            why, reach = f"Never used: it is in {place(j) or j}", "never"
         out.append(
             {
                 "why": why,
+                "reach": reach,
                 "id": mi.get("id"),
                 "label": mi.get("label", mi.get("id")),
                 "name": mi.get("display_name") or mi.get("id"),

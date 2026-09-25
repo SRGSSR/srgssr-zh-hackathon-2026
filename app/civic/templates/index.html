@@ -14,6 +14,12 @@
       </label>
       <div class="form-row">
         <label class="lang">
+          <span>The letter is from</span>
+          <select name="service" data-service>
+            {% for key, s in services.items() %}<option value="{{ key }}">{{ s.office }}</option>{% endfor %}
+          </select>
+        </label>
+        <label class="lang">
           <span>Explain it to me in</span>
           <select name="language">
             {% for code, name in languages.items() %}<option value="{{ code }}" {% if code == 'it' %}selected{% endif %}>{{ name }}</option>{% endfor %}
@@ -31,7 +37,7 @@
       <h2 id="examples-title">Try an example</h2>
       <ul class="examples">
         {% for s in samples %}
-        <li><button type="button" class="example" data-sample="{{ s.file }}">
+        <li><button type="button" class="example" data-sample="{{ s.file }}" data-sample-service="{{ s.service }}">
           <span class="example-from">{{ s.sender }}</span>
           <span class="example-subject">{{ s.subject }}</span>
         </button></li>
@@ -42,8 +48,12 @@
 
     <section class="promise" aria-labelledby="promise-title">
       <h2 id="promise-title">Our promise about your letter</h2>
-      <p class="promise-note"><span data-promise-key>Only services in Switzerland</span> read your letter. If none is available, it waits here, safely, until one is.</p>
-      <p class="promise-sign">Gemeinde Musterstadt</p>
+      {% for key, s in services.items() %}
+      <div class="promise-variant" data-promise-for="{{ key }}" {% if not loop.first %}hidden{% endif %}>
+        <p class="promise-note"><span data-promise-key>{{ s.promise_key }}</span>{{ s.promise_rest }}</p>
+        <p class="promise-sign">Gemeinde Musterstadt, {{ s.office | lower if key != 'info' else 'all other offices' }}</p>
+      </div>
+      {% endfor %}
       <p class="promise-why">Letters from the social services talk about your support, your health and your children. The law protects this information more strongly than almost anything else, and the people who help you at the counter are bound by official secrecy.</p>
     </section>
 

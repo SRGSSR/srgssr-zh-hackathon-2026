@@ -27,6 +27,10 @@ services:
     <<: *endpoint
     environment: { <<: *endpoint-env, NAME: mock-ch-2 }
     ports: ["127.0.0.1:9102:8000"]
+  ep-eu-1:
+    <<: *endpoint
+    environment: { <<: *endpoint-env, NAME: mock-eu-1 }
+    ports: ["127.0.0.1:9106:8000"]
   ep-us-1:
     <<: *endpoint
     environment: { <<: *endpoint-env, NAME: mock-us-1 }
@@ -47,6 +51,8 @@ services:
     environment:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-master-local-only}
       MUSTERSTADT_API_KEY: ${MUSTERSTADT_API_KEY:-sk-musterstadt-demo}
+      MUSTERSTADT_SCHOOL_API_KEY: ${MUSTERSTADT_SCHOOL_API_KEY:-sk-musterstadt-school-demo}
+      MUSTERSTADT_INFO_API_KEY: ${MUSTERSTADT_INFO_API_KEY:-sk-musterstadt-info-demo}
       NOPOLICY_API_KEY: ${NOPOLICY_API_KEY:-sk-nopolicy-test}
       DEFERRED_RETRY_MAX_SECONDS: ${RETRY_MAX_SECONDS:-20}
       # LiteLLM caches DNS answers for 300 s by default. When endpoint containers are recreated,
@@ -58,7 +64,7 @@ services:
       # The gateway's local store: deferred requests wait here (authorized environment).
       - gateway-data:/data
     ports: ["127.0.0.1:4000:4000"]
-    depends_on: [ep-publicai, ep-ch-1, ep-ch-2, ep-us-1, ep-nometa, ep-sg-1]
+    depends_on: [ep-publicai, ep-ch-1, ep-ch-2, ep-eu-1, ep-us-1, ep-nometa, ep-sg-1]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:4000/health/liveliness')"]
       interval: 3s
@@ -72,6 +78,8 @@ services:
     environment:
       GATEWAY_URL: http://gateway:4000
       GATEWAY_API_KEY: ${MUSTERSTADT_API_KEY:-sk-musterstadt-demo}
+      GATEWAY_API_KEY_SCHOOL: ${MUSTERSTADT_SCHOOL_API_KEY:-sk-musterstadt-school-demo}
+      GATEWAY_API_KEY_INFO: ${MUSTERSTADT_INFO_API_KEY:-sk-musterstadt-info-demo}
       GATEWAY_MODEL: swiss-ai/apertus-v1.5-70b
       GATEWAY_CONFIG: /config/config.yaml
       DB_PATH: /data/app.db
@@ -92,6 +100,8 @@ services:
       GATEWAY_URL: http://gateway:4000
       APP_URL: http://app:8080
       MUSTERSTADT_API_KEY: ${MUSTERSTADT_API_KEY:-sk-musterstadt-demo}
+      MUSTERSTADT_SCHOOL_API_KEY: ${MUSTERSTADT_SCHOOL_API_KEY:-sk-musterstadt-school-demo}
+      MUSTERSTADT_INFO_API_KEY: ${MUSTERSTADT_INFO_API_KEY:-sk-musterstadt-info-demo}
       NOPOLICY_API_KEY: ${NOPOLICY_API_KEY:-sk-nopolicy-test}
       GATEWAY_CONFIG: /config/config.yaml
     volumes:

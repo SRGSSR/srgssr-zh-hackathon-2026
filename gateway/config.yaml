@@ -86,6 +86,24 @@ model_list:
       priority: 0
       control_url: http://ep-us-1:8000
 
+  # Inside the EU: allowed only by rules that accept the EU (e.g. the school's "CH, then EU").
+  - model_name: swiss-ai/apertus-v1.5-70b
+    litellm_params:
+      model: openai/apertus-sim
+      api_base: http://ep-eu-1:8000/v1
+      api_key: sk-mock-eu-1
+      timeout: 6
+    model_info:
+      id: mock-eu-1
+      display_name: EU host
+      label: EU host (simulated)
+      provider: Mock provider EU-1
+      country: DE
+      jurisdiction: EU
+      endpoint_kind: simulated
+      priority: 5
+      control_url: http://ep-eu-1:8000
+
   # A deployment someone added without jurisdiction metadata: must be excluded (fail closed).
   - model_name: swiss-ai/apertus-v1.5-70b
     litellm_params:
@@ -122,6 +140,9 @@ model_list:
 
 router_settings:
   routing_strategy: simple-shuffle
+  # One run tries at most num_retries + 1 deployments. 4 covers every deployment a rule can allow
+  # here (Public AI, 2 Swiss hosts, the EU host, and the US host after consent). More retries only
+  # add backoff sleeps on fallback groups that have nothing allowed, which delays "waiting".
   num_retries: 4
   retry_after: 0
   # Cooldowns would hide failed endpoints from the timeline and make recovery slow in the demo.

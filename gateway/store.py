@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS jobs (
     client_metadata_json TEXT,
     result_json TEXT,
     served_by TEXT,
-    error TEXT
+    error TEXT,
+    consent_json TEXT             -- a resident's recorded agreement to widen the rule for this job only
 );
 CREATE INDEX IF NOT EXISTS jobs_due ON jobs(status, next_retry_at);
 CREATE INDEX IF NOT EXISTS jobs_owner ON jobs(owner, created_at);
@@ -67,6 +68,9 @@ def init() -> None:
     with _lock, _conn() as c:
         c.execute("PRAGMA journal_mode=WAL")
         c.executescript(SCHEMA)
+        cols = {r["name"] for r in c.execute("PRAGMA table_info(jobs)").fetchall()}
+        if "consent_json" not in cols:  # stores created before consent existed
+            c.execute("ALTER TABLE jobs ADD COLUMN consent_json TEXT")
 
 
 def create_job(job_id: str, owner: str, key_alias: Optional[str], team_id: Optional[str],

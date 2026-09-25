@@ -16,6 +16,7 @@ communes:
       - /v1/deferred/events
       - /v1/deferred/retry
       - /v1/deferred/cancel
+      - /v1/deferred/consent
     routing_policy:
       id: CH-only
       description: >-
@@ -23,6 +24,37 @@ communes:
         Endpoints with missing metadata are excluded. Applies to every attempt,
         including retries and fallbacks.
       allowed_jurisdictions: ["CH"]
+
+  # The school: Switzerland first; if no Swiss service can answer, services in the EU.
+  - key_env: MUSTERSTADT_SCHOOL_API_KEY
+    key_alias: musterstadt-school
+    team_id: musterstadt-school
+    team_alias: Gemeinde Musterstadt, school
+    models: ["swiss-ai/apertus-v1.5-70b"]
+    allowed_routes: *commune_routes
+    routing_policy:
+      id: CH-then-EU
+      description: >-
+        Services in Switzerland first. If none can answer, services in the EU, which Swiss
+        data protection law treats as adequately protected. Never anywhere else.
+      allowed_jurisdictions: ["CH", "EU"]
+      prefer: ["CH", "EU"]
+
+  # The information desk: CH and EU; anywhere else only if the resident agrees, letter by letter.
+  - key_env: MUSTERSTADT_INFO_API_KEY
+    key_alias: musterstadt-info-desk
+    team_id: musterstadt-info-desk
+    team_alias: Gemeinde Musterstadt, information desk
+    models: ["swiss-ai/apertus-v1.5-70b"]
+    allowed_routes: *commune_routes
+    routing_policy:
+      id: CH-EU-then-consent
+      description: >-
+        Services in Switzerland first, then in the EU. A service elsewhere is used only if the
+        resident explicitly agrees, for that one letter, and the agreement is recorded.
+      allowed_jurisdictions: ["CH", "EU"]
+      prefer: ["CH", "EU", "US"]
+      consent_can_add: ["US"]
 
   # Test-only key without a routing policy: every request must be rejected (fail closed).
   - key_env: NOPOLICY_API_KEY

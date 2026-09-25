@@ -15,7 +15,7 @@ async def submit(letter_id: str) -> None:
     in the app and is handed over on the next read."""
     job = db.get(letter_id)
     try:
-        g = await gateway.submit(build_messages(job["letter"], job["language"]), {"app_letter_id": letter_id})
+        g = await gateway.submit(job["service"], build_messages(job["letter"], job["language"]), {"app_letter_id": letter_id})
     except gateway.GatewayUnreachable as e:
         db.update(letter_id, status="queued", status_reason="The gateway is not reachable; your letter is kept here.", error=str(e))
         return
@@ -38,7 +38,7 @@ async def refresh(letter_id: str) -> Optional[dict]:
             await submit(letter_id)
             return db.get(letter_id)
         try:
-            g = await gateway.job(job["gateway_jobs"][-1])
+            g = await gateway.job(job["service"], job["gateway_jobs"][-1])
         except gateway.GatewayUnreachable:
             return job  # nothing changes for the letter; the gateway still holds the job
         except gateway.GatewayRejected as e:
@@ -46,9 +46,11 @@ async def refresh(letter_id: str) -> Optional[dict]:
             return db.get(letter_id)
 
         status = g["status"]
+        rule = g.get("rule") or {}
+        consent_fields = {"consent_options": rule.get("can_ask_consent_for") or [], "consent": g.get("consent")}
         if status != "done":
             db.update(letter_id, status=status, status_reason=g.get("status_reason"), runs=g.get("runs", 0),
-                      next_retry_at=g.get("next_retry_at"), error=g.get("error"))
+                      next_retry_at=g.get("next_retry_at"), error=g.get("error"), **consent_fields)
             return db.get(letter_id)
 
         content = content_of(g)
@@ -58,7 +60,7 @@ async def refresh(letter_id: str) -> Optional[dict]:
             if job["validation_retries"] == 0:
                 db.add_event(letter_id, {"type": "output_invalid_retrying", "error": str(e), "deployment_id": g.get("served_by")})
                 try:
-                    g2 = await gateway.submit(correction_messages(job["letter"], job["language"], content, str(e)),
+                    g2 = await gateway.submit(job["service"], correction_messages(job["letter"], job["language"], content, str(e)),
                                               {"app_letter_id": letter_id, "validation_retry": True})
                 except (gateway.GatewayUnreachable, gateway.GatewayRejected) as ex:
                     db.update(letter_id, status="failed", status_reason="Could not ask the model again.", error=str(ex))
@@ -70,7 +72,7 @@ async def refresh(letter_id: str) -> Optional[dict]:
             return db.get(letter_id)
 
         db.update(letter_id, status="done", status_reason=None, error=None, served_by=g.get("served_by"),
-                  result_json=result.model_dump_json(), runs=g.get("runs", 0), next_retry_at=None)
+                  result_json=result.model_dump_json(), runs=g.get("runs", 0), next_retry_at=None, **consent_fields)
         return db.get(letter_id)
 
 
@@ -81,7 +83,7 @@ async def events(letter_id: str) -> List[dict]:
     out += db.events(letter_id)
     for gid in job["gateway_jobs"]:
         try:
-            out += [{**e, "_source": "gateway", "gateway_job": gid} for e in await gateway.events(gid)]
+            out += [{**e, "_source": "gateway", "gateway_job": gid} for e in await gateway.events(job["service"], gid)]
         except (gateway.GatewayUnreachable, gateway.GatewayRejected):
             out.append({"type": "gateway_unreachable", "ts": job["updated_at"], "gateway_job": gid, "_source": "app"})
     return sorted(out, key=lambda e: e.get("ts") or 0)
@@ -91,9 +93,24 @@ async def wake(letter_id: str) -> None:
     job = db.get(letter_id)
     if job and job["gateway_jobs"] and job["status"] == "waiting":
         try:
-            await gateway.retry(job["gateway_jobs"][-1])
+            await gateway.retry(job["service"], job["gateway_jobs"][-1])
         except (gateway.GatewayUnreachable, gateway.GatewayRejected):
             pass
+
+
+async def consent(letter_id: str, jurisdictions: List[str], statement: str) -> Optional[str]:
+    """Pass the resident's explicit agreement to the gateway. Returns an error text, or None."""
+    job = db.get(letter_id)
+    if not job or not job["gateway_jobs"] or job["status"] != "waiting":
+        return "The letter is not waiting any more."
+    try:
+        g = await gateway.consent(job["service"], job["gateway_jobs"][-1], jurisdictions, statement)
+    except gateway.GatewayRejected as e:
+        return str(e)
+    except gateway.GatewayUnreachable:
+        return "The gateway could not be reached. Nothing was changed."
+    db.update(letter_id, consent=g.get("consent"), consent_options=(g.get("rule") or {}).get("can_ask_consent_for") or [])
+    return None
 
 
 async def cancel(letter_id: str) -> None:
@@ -102,7 +119,7 @@ async def cancel(letter_id: str) -> None:
         return
     if job["gateway_jobs"]:
         try:
-            await gateway.cancel(job["gateway_jobs"][-1])
+            await gateway.cancel(job["service"], job["gateway_jobs"][-1])
         except (gateway.GatewayUnreachable, gateway.GatewayRejected):
             pass
     else:

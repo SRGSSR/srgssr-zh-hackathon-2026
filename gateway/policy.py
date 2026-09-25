@@ -332,7 +332,11 @@ class CommunePolicy(CustomLogger):
             if e["allowed"]:
                 candidates.append((e.get("priority", 100), e["deployment_id"], d))
 
-        candidates.sort(key=lambda c: (c[0], str(c[1])))
+        # Jurisdictions the rule prefers come first (e.g. CH before EU); priority breaks ties.
+        prefer = (policy or {}).get("prefer") or []
+        rank = {d_id: (prefer.index(e["jurisdiction"]) if e.get("jurisdiction") in prefer else len(prefer))
+                for e in evaluated for d_id in [e["deployment_id"]]}
+        candidates.sort(key=lambda c: (rank.get(c[1], 99), c[0], str(c[1])))
         chosen = candidates[0][2] if candidates else None
         chosen_id = _mi(chosen).get("id") if chosen else None
         for e in evaluated:

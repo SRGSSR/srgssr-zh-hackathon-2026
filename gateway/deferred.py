@@ -10,6 +10,9 @@ On import it adds these routes to the proxy's FastAPI app and starts a backgroun
     GET  /v1/deferred/events?id=...      the job's timeline (routing decisions, sends, outcomes)
     POST /v1/deferred/retry  {"id"}      try a waiting job now
     POST /v1/deferred/cancel {"id"}      cancel it (its request body is deleted)
+    POST /v1/deferred/consent {"id", "jurisdictions", "statement"}
+                                         record a resident's agreement to widen the rule for this
+                                         one job; only if the key's rule allows it (consent_can_add)
 
 Paths are fixed strings (ids go in the query or body) because LiteLLM's allowed_routes matches
 exact paths. Every route uses LiteLLM's normal key authentication; a job is visible only to the
@@ -92,8 +95,30 @@ def _retryable(exc: Exception) -> bool:
     return getattr(exc, "status_code", None) not in (400, 404, 422)
 
 
+def _job_policy(job: dict) -> dict:
+    auth = json.loads(job["auth_json"])
+    return pick_policy(auth.get("metadata") or {}, auth.get("team_metadata") or {}) or {}
+
+
+def _consent(job: dict) -> dict:
+    return json.loads(job["consent_json"]) if job.get("consent_json") else {}
+
+
+def effective_policy(job: dict) -> dict:
+    """The key's rule, widened only by what the resident agreed to for this job, and only
+    within what the rule itself allows (consent_can_add). Built server side."""
+    policy = dict(_job_policy(job))
+    extra = [j for j in _consent(job).get("jurisdictions", []) if j in (policy.get("consent_can_add") or [])]
+    if extra:
+        policy["allowed_jurisdictions"] = list(policy.get("allowed_jurisdictions") or []) + extra
+        policy["consented"] = extra
+    return policy
+
+
 def _public(job: dict) -> dict:
     result = json.loads(job["result_json"]) if job.get("result_json") else None
+    policy = _job_policy(job)
+    consent = _consent(job)
     return {
         "id": job["id"],
         "object": "deferred.chat.completion",
@@ -109,6 +134,9 @@ def _public(job: dict) -> dict:
         "result": result,
         "metadata": json.loads(job.get("client_metadata_json") or "{}"),
         "error": (job.get("error") or "")[:500] or None,
+        "rule": {"id": policy.get("id"), "allowed_jurisdictions": policy.get("allowed_jurisdictions"),
+                 "can_ask_consent_for": [j for j in (policy.get("consent_can_add") or []) if j not in consent.get("jurisdictions", [])]},
+        "consent": consent or None,
     }
 
 
@@ -181,6 +209,23 @@ async def retry(request: Request, auth: UserAPIKeyAuth = Depends(user_api_key_au
     return _public(store.get_job(job["id"]))
 
 
+@router.post("/v1/deferred/consent")
+async def consent(request: Request, auth: UserAPIKeyAuth = Depends(user_api_key_auth)):
+    body = await request.json()
+    job = _own_job(body.get("id"), auth)
+    wanted = [j for j in body.get("jurisdictions") or [] if isinstance(j, str)]
+    allowed = _job_policy(job).get("consent_can_add") or []
+    if not wanted or any(j not in allowed for j in wanted):
+        raise HTTPException(status_code=400, detail="this service's rule does not allow sending the letter there, even with consent")
+    if job["status"] != "waiting":
+        raise HTTPException(status_code=409, detail="consent can only be given while the letter is waiting")
+    record = {"jurisdictions": wanted, "statement": str(body.get("statement") or "")[:1000], "at": time.time(),
+              "key_alias": auth.key_alias}
+    if store.transition(job["id"], ("waiting",), consent_json=json.dumps(record), next_retry_at=None):
+        _event(job["id"], type="consent_given", jurisdictions=wanted, statement=record["statement"])
+    return _public(store.get_job(job["id"]))
+
+
 @router.post("/v1/deferred/cancel")
 async def cancel(request: Request, auth: UserAPIKeyAuth = Depends(user_api_key_auth)):
     job = _own_job((await request.json()).get("id"), auth)
@@ -204,10 +249,12 @@ async def _run(job_id: str) -> None:
 
     auth = json.loads(job["auth_json"])
     request_body = json.loads(job["request_json"])
-    # Server-side metadata only: the same fields the proxy attaches to a normal request.
+    rule = effective_policy(job)
+    # Server-side metadata only: the same fields the proxy attaches to a normal request, with
+    # the rule widened only by this job's recorded consent (if any).
     md = {
-        "user_api_key_metadata": auth.get("metadata") or {},
-        "user_api_key_team_metadata": auth.get("team_metadata") or {},
+        "user_api_key_metadata": {**(auth.get("metadata") or {}), "routing_policy": rule},
+        "user_api_key_team_metadata": {**(auth.get("team_metadata") or {}), "routing_policy": rule},
         "user_api_key_alias": auth.get("key_alias"),
         "user_api_key_team_id": auth.get("team_id"),
         "deferred_job_id": job_id,

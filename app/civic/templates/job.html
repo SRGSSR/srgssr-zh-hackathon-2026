@@ -6,6 +6,7 @@
   <header class="job-head">
     <div class="job-head-text">
       <h1 class="job-title" data-title aria-live="polite">Reading your letter</h1>
+      <p class="job-rule">Rule of the {{ service.office | lower if job.service != 'info' else 'office that wrote the letter' }}: {{ service.rule }}.</p>
       <p class="job-promise" data-promise></p>
       {% if topics %}
       <p class="job-topics">This letter mentions {{ topics | join(', ') }}. The law protects this kind of information strongly, which is why your commune keeps it in Switzerland.</p>
@@ -25,7 +26,29 @@
           <button type="button" class="btn-quiet" data-action="wake">Try again now</button>
           <button type="button" class="btn-quiet" data-action="cancel">Cancel</button>
         </div>
+        <div class="consent-offer" data-consent-offer hidden>
+          <p><strong>You can also choose not to wait.</strong> This office allows your letter to go to a service in the United States, but only if you agree. Waiting in Switzerland is the safer choice.</p>
+          <button type="button" class="btn-quiet" data-consent-open>Send it to the United States instead…</button>
+        </div>
       </div>
+
+      <dialog class="consent" data-consent-dialog aria-labelledby="consent-title">
+        <form method="dialog" class="consent-form">
+          <h2 id="consent-title">Send this letter to a service in the United States?</h2>
+          <p>No service in Switzerland or the EU can answer right now. If you agree:</p>
+          <ul>
+            <li>a service in the United States receives <strong>your whole letter</strong>, including your name, your address and any numbers in it;</li>
+            <li>Swiss data protection law does not apply there in the same way, and authorities there may be able to access it;</li>
+            <li>this cannot be undone once it is sent. It applies to this letter only.</li>
+          </ul>
+          <p>Your choice is recorded in the journey of your letter.</p>
+          <label class="consent-check"><input type="checkbox" data-consent-check> I understand and I agree for this letter.</label>
+          <div class="consent-actions">
+            <button value="wait" class="btn-primary" autofocus>Keep waiting in Switzerland</button>
+            <button value="agree" class="btn-quiet danger" data-consent-agree disabled>Send it to the United States</button>
+          </div>
+        </form>
+      </dialog>
 
       <div class="answer" data-answer hidden>
         <section class="answer-part">

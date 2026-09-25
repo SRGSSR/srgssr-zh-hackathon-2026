@@ -26,7 +26,7 @@
 
   function row(ep) {
     const node = document.createElement("div");
-    node.className = `ep ${ep.approved ? "ep--allowed" : "ep--excluded"}`;
+    node.className = `ep ep--${ep.reach || (ep.approved ? "all" : "never")}`;
     node.dataset.id = ep.id;
     node.innerHTML = `
       <div class="ep-name"></div>

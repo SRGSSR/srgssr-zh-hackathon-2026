@@ -31,11 +31,21 @@ def _ruled_out_item(ev: Dict, eps: Dict) -> Dict:
     return {"id": ev.get("deployment_id"), "name": _name(ev.get("deployment_id"), eps), "reason": _reason(ev)}
 
 
+RULE_TEXT = {
+    "CH-only": "Only services in Switzerland may read your letter. Services whose location is unknown are never used.",
+    "CH-then-EU": "Services in Switzerland first. If none can answer, services in the EU. Never anywhere else.",
+    "CH-EU-then-consent": "Services in Switzerland first, then in the EU. Anywhere else only if you agree, for this letter.",
+}
+WAITING_FOR = {"CH-only": "a Swiss service", "CH-then-EU": "a service in Switzerland or the EU",
+               "CH-EU-then-consent": "a service in Switzerland or the EU"}
+
+
 def journey(events: List[Dict], eps: Dict) -> List[Dict]:
     stops: List[Dict] = []
     finished_by = {e.get("deployment_id") for e in events if e.get("type") == "job_done"}
     shown_ruled_out, shown_fallbacks = set(), set()
     primary_group, last_empty_group = None, None
+    policy_id, consented = "CH-only", set()
     pending: List[Dict] = []
 
     for e in events:
@@ -54,9 +64,14 @@ def journey(events: List[Dict], eps: Dict) -> List[Dict]:
             add("gateway", "calm", "Handed to the commune's gateway",
                 "The gateway keeps it until a service allowed by the rule can answer.", f"deferred job {e.get('gateway_job')}")
         elif t == "request_accepted":
-            add("rule", "calm", "Your commune's rule applies",
-                "Only services in Switzerland may read your letter. Services whose location is unknown are never used.",
+            policy_id = e.get("policy_id") or policy_id
+            add("rule", "calm", "Your commune's rule applies", RULE_TEXT.get(policy_id, e.get("rule") or ""),
                 f"policy {e.get('policy_id')}, bound to the key {e.get('key_alias')}")
+        elif t == "consent_given":
+            consented.update(e.get("jurisdictions") or [])
+            where = " and ".join(place(j) or j for j in e.get("jurisdictions") or [])
+            add("consent", "wait", f"You agreed to send this letter to a service in {where}",
+                "For this letter only. Your agreement is recorded here.", (e.get("statement") or "")[:200])
         elif t == "routing_decision":
             group = e.get("model_group")
             primary_group = primary_group or group
@@ -79,12 +94,15 @@ def journey(events: List[Dict], eps: Dict) -> List[Dict]:
                 if last_empty_group == group:
                     continue
                 last_empty_group = group
-                add("empty", "warn", "Every Swiss service has been tried", "None of them could answer just now.",
+                add("empty", "warn", "Every Swiss service has been tried" if policy_id == "CH-only"
+                    else "Every service the rule allows has been tried", "None of them could answer just now.",
                     f"no allowed deployment left in {group}")
         elif t == "dispatch":
             dep = eps.get(e.get("deployment_id") or "", {})
             where = place(dep.get("jurisdiction") or e.get("jurisdiction"))
             kind = "A real service." if (e.get("endpoint_kind") or dep.get("kind")) == "real" else "A simulated service for this demo."
+            if (dep.get("jurisdiction") or e.get("jurisdiction")) in consented:
+                kind = "You agreed to this. " + kind
             add("sent", "send", f"Sent to {_name(e.get('deployment_id'), eps)}",
                 f"In {where}. {kind}" if where else kind,
                 f"{e.get('deployment_id')} at {e.get('api_base')}", pending)
@@ -109,7 +127,7 @@ def journey(events: List[Dict], eps: Dict) -> List[Dict]:
             elif outcome == "error":
                 add("problem", "warn", f"{name} did not work", "It received the request and answered with an error.", tech)
         elif t == "job_waiting":
-            add("waiting", "wait", "Waiting for a Swiss service",
+            add("waiting", "wait", f"Waiting for {WAITING_FOR.get(policy_id, 'an allowed service')}",
                 f"Your letter stays here, in Switzerland, and is not sent anywhere else. Next try in {int(e.get('retry_in_s', 0))} seconds.",
                 (e.get("gateway_error") or "")[:160])
         elif t in ("job_started", "job_resumed"):
@@ -143,7 +161,7 @@ def journey(events: List[Dict], eps: Dict) -> List[Dict]:
 
 def receipt(events: List[Dict], eps: Dict) -> Dict:
     """What happened to the letter, in one place: where it went and what was ruled out."""
-    sent, ruled, fallbacks, timeouts = [], {}, {}, []
+    sent, ruled, fallbacks, timeouts, consented = [], {}, {}, [], []
     primary = None
     for e in events:
         t = e.get("type")
@@ -158,11 +176,15 @@ def receipt(events: List[Dict], eps: Dict) -> Dict:
                         fallbacks.setdefault(e.get("model_group"), set()).add(place(ev.get("jurisdiction")) or "an unknown place")
         elif t == "attempt_result" and e.get("outcome") == "timeout" and e.get("deployment_id") not in timeouts:
             timeouts.append(e.get("deployment_id"))
+        elif t == "consent_given":
+            consented += [place(j) or j for j in e.get("jurisdictions") or [] if (place(j) or j) not in consented]
     sent_to = [{"id": i, "name": _name(i, eps), "place": place((eps.get(i) or {}).get("jurisdiction")),
                 "kind": (eps.get(i) or {}).get("kind")} for i in sent if i]
     return {
         "sent_to": sent_to,
         "all_swiss": bool(sent_to) and all(s["place"] == "Switzerland" for s in sent_to),
+        "places": list(dict.fromkeys(s["place"] or "an unknown place" for s in sent_to)),
+        "consented": consented,
         "ruled_out": list(ruled.values()),
         "fallbacks_blocked": [{"group": GROUPS.get(g, g), "places": sorted(p)} for g, p in fallbacks.items()],
         "timeouts": [_name(i, eps) for i in timeouts],

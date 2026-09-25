@@ -7,14 +7,17 @@ import yaml
 
 GATEWAY_URL = os.environ.get("GATEWAY_URL", "http://localhost:4000")
 APP_URL = os.environ.get("APP_URL", "http://localhost:8080")
-KEY = os.environ.get("MUSTERSTADT_API_KEY", "sk-musterstadt-demo")
+KEY = os.environ.get("MUSTERSTADT_API_KEY", "sk-musterstadt-demo")  # social services: CH-only
+KEY_SCHOOL = os.environ.get("MUSTERSTADT_SCHOOL_API_KEY", "sk-musterstadt-school-demo")  # CH, then EU
+KEY_INFO = os.environ.get("MUSTERSTADT_INFO_API_KEY", "sk-musterstadt-info-demo")  # CH + EU, US only with consent
+ALL_KEYS = (KEY, KEY_SCHOOL, KEY_INFO)
 NOPOLICY_KEY = os.environ.get("NOPOLICY_API_KEY", "sk-nopolicy-test")
 GATEWAY_CONFIG = os.environ.get("GATEWAY_CONFIG", os.path.join(os.path.dirname(__file__), "..", "gateway", "config.yaml"))
 GROUP = "swiss-ai/apertus-v1.5-70b"
 FALLBACK_GROUP = "aisingapore/Qwen-SEA-LION-v4-32B-IT"
 
 APPROVED = ["publicai-apertus", "mock-ch-1", "mock-ch-2"]
-DISALLOWED = ["mock-us-1", "mock-nometa", "mock-sg-1"]
+DISALLOWED = ["mock-us-1", "mock-nometa", "mock-sg-1", "mock-eu-1"]  # under the CH-only rule
 
 LETTER = (
     "Gemeinde Musterstadt, Finanzverwaltung\n"
@@ -66,8 +69,8 @@ class Bench:
         )
 
     # --- app
-    def create_job(self, letter=LETTER, language="it") -> str:
-        r = self.http.post(f"{APP_URL}/api/jobs", json={"letter": letter, "language": language})
+    def create_job(self, letter=LETTER, language="it", service="social") -> str:
+        r = self.http.post(f"{APP_URL}/api/jobs", json={"letter": letter, "language": language, "service": service})
         r.raise_for_status()
         return r.json()["id"]
 
@@ -99,10 +102,10 @@ class Bench:
     def deferred_job(self, job_id, key=KEY):
         return self.deferred("GET", "jobs", key=key, params={"id": job_id})
 
-    def deferred_wait(self, job_id, statuses, timeout=90):
+    def deferred_wait(self, job_id, statuses, timeout=90, key=KEY):
         deadline = time.time() + timeout
         while time.time() < deadline:
-            j = self.deferred_job(job_id).json()
+            j = self.deferred_job(job_id, key=key).json()
             if j["status"] in statuses:
                 return j
             time.sleep(0.5)
@@ -112,11 +115,12 @@ class Bench:
         """Cancel every unfinished deferred job of the commune key and wait until none is in flight,
         so a job from one test never reaches an endpoint during the next test."""
         pending = "queued,running,waiting"
-        for j in self.deferred("GET", "jobs", params={"status": pending, "limit": 200}).json()["data"]:
-            self.deferred("POST", "cancel", json={"id": j["id"]})
+        for key in ALL_KEYS:
+            for j in self.deferred("GET", "jobs", key=key, params={"status": pending, "limit": 200}).json()["data"]:
+                self.deferred("POST", "cancel", key=key, json={"id": j["id"]})
         deadline = time.time() + 45
         while time.time() < deadline:
-            recent = self.deferred("GET", "jobs", params={"limit": 200}).json()["data"]
+            recent = [j for key in ALL_KEYS for j in self.deferred("GET", "jobs", key=key, params={"limit": 200}).json()["data"]]
             if not any(j["inflight"] for j in recent):
                 return
             time.sleep(0.5)
